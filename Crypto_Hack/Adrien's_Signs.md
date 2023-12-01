@@ -14,7 +14,7 @@ Challenge files:
 
 ---
 
-Khi thử tính tiêu chuẩn euler với a trong mod p thì thấy thỏa mãn vậy a là thặng dư bậc 2 trong p. từ đó mọi a^e đều là thặng dư bậc 2 trong p, nhưng -a^p lại không phải là thặng dư bậc 2. Từ đó tính thặng dư bậc 2 cho các phần tử nếu phần tử nào là non-residue thì cho = 0 residue thì trả về 1 là ta có dc dạng bin của flag.
+Khi thử tính tiêu chuẩn euler với a trong mod p thì thấy thỏa mãn vậy a là thặng dư bậc 2 trong p. Từ đó mọi a^e đều là thặng dư bậc 2 trong p, nhưng -a^p lại không phải là thặng dư bậc 2. Từ đó tính thặng dư bậc 2 cho các phần tử nếu phần tử nào là non-residue thì cho = 0 residue thì trả về 1 là ta có dc dạng bin của flag.
 Tiếp theo ta lấy 8 phần tử liên tiếp tạo thành 1 ký tự từ đó có dc flag.
 
 Chú ý: a^( ( p - 1 ) // 2 ) == 1 thì a^( ( p - 1 ) //2 * e) == 1 và -a^( ( p - 1 ) // 2 ) != 1
