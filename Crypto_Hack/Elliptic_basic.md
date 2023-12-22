@@ -8,8 +8,11 @@ The constants a,b must satisfy the relationship: 4a3 + 27 b2 ≠ 0
 P(x1, y1), Q(x2, y2), R(x3, y3) are points in elliptic 
 
 P + O = P
+
 (P) + (-P) = 0
+
 P + (Q + R) = (P + Q) + R
+
 P + Q + R = R + P + Q
 
 So what is point addition, it is a line, which intersecs Q, P and cut one point in elliptic.
