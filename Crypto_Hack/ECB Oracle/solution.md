@@ -10,3 +10,6 @@ Play at [https://aes.cryptohack.org/ecb_oracle](https://aes.cryptohack.org/ecb_o
 ---
 
 AES ECB (Electronic CodeBook) mode la
+
+
+> crypto{p3n6u1n5_h473_3cb}
