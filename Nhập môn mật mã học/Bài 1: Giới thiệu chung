@@ -7,10 +7,12 @@ Phần đầu toàn là các mã hóa cổ điển như sau:
   + Hệ mật hoán vị
   + Một số mã khóa khác
 
+
 - Mã shift(mã dịch vòng) : là mã hóa mà chúng ta dịch chuyển vị trí của các chữ cái. Nó khá đơn giản và nổi tiếng nhất là mã Ceasar.
 - Mã affine: là cách mã hóa bằng hàm như sau f(x) = ax + b (mod n). Nó ánh xạ chữ cái có vị trí x thành ax + b (mod n). Để giải mã nó thì ta chỉ cần dùng hàm ngược lại như sau là dc d(x) = pow(a, -1, n) * (x - b) (mod n). Lưu ý: cần chọn a sao cho UCLN(a,n) = 1 vì nó là điều kiện cần thiết để tìm dc nghịch đảo của a trong Zn. Với a = 1 thì mã affine trở thành mã ceasar.
 
-------------------------------
+
+:-----------------------------
 |f(x) = ax + b (mod n)       |
 |d(x) = a^(-1)(x - b) (mod n)|
 ------------------------------
