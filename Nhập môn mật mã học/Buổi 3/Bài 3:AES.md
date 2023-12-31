@@ -18,6 +18,6 @@ II.Thuật toán
    + Mix columns - trộn dữu liệu
    + AddRoundKeys - chèn khóa vòng
 
-  <p>
-    <image source="https://lilthawg29.files.wordpress.com/2021/06/image.png">
-  </p>
+  <picture>
+    <img src="https://lilthawg29.files.wordpress.com/2021/06/image.png">
+  </picture>
