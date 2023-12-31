@@ -34,4 +34,22 @@ II.Thuật toán
    + b1 : khởi tạo plaintext kết hợp với key thông qua addRoundKey
    + b2 : Lặp mã hóa, sử dụng kết quả của bước 1 rồi thông qua 4 hàm chính.
    + b3 : Sau N - 1 vòng, ta cho nó qua 3 hàm (bỏ qua MixColumns) để hoàn thành mã hóa.
-      
+3. Cơ sở toán học của AES
+      + Trong AES các phép toán đưuocj thực hiện trên trường hữu hạn GF(2^8)
+      + Phép cộng: A( a1, a2, a3,..) B( b1, b2, b3, ...) => C = A + B = (c1, c2, c3, ...) với c_i = (a_i + b_i) mod 2
+      + Phép nhân: Được thưc hiện trên trường GF(2^8) bằng cách nhân 2 đa thức trong modul bất khả quy m(x).Trong AES m(x) = x^8 + x^4 + x^3 + x + 1
+      + Phép xtime: (là phép nhân với x) đọc k hiểu j cả hic
+
+III. Tiêu chuẩn mã
+1. Tiêu chuẩn mã nâng cao AES-Rijndael
+   có đặc trưng sau:
+   + vòng lặp hơi khác so với thông thường
+   + chia dữ liệu thành 4 khối - 4 byte
+   + thao tác trên cả khối mỗi vòng
+   + Thiết kế để chống lại các kiểu tấn công đã biết , tốc độ nhanh và dễ mã hóa, thực hiện được trên nhiều CPU
+   + Chi tiết:
+     + có 10/12/14 vòng lặp với các 128, 192, 256 bit tương ứng
+     + phép thế S_box thì dùng 1 s_box cho từng bytes
+     + Trộn côt (nhân ma trận trên các côt)
+     + Cộng khóa vòng (Xor trạng thái với khóa vòng)
+     + 
