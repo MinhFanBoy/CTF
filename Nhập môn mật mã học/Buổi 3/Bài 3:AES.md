@@ -23,3 +23,15 @@ II.Thuật toán
   <picture>
     <img src="https://lilthawg29.files.wordpress.com/2021/06/image.png"  width="300" height="400">
   </picture>
+
+   Tùy thuộc vào key mà ta sẽ có số vong lặp khác nhau:
+   
+   <picture>
+      <img src="https://lilthawg29.files.wordpress.com/2021/06/image-2.png" width="30%" height="30%">
+   </picture>
+
+2. Chi tiết
+   + b1 : khởi tạo plaintext kết hợp với key thông qua addRoundKey
+   + b2 : Lặp mã hóa, sử dụng kết quả của bước 1 rồi thông qua 4 hàm chính.
+   + b3 : Sau N - 1 vòng, ta cho nó qua 3 hàm (bỏ qua MixColumns) để hoàn thành mã hóa.
+      
