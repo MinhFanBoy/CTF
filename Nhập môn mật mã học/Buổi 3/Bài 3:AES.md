@@ -21,5 +21,5 @@ II.Thuật toán
    + AddRoundKeys - chèn khóa vòng
 
   <picture>
-    <img src="https://lilthawg29.files.wordpress.com/2021/06/image.png" sz=400x300>
+    <img src="https://lilthawg29.files.wordpress.com/2021/06/image.png"  width="300" height="400">
   </picture>
