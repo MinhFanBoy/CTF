@@ -11,7 +11,9 @@ I. Giới thiệu
    - Quá trình mã hóa
 II.Thuật toán
 1. Mô hình thuật toán
+   
    AES là thuật toán mã khối đối xứng(bản nâng cấp của DES-64)
+   
    Có N vòng lặp và có N-1 vòng lặp chính(1 -> N - 1).Chủ yếu thực hiện các hàm sau:
    + Subbytes - thay thế các bytes dữ liệu bằng bytes phụ
    + Shifrows - dịch vòng dữ liệu
@@ -19,5 +21,5 @@ II.Thuật toán
    + AddRoundKeys - chèn khóa vòng
 
   <picture>
-    <img src="https://lilthawg29.files.wordpress.com/2021/06/image.png">
+    <img src="https://lilthawg29.files.wordpress.com/2021/06/image.png" sz=400x300>
   </picture>
