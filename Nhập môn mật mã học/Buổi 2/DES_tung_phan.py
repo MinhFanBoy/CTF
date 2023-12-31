@@ -33,8 +33,8 @@ def b1(r0: list) -> list:
 def b2(ans:list, k1:list) -> list:
     # ans la b1(r0)
     # k1 la key
-    tmp = [1]*48
-    for x in range(48):
+    tmp = [1]*len(ans)
+    for x in range(len(ans)):
         tmp[x] = k1[x] ^ ans[x]
     return tmp
 
@@ -98,18 +98,22 @@ def b4(ans: list) -> list:
     return t
 
 def PC_1(key):
+    key = "".join([str(x) for x in key])
     ans = ""
     for x in range(0, 64, 8):
         ans += key[x:x+7]
-    ans = [x for x in ans]
+    ans = [int(x) for x in ans]
     return ans
+
 def LCS(key, round):
+    key = "".join([str(x) for x in key])
     if round in [1, 2, 9, 16]:
         ans = key[1:] + key[0]
     else:
         ans = key[2:] + key[:2]
-    ans = [x for x in ans]
+    ans = [int(x) for x in ans]
     return ans
+
 def PC_2(ans: list) -> list:
     lst = [ 14, 17, 11, 24, 1, 5,
             3, 28, 15, 6, 21, 10,
@@ -141,6 +145,37 @@ def IP_1(ans):
     for x in range(len(ans)):
         t[lst.index(x + 1)] = int(ans[x])
     return t    
+
+
+def round(pl, pr,l,r,time):
+    l0 = LCS(l, time)
+    r0 = LCS(r, time)
+
+    lr = PC_2(l0 + r0)
+
+    pr = b1(pr)
+    pr = b2(pr, lr)
+    pr = b3(pr)
+    pr = b4(pr)
+    r1 = b2(pr, pl)
+    l1 = pr
+
+    return l1, r1, l0, r0
+
+def DES(plaintext, key):
+    plaintext = IP(plaintext)
+    key = PC_1(key)
+    pl = plaintext[:32]
+    pr = plaintext[32:]
+    l = key[:28]
+    r = key[28:]
+
+    for x in range(16):
+
+        pl, pr, l , r = round(pl, pr, l, r, x)
+
+    return IP_1(pl + pr)
+
 
 
 
