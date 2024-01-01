@@ -16,6 +16,7 @@ Khi xem file output thi thấy có nhiều lần mã hóa RSA với cùng một 
          for y in range(x+1,len(n)):
              print(GCD(n[x],n[y]))
 => thỏa mãn
+
 Ý tưởng :
 + m^3 = c_1 (mod n_1)
 + m^3 = c_2 (mod n_2)
