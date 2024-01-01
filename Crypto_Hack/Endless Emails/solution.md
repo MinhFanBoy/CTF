@@ -10,8 +10,12 @@ Challenge files:
     
 ---
 
-Khi xem file output thi thấy có nhiều lần mã hóa RSA với cùng một số e = 3, lập tức nghĩ tới CRT.
+Khi xem file output thi thấy có nhiều lần mã hóa RSA với cùng một số e = 3, lập tức nghĩ tới CRT. Đầu tiên để có thể RSA thì các số có yêu cầu phải GCD() = 1
 
+    for x in range(len(n)):
+         for y in range(x+1,len(n)):
+             print(GCD(n[x],n[y]))
+=> thỏa mãn
 Ý tưởng :
 + m^3 = c_1 (mod n_1)
 + m^3 = c_2 (mod n_2)
