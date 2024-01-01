@@ -32,25 +32,26 @@ c_7 = 15239683995712538665992887055453717247160229941400011601942125542239446512
 
 n = [n_1, n_2, n_3, n_4, n_5, n_6, n_7]
 c = [c_1, c_2, c_3, c_4, c_5, c_6, c_7]
+
 # for x in range(len(n)):
 #     for y in range(x+1,len(n)):
 #         print(GCD(n[x],n[y]))
 
-# def crt(remainders, mod):
-#     assert len(remainders)== len(mod)
-#     N  = 1
-#     for i in mod:
-#         N*=i
-#     Ni = []
-#     for i in range(len(mod)):
-#         Ni.append(N//mod[i])
-#     Y=[]
-#     for i in range(len(mod)):
-#         Y.append(pow(Ni[i],-1,mod[i]))
-#     res = 0
-#     for i in range(len(mod)):
-#         res+=remainders[i]*Ni[i]*Y[i]
-#     return res%N
+def crt(remainders, mod):
+    assert len(remainders)== len(mod)
+    N  = 1
+    for i in mod:
+        N*=i
+    Ni = []
+    for i in range(len(mod)):
+        Ni.append(N//mod[i])
+    Y=[]
+    for i in range(len(mod)):
+        Y.append(pow(Ni[i],-1,mod[i]))
+    res = 0
+    for i in range(len(mod)):
+        res+=remainders[i]*Ni[i]*Y[i]
+    return res%N
 
 for x in range(7):
     for y in range(7):
