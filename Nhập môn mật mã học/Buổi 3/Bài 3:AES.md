@@ -9,6 +9,7 @@ I. Giới thiệu
 2. Các bước chính
    - Quá trình sinh khóa
    - Quá trình mã hóa
+     
 II.Thuật toán
 1. Mô hình thuật toán
    
@@ -62,19 +63,17 @@ III. Tiêu chuẩn mã
    + ShiftRows : đổi chỗ dịch tái các hàng, theo quy tăc hàng n thì dịch n vị trí
    + MixColums : Hàm này thay đổi giá trị của từng cột bằng cách xor với ma trận
 
-<picture>
-   <img src="https://lilthawg29.files.wordpress.com/2021/09/image-238.png?w=1024" width="70%" heigth="70%"
-</picture>
+      <picture>
+         <img src="https://lilthawg29.files.wordpress.com/2021/09/image-238.png?w=1024" width="70%" heigth="70%"
+      </picture>
 
    + AddRoundKey: Mỗi vòng gồm 32 bit dc sinh ra bởi mở rộng khóa. Lấy cộng giữa hai ma trận
-
    + KeyExpansion: Được thực hiện theo hàm quy nạp.
-  
-<picture>
-   <img src="https://lilthawg29.files.wordpress.com/2021/09/image-245.png?w=1024" width="70%" heigth="70%"
-</picture>
-
    + Với Rcon = [01, 02, 04, 08, 10, 20, 40, 80, 1b, 36]
+   <picture>
+      <img src="https://lilthawg29.files.wordpress.com/2021/09/image-244.png?w=1024" width="70%" heigth="70%"
+   </picture>
+ 
 
 3. Độ an toàn
    + tính chất phức tạp của biểu thức s-box trên GF(2^8) cùng với hiệu ứng khuếch tán giúp cho thuật toán không bị phân tích bằng phương pháp nội suy
