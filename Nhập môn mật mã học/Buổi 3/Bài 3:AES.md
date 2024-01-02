@@ -66,7 +66,17 @@ III. Tiêu chuẩn mã
    <img src="https://lilthawg29.files.wordpress.com/2021/09/image-238.png?w=1024" width="70%" heigth="70%"
 </picture>
 
+   + AddRoundKey: Mỗi vòng gồm 32 bit dc sinh ra bởi mở rộng khóa. Lấy cộng giữa hai ma trận
 
+   + KeyExpansion: Được thực hiện theo hàm quy nạp.
+     
+<picture>
+   <img src="https://lilthawg29.files.wordpress.com/2021/09/image-244.png?w=1024" width="70%" heigth="70%"
+</picture>
+
+   + Với Rcon = [01, 02, 04, 08, 10, 20, 40, 80, 1b, 36]
+
+     
 
 
 
