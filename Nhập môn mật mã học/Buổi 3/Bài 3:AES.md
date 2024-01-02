@@ -69,12 +69,20 @@ III. Tiêu chuẩn mã
    + AddRoundKey: Mỗi vòng gồm 32 bit dc sinh ra bởi mở rộng khóa. Lấy cộng giữa hai ma trận
 
    + KeyExpansion: Được thực hiện theo hàm quy nạp.
-     
+  
 <picture>
-   <img src="https://lilthawg29.files.wordpress.com/2021/09/image-244.png?w=1024" width="70%" heigth="70%"
+   <img src="https://lilthawg29.files.wordpress.com/2021/09/image-245.png?w=1024" width="70%" heigth="70%"
 </picture>
 
    + Với Rcon = [01, 02, 04, 08, 10, 20, 40, 80, 1b, 36]
+
+3. Độ an toàn
+   + tính chất phức tạp của biểu thức s-box trên GF(2^8) cùng với hiệu ứng khuếch tán giúp cho thuật toán không bị phân tích bằng phương pháp nội suy
+   + Rcon khác nhau hạn chế tính đối xứng
+   + Tính chất phi tuyến tính
+   + Các cấu trúc hóa giải mã khác nhau hạn chế dc khóa yếu
+
+IV. Các chế độ hoạt động
 
      
 
