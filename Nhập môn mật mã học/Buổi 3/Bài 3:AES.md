@@ -93,7 +93,37 @@ IV. Các chế độ hoạt động
        - Nó có thể sứ lý nhiều khối song song
 2. CBC
    + Mẩu tin được chia thành các khối
-   + Các block sếp thành dãy trong quá trình mã hóa, giải mã    
+   + Các block sếp thành dãy trong quá trình mã hóa, giải mã
+   + Sử dụng vector IV để bắt đầu quá trình c_i = e(p_i xor c_i-1), c_-1 = IV
+   + Tính chất :
+     - các bản rõ giống nhau cũng chưa chắc cho ra bản mã giống nhau. vì nó còn phụ thuộc vào IV
+     - Sự phụ thuộc móc xích: cơ chế mã hóa làm cho bản mã c_i phụ thuộc vào bản mã c_i-1 nên nếu thay đổi cách sắp xếp các bản sẽ rất khó tấn công. Việc giải mã khối này thì cũng đòi hỏi phải giải đúng khối trước nó nó
+     - Tính lan sai: Khi sai một bit trong khối mã thì việc giải, mã tất cả các khối sau nó sẽ bị sai
+3. CFB
+   + Thông tin khi đi vào sẽ dc chia thành các khối
+   + các bản rõ dc sắp xếp nên khi giải mã cx yêu cầu thứ tự các bản mã phải đúng.
+   + c_i = p_i xor e(k, c_i-1) với c_-1 = IV
+   + Tính chất:
+     - Các bản rõ giống nhau: giống như CBC
+     - Sự phụ thuộc móc xích: giống như CBC
+     - Tính lan sai: giống như CBC
+     - Không thể thực hiên quá trình giải mã song song vì xử lý của khối sau phụ thuộc vào khối trước
+4. OFB
+   + Nhìn chung thì cũng giống các mode trước nhưng khác tý: c_i = p_1 xor e_i(k, e_i - 1) với e_-1 = IV
+5. CRT
+   + Tạo ra một bộ đếm bằng văn bản gốc
+   + Mỗi khối nhận được một bộ đếm và một khóa riêng để tạo ra khối đầu ra
+   + Khối đầu ra được xor với bản rõ để tạo thành bản mã
+   + c_i = e xor p_i
+   + p_i = e xor c_i
+   + Tính chất:
+     - Có hiệu quả cao, thực hiện giải mã hoặc mã hóa trên nhiều block
+     - có tính an ninh cao không kém các mode khác khi thực hiện đúng cách
+     - đơn giản về mặt cấu trúc
+     - các biến đếm phải có yêu cầu không được lặp lại để tránh khóa yếu
+       
+   
+     
 
 
 
