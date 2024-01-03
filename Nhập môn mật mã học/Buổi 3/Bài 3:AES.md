@@ -83,7 +83,17 @@ III. Tiêu chuẩn mã
 
 IV. Các chế độ hoạt động
 
-     
+1. ECB
+   + Các thông tin sẽ được chia thành các khối độc lập, sau đó mã từng khối riêng lẻ với nhau
+   + Các Khối được mã độc lập với các khối khác C_i = E(P_i), do vậy nó đưuocj dùng để truyền an toàn từng giá trị riêng lẻ
+   + Tính chất:
+       - Các khối mã như nhau sẽ có bản mã giống nhau(dưới cùng một khóa)
+       - Sự phụ thuộc không có nên việc thay đổi sắp xếp các block với nhau thì các bản rõ cũng phải được sắp xếp lại tương ứng
+       - Tính lan sai : Khi một hay nhiều bit sai trong một khối đơn lẻ thì nó chỉ ảnh hưởng trong khối đó và không ảnh hưởng tới các khối khác
+       - Nó có thể sứ lý nhiều khối song song
+2. CBC
+   + Mẩu tin được chia thành các khối
+   + Các block sếp thành dãy trong quá trình mã hóa, giải mã    
 
 
 
