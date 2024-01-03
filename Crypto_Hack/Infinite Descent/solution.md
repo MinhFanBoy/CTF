@@ -22,5 +22,7 @@ những tính chất này thỏa mãn yêu cầu cơ bản của fermat attack.
 Ý tưởng:
 với N là tích của 2 số nt có thể viết dc dưới dạng N = (a - b)(a + b)
 => N = a^2 - b^2 => b^2 = a^2 - N
-khi hai số nguyên tố gần nhau thì ta có thể dễ dàng thấy a = sqrt(n) mà hai số nguyên tố gần nhau thì b cx nhỏ từ đó có thể dễ dàng brute froce a để tìm ra b = sqrt(a ** 2 - n)
+khi hai số nguyên tố gần nhau thì ta có thể dễ dàng thấy a = sqrt(n) mà hai số nguyên tố gần nhau thì b cx nhỏ từ đó có thể dễ dàng brute froce a để tìm ra b = sqrt(a ** 2 - n) nếu b là số nguyên là xong.
+
+
 
