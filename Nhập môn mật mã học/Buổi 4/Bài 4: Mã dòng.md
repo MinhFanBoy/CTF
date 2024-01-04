@@ -18,8 +18,37 @@ I. Khái niệm
    + Thanh ghi dịch phản hồi:
      - Thanh ghi dịch phản hồi (bậc n) là bộ gồm n ô nhở A0, ..., An-1 và một hàm phản hồi f() tác động trên các giá trị của các ô nhớ Ai.
      - Giả sử tại thời điểm t, t = 0,1,2,... giá trị của các ô nhớ Ai là a_i, i = 0, ..,n-1; a_i(t) = {0, 1}, vật thì giá trị của các ô tại thời điểm t + 1 là:
-       |a_i(t + 1) = a_(i + 1)(t) với i = 0, ..., n-2
-       |a_(n - 1)(t + 1) = f(a_n-1(t), ..., a_0(t))
+       
+       -----------------------------------------------
+       |a_i(t + 1) = a_(i + 1)(t) với i = 0, ..., n-2|
+       -----------------------------------------------
+       |a_(n - 1)(t + 1) = f(a_n-1(t), ..., a_0(t))  |
+       -----------------------------------------------
+
+   + Dãy ghi dịch:
+       - Nếu tại ô A0 lấy ra a_k = a_0(k), k >= 0, thì {a_k} là dãy ghi dịch sinh bởi thanh ghi dịch phản hồi bậc n với hàm phản hồi f.
+       - Dãy {a_k}, k >= 0 được gọi là dãy ghi nghịch bậc n, nếu tồn rại hàm f():{0,1}^n->{0,1} sao cho:
+         - a_(n + k) = f(a_(n - 1 + k), ..., a_k)
+         - dàm f trong định nghĩa này được gọi là hàm phản hồi tạo dãy {a_k}. Dãy ghi nghịch dược gọi là tuyến tính (phi tuyến) nếu hàm phản hồi f là hàm tuyến tính (phi tuyến). hàm phản hồi có dạng tổng quát là
+         - f(a_0, ..., a_n) = c0 * a0 xor ... xor cn * an
+         - trong đó c0, .., cn nhận giá trị trong {0, 1}
+   + Độ phức tạp tuyến tính:
+     - Độ phức tạp tuyến tính của một dãy nhị phân hữu hạn s, ký hiệu là L(s), là độ dài của LFSR ngắn nhất để sinh ra dãy s
+     - Độ phức tạp tuyến tính của một dãy nhị phân vô hạn s, ky hiệu là L(s) được xác định như sau:
+       - Nếu s là dãy 0 (s = 0,0,0,0,..) thì l(s) = 0;
+       - Nếu không có LFSR nào sinh ra s thì , l(s) = inf
+       - Ngược lại,l(s) là độ dài của LFSR ngắn nhất sinh ra s
+
+   + chu kỳ:
+     - Dãy s = s0, s1, s2, ... là tuần hoàn bậc N nếu s_i = s_(i + n) với mọi i
+     - chu kỳ của một dãy là số nguyên dương nhỏ nhất n mà s tuần hoàn bậc N
+   + Tự tương quan:
+     - trong dòng khóa gồm các biến ngẫu nhiên độc lập, đồng xã xuất thì quan hệ giữa các phần tử bất kỳ là  độc lập và do đó có sự tương quan bằng 0. Đây là một tính chất tốt của khóa
+     - tuy nhiên khi khóa được tạo ra nhờ thuật toan xác định thì các phần tử bất kỳ là không độc lập với nhau vì vậy người ta muốn làm sao khó đạt hệ số gần tương đương 0.
+III. Mã Dòng
+1. các nguyên lý thiết kế
+   + Thiết kế mã dòng dựa  các LFSR
+   + Thiết kế mã dòng dựa trên mã khối
 
    
        
