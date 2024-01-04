@@ -44,6 +44,7 @@ I. Khái niệm
    + Tự tương quan:
      - trong dòng khóa gồm các biến ngẫu nhiên độc lập, đồng xã xuất thì quan hệ giữa các phần tử bất kỳ là  độc lập và do đó có sự tương quan bằng 0. Đây là một tính chất tốt của khóa
      - tuy nhiên khi khóa được tạo ra nhờ thuật toan xác định thì các phần tử bất kỳ là không độc lập với nhau vì vậy người ta muốn làm sao khó đạt hệ số gần tương đương 0.
+
 III. Mã Dòng
 1. các nguyên lý thiết kế
    + Thiết kế mã dòng dựa  các LFSR
