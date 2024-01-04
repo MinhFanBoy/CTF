@@ -15,4 +15,11 @@ I. Khái niệm
    + Mã dòng được gọi là tự đồng bộ nếu z_i = f_i(K, y_i-h, ..., y_i) với mọi i = h + 1, ...
    + mã dòng là tuần hoàn với chu kỳ d nếu z_(i + d) = z_(i) với d <= i
 3. Các đặc trưng của mã dòng
+   + Thanh ghi dịch phản hồi:
+     - Thanh ghi dịch phản hồi (bậc n) là bộ gồm n ô nhở A0, ..., An-1 và một hàm phản hồi f() tác động trên các giá trị của các ô nhớ Ai.
+     - Giả sử tại thời điểm t, t = 0,1,2,... giá trị của các ô nhớ Ai là a_i, i = 0, ..,n-1; a_i(t) = {0, 1}, vật thì giá trị của các ô tại thời điểm t + 1 là:
+       |a_i(t + 1) = a_(i + 1)(t) với i = 0, ..., n-2
+       |a_(n - 1)(t + 1) = f(a_n-1(t), ..., a_0(t))
+
    
+       
