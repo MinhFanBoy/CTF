@@ -49,6 +49,27 @@ III. Mã Dòng
 1. các nguyên lý thiết kế
    + Thiết kế mã dòng dựa  các LFSR
    + Thiết kế mã dòng dựa trên mã khối
+2. Thuật toán RC4
+
+   + Mảng S gồm các số từ 1-> 255, với N = 256
+   + Thuật toán Key Scheduling Algorithm (KSA): dùng 1 khóa mật như là mầm để tạo trạng thái giả ngẫu nhiên
+   + Thuật toán Pseudo Random Generation Algorithm (PRGA): Tạo dòng số giar ngẫu nhiên
+     - Bước 1: Khởi tạo mảng S = [0, ..., 255], tạo một vector tạm T, Nếu độ dài khóa là 256 bit thì k = khóa, Nếu >256 bit thì phần tử đầu tiên đưuocj copy lần lượt sang T cho đén hết, sau đó tiếp tục lặp lại cho đến khi đạt 256 bit
+     - Bước 2: Thuật toán KSA
+     - Bước 3: thuật toán PRGA
+     - Bước 4: Mã hóa, giải mã khi luồng khóa cuối cùng được tạo, quá trình mã hóa và giải mã cũng giống nhau, chuỗi văn bản được XOR với luồng khóa được tạo. Nếu đầu vào là bản rõ thì sẽ tạo ra bản mã hóa và ngược lại nếu bản mã hóa thì sẽ cho ra bản rõ
+    
+     - => ciphertext = e(key) xor plaintext
+     - => plaintext = e(key) xor ciphertext
+    
+3. Ưu nhược điểm
+
+<picture>
+   <img src="https://lilthawg29.files.wordpress.com/2021/10/image-223.png?w=768" >
+</picture>
+ <picture>
+   <img src="https://lilthawg29.files.wordpress.com/2021/10/image-224.png?w=" >
+</picture>
 
    
        
