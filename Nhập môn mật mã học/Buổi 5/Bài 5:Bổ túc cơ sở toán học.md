@@ -23,7 +23,33 @@ I. Cấu trúc đại số
   - với phép cộng, R là nhóm Aben
   - Có các tính chất kết hợp, phân phối
   - có tính chất giao hoán thì gọi là vành giao hoán
-  - Nếu phép nhân có nghịch đảo và không có thương khác 0( tức là không có hai phần khác 0 mà tích của chúng lại bằng 0), thì nó tạo thành miền 
- 
+  - Nếu phép nhân có nghịch đảo và không có thương khác 0( tức là không có hai phần khác 0 mà tích của chúng lại bằng 0), thì nó tạo thành miền nguyên.
+4.  Trường
+    + Trường là một tập hợp F với các phép cộng và phép nhân, thỏa mãn các tính cahsst sau:
+      - F là một vành
+      - với phép nhân F/{0} là nhóm Aben
+    + có thể nói là với các phép toán cộng, trừ, nhân, chia số khác 0 ta có:
+      - a - b = (a) + (-b)
+      - a / b = a * (b)^(-1)
+
+II. Số học modulo
+1. Tính chia hết: Chia số nguyên a cho n được thương là số nguyên q, a = nq
+   => a chia hết cho n hay a là bội số của n hay n là ước số của a ký hiệu n|a
+2. Cho hai số nguyên a và n (n > 1)thực hiện phép chia a cho n ta sẽ được hai số nguyên q và r sao cho:
+   => a = nq + r , 0 < n < n
+
+   trong đó:
+   + q là thương
+   + n là số chia
+   + a là số bị chia
+   + r là dư
+
+   Định nghĩa quan hệ đồng dư trên tập số nguyên : a = b (mod n) khi và chỉ khi a và b có phần dư như nhau khi chia cho n
+
+   Vd : 100 = 1 = 34 (mod 11)
+
+   Đại diện của a mod n: Số b được gọi là đại diện của a theo mod n , nếu:
+   + a = b (mod n) (hay a = qn + b , 0 <= b < b)
+   3. Các phép toán số học trên modulo:
 
 
