@@ -9,3 +9,4 @@ Bài này nói về quá trình tấn công mở rộng chuỗi trong SHA256.
 
 thì ta hoàn toàn có thể truy cập dược vào
 (code trộm từ Dũng :v)
+(có thể sài tool https://github.com/viensea1106/hash-length-extension/tree/main?tab=readme-ov-file)
