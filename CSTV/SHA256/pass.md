@@ -8,3 +8,4 @@ Bài này nói về quá trình tấn công mở rộng chuỗi trong SHA256.
 + fake_token = sha256(token, secret + data + msg) ,với secret thì chỉ cần biết độ dài
 
 thì ta hoàn toàn có thể truy cập dược vào
+(code trộm từ Dũng :v)
