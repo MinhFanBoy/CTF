@@ -52,4 +52,17 @@ II. Số học modulo
    + a = b (mod n) (hay a = qn + b , 0 <= b < b)
    3. Các phép toán số học trên modulo:
 
+      Về cở bản các phép tính trên mod n cũng tương đương như trong R.
+      + a mod n + b mod n = (a + b) mod n
+      + a mod n x b mod n = (a x b) mod n
 
+      Khi thực hiện các phép tính trên mod n ta có thể thay a, b bằng các đại diện của nó trong tập {0, ..., n - 1}
+      
+      Trong trường Zn, các tính chất như giao hoán, kết hợp phân phối có thể sử dụng.
+
+4. Ước số chung
+   + Một số được gọi là ước số chung của a, b nếu q|b và q|a
+   + Số nguyên d dược gọi là ước chung lớn nhất nếu mọi ước chung khác của a, b đề là ước số của d
+   + Một số dược gọi số nguyên tố nếu nó chỉ có ước chung là 1 và chính nó với nọi số nguyên nhỏ hơn nó
+   + Hai số a, b được gọi là số nguyên tố cùng nhau nếu gcd(a, b) = 1
+   +  
