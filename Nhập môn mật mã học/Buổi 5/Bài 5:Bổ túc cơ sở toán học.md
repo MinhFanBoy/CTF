@@ -98,4 +98,5 @@ def gcd(a: int, b: int) -> int:
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/109fc539-804b-4215-a347-73d378626347)
 
  + $Z_n^{*}$ có phần tử sinh khi $n = 2, 4, 2 * p ^ k \quad \forall k \in R, \text{p là số nguyên tố lẻ}$
- +  Nếu $\alpha$ là phần tử sinh trong $Z_n^{*}$ thì $\beta ^ i \pmod{$
+ +  Nếu $\alpha$ là phần tử sinh trong $Z_n^{*}$ thì $\beta ^ i \pmod{\phi(n)}$
+ +  
