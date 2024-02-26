@@ -66,7 +66,8 @@ Bài này trôm được từ Dũng
 
 ---
 
-Bài này cũng khá dễ.
+Bài này cũng khá dễ. Thấy trước khi được mã hóa msg do ta gửi sẽ được padding bằng pkcs7 nên khi ta gửi msg có đúng len = 16 thì ta sẽ nhận được tin nhắn mã hóa có 32 bit vì pad(msg) = msg + b"\x10" * 16. 
+Từ đó dựa vào tính chất của CBC nếu ta gửi 2 block giống hệt nhau thì ta sẽ được enc  có 2 block giống nhau. Từ đó ta gửi đi msg = b"\x10" * 16 nếu 2 block ta nhận được giống nhau thì ta sẽ biết được là nó mã hóa theo dạng nào.
 
 ```py
 from pwn import *
