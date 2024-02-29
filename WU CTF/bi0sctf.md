@@ -197,6 +197,7 @@ print(f"{output = }")
 
 Đề bài tóm tắt như sau:
 
+$$output_i = \sum_{k = 0} ^ {999} {{a_k} +  {unknows_{b_i}} ^ 2 * {unknows_{c_i}} ^ 3}$$
 $$output_i = \sum_{k = 0} ^ {999} {a_k} + \sum_{k = 0} ^ {999} {{unknows_{b_i}} ^ 2 * {unknows_{c_i}} ^ 3}$$
 
 Và ta có tới 100 phương trình như vậy :L.
