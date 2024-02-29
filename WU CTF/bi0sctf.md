@@ -207,7 +207,7 @@ và ta cũng có :
 
 dễ thấy i - (i % 1000) sẽ khiến cho nó có 3 chữ số cuối cùng là 000, mà $0 \leq f \leq 255$ nên ta có thể lấy lại f bằng cách lấy unknows % 1000.
 
-Trở lại bài toán lúc đầu. Ta tạo một ma trân 10 x 10. với cột là các phần tử $x _{0} ^ {2}, x_{1} ^ {2}, ...., x_{9}^{2}$  và hàng ngang là các phần tử  $x _{0} ^ {3}, x_{1} ^ {3}, ...., x_{9}^{3}$, ta đã có sẵn bb, cc nên ta hoàn toàn có thể tìm được hệ số của hàng từng phần tử trong bẳng.
+Trở lại bài toán lúc đầu. Ta tạo một ma trân 10 x 10. với cột là các phần tử $x _{0} ^ {2}, x_{1} ^ {2}, ..., x_{9}^{2}$  và hàng ngang là các phần tử  $x _{0} ^ {3}, x_{1} ^ {3}, ..., x_{9}^{3}$, ta đã có sẵn bb, cc nên ta hoàn toàn có thể tìm được hệ số của hàng từng phần tử trong bẳng.
 
 $$output_i - \sum_{k = 0} ^ {999} {a_k} = \sum_{k = 0} ^ {999} {{unknows_{b_i}} ^ 2 * {unknows_{c_i}} ^ 3}$$
 
