@@ -55,5 +55,28 @@ Gọi : $p = rr$, $q = p - 1 = rr - 1$, $ks_i = k$, $k_i = x$, ta tìm nghiệm 
 
 $$k = {69} ^ {x} \pmod{p ^ {i}}$$
 
-$$k ^ q = {69 ^ q} ^ k \pmod{p ^ i}$$
+$$k ^ q = {69 ^ q} ^ x \pmod{p ^ i}$$
 
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/9e5d3bb6-d606-4e4b-a3b6-9917296f1372)
+
+nên từ đó ta có thể viết lại như sau:
+
+$$(a * {p ^ {i - 1}} + 1) ^ x = b * {p ^ {i - 1}} + 1 \pmod {p ^ i}$$
+
+Khai triển nhị thức với phương trình đông dư trên ta có:
+
+$$1 + x * a * {p ^ {i - 1}} = b * {p ^ {i - 1}} + 1 \pmod{p ^ i}$$
+
+chia cả hai vế cho $p ^ {i - 1}$ ta có:
+
+$$\to x * a = b \pmod{p}$$
+
+với a, b, ta có thể dễ dàng tính ra nên từ đó ta hoàn toàn có thể tìm x.
+
+Lưu ý: $\forall x \in Z_{p ^ i}$ ta có thể viết $x = x_ {i - 1} * {p ^ {i - 1}} + x_ {i - 2} * {p ^ {i - 2}} + ... + x_0 * {p ^ 0}$
+
+khi đó phương trình hàng trên trở thành:
+
+$$\to (x_ {i - 1} * {p ^ {i - 1}} + x_ {i - 2} * {p ^ {i - 2}} + ... + x_0 * {p}) * a = b \pmod{p}$$
+
+khi đó dễ thấy ta chỉ còn lại $x _ 0 * a = b \pmod{p}$ từ đó ta chỉ tính được $x_0$ chứ không phải là x. Nên khi đó ta phải biến đổi thêm để tìm toàn bộ x.
