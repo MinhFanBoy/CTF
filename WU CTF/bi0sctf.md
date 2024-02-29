@@ -31,3 +31,29 @@ c2 = 341595253067503923027327180174884110317813506975617387801656377695966015427
 ```
 
 ---
+
+Từ trên ta có thể tóm gọn code lại như sau:
+
+$$c_1 = (\sum_{i = 0} ^{19} k_i * x) ^ {127} \pmod{n}$$
+
+$$c2 = x ^ {65537} \pmod{n}$$
+
+
+Từ đó ta có hai đa thức như sau:
+
+$$f_1(x) = (\sum_{i = 0} ^{19} k_i * x) ^ {127} - c_1 \pmod{n}$$
+
+$$f_2(x) = x ^ {65537} - c_2 \pmod{n}$$
+
+với x là flag, nên từ đó ta có thể dễ thấy: $flag = x = gcd(f_1(x), f_2(x))$. Từ đó ta phải tìm lại $k_i$ từ mảng ks. Với:
+
+$$ks_i = {69} ^ {k_i} \pmod{rr ^ {i + 2}}  \forall i \in [0, 19]$$
+
+Từ đó ta đến với bài toán tìm log rời rạc trên trường $Z _ {p ^ i}$:
+
+Gọi : $p = rr$, $q = p - 1 = rr - 1$, $ks_i = k$, $k_i = x$, ta tìm nghiệm $x < p ^ i$, từ đó ta có bài toán tổng quát như sau:
+
+$$k = {69} ^ {x} \pmod{p ^ {i}}$$
+
+$$k ^ q = {69 ^ q} ^ k \pmod{p ^ i}$$
+
