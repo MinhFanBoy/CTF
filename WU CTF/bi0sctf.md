@@ -194,3 +194,73 @@ print(f"{p = }")
 print(f"{output = }")
 ```
 ---
+
+Đề bài tóm tắt như sau:
+
+$$output_i = \sum_{k = 0} ^ {999} {a_k} + \sum_{k = 0} ^ {999} {{unknows_{b_i}} ^ 2 * {unknows_{c_i}} ^ 3}$$
+
+Và ta có tới 100 phương trình như vậy :L.
+
+và ta cũng có :
+
+`unknowns = [f + i - (i%1000)  for i, f in zip(unknowns, search("{(.*)}", flag).group(1).encode())]`
+
+dễ thấy i - (i % 1000) sẽ khiến cho nó có 3 chữ số cuối cùng là 000, mà $0 \neq f \neq 255$ nên ta có thể lấy lại f bằng cách lấy unknows % 1000.
+
+Trở lại bài toán lúc đầu. Ta tạo một ma trân 10 x 10. với cột là các phần tử $x _{0} ^ {2}, x_{1} ^ {2}, ...., x_{9}^{2}$  và hàng ngang là các phần tử  $x _{0} ^ {3}, x_{1} ^ {3}, ...., x_{9}^{3}$, ta đã có sẵn bb, cc nên ta hoàn toàn có thể tìm được hệ số của hàng từng phần tử trong bẳng.
+
+$$output_i - \sum_{k = 0} ^ {999} {a_k} = \sum_{k = 0} ^ {999} {{unknows_{b_i}} ^ 2 * {unknows_{c_i}} ^ 3}$$
+
+mà ta có tất cả 100 vòng lặp nên từ đó ta có thể lập dc một ma trân 100 * 100, và một ma trận tổng 100 phần tử.
+Giải hai ma trận vừa có là ta rút ra được một ma trận với cacs phần tử trên đường chéo chính là các unknows ta cần tìm nhưng dc mũ 5. nên bây giờ ta chỉ cần tìm căn bậc 5 của nó là ra flag.
+
+```py
+
+
+from out import p, output
+
+Zp = GF(p)
+N = len(output)
+
+m = []
+B = []
+
+
+
+for i in range(0, N, 4):
+    coeff = [0] * 100
+    sum = 0
+
+    aa, bb, cc, rr = output[i:i+4]
+
+    for a, b, c in zip(aa, bb, cc):
+        sum = (sum + a) % p
+        coeff[b* 10 + c] += 1
+
+    m.append(coeff)
+    B.append((rr - sum) % p)
+
+matrix = Matrix(Zp, m)
+vector = vector(Zp, B)
+
+print(matrix)
+
+print(vector)
+
+solution = matrix.solve_right(vector)
+
+print(solution)
+
+print(f"This is length vector: {len(B)}")
+print(f"This is length matrix: {len(m)}")
+print(f"This is length sol: {len(solution)}")
+flag = []
+
+for x in range(10):
+    t = (ZZ(solution[x * 10 + x] ).nth_root(5)) % 1000
+
+    flag.append(t)
+
+print(bytes(flag).decode())
+
+```
