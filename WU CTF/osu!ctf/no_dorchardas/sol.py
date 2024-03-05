@@ -62,3 +62,34 @@ s.sendline(new_sig)
 print(s.recv())
 print(s.recv())
 
+"""
+[+] Opening connection to chal.osugaming.lol on port 9727: Done
+b'proof of work:\n'
+s.LptikcWN9B2aj60dF5/IeNT+/+JUgIPQ6gCRLvwgTYj4eCc//ZQQ47uw3i4Wp9MVs580es2T4lJoUQl6YzBH9F0icVqoPyx4o3b4vtepnJ2Cx1l2t/pFSNuQyOk+mEuWE3+aDvf0xfXz0TIBOwQTxcv0uPTIXhBlKBq9WCu4AkIbDicUWpaxm3Mr7bS55OBqnCELw+zUlHEZyQnFks8u/Q==
+
+Welcome to the osu! Beatmap Signer
+
+
+--------------------------
+| [1] Sign a beatmap     |
+| [2] Verify a beatmap   |
+--------------------------
+Enter your option:
+--------------------------
+| [1] Sign a beatmap     |
+| [2] Verify a beatmap   |
+--------------------------
+Enter your option:
+b'Enter your beatmap in base64: '
+b"Okay, I've signed that for you: 17667e6ac270bbf1d433075141e51502\n"
+b'\n'
+b'--------------------------\n'
+b'| [1] Sign a beatmap     |\n| [2] Verify a beatmap   |\n--------------------------\nEnter your option: '        
+new_sig = '7afc9329d4e9a0a7921bc0186c8d5e8f'
+new_data = b'\x80\x00\x00\x00\xa0\x07\x00\x00\x00\x00\x00\x000,328,33297,6,0,B|48:323|61:274|61:274|45:207|45:207|63:169|103:169|103:169|249:199|249:199|215:214|205:254,1,450.000017166138,6|6,1:1|2:1,0:0:0:0:'
+b'Enter your beatmap in base64: '
+/mnt/c/Users/Ms.Van/Downloads/osu!ctf/no_dorchardas/sol.py:61: BytesWarning: Text is not bytes; assuming ASCII, no guarantees. See https://docs.pwntools.com/#bytes
+  s.sendline(new_sig)
+b'Enter your signature for that beatmap: '
+b"How did you add that dorchadas slider?? Anyway, here's a flag: osu{s3cr3t_sl1d3r_i5_th3_burp_5l1d3r_fr0m_Feiri's_Fake_Life}\n\n--------------------------\n| [1] Sign a beatmap     |\n| [2] Verify a beatmap   |\n--------------------------\nEnter your option: "
+"""
