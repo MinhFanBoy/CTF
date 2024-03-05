@@ -1,3 +1,5 @@
+# https://github.com/viensea1106/hash-length-extension?tab=readme-ov-file
+
 import subprocess
 from pwn import *
 from json import *
