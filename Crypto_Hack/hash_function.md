@@ -264,28 +264,23 @@ nên ta có thể gửi một block có các bytes giống nhau khiến việc d
 
 ```py
 
+from pwn import *
+from json import *
 
-from Crypto.Util.number import *
+# socket.cryptohack.org 13405
 
-c = 1094555114006097458981
-e = 65537
-n = 3367854845750390371489
+s = connect("socket.cryptohack.org", 13405)
 
-p = 49450786403
-q = 68105182763
+print(s.recv().decode())
 
-assert p * q == n and isPrime(q) and isPrime(p)
+tmp_1 = "01" * 32
+tmp_2 = "02" * 32
 
-d = pow(e, -1, (p - 1) * (q - 1))
-print(d)
-flag = pow(c, d, n)
-print(long_to_bytes(88120158913819069790518253772632752253 + 741196932671749699250 ))
-# BKSEC{*********}
-    
-# know + x = m (mod n)
-know = bytes_to_long(b"BKSEC{\x00\x00\x00\x00\x00\x00\x00\x00\x00}")
+tmp_1, tmp_2 = tmp_1 + tmp_2, tmp_2 + tmp_1
 
-print(bytes_to_long(b"a" * 16))
+s.sendline(dumps({"m1": tmp_1, "m2" : tmp_2}).encode())
+
+print(s.recv().decode())
 ```
 
 > Please send two hex encoded messages m1, m2 formatted in JSON:
