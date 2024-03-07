@@ -250,6 +250,44 @@ print(s.recv().decode())
 
 ```
 
+Cách khác. Cách này mình lợi dụng hàm xor ở cuối mỗi block `initial_state = xor(initial_state,mix_in)`, khi nhìn vào đây ta thấy `enc = initial_state ^ mix_in_0 ^ mix_in_1 ^ ...` nhưng do xor có tính chất giao hoán nên ta hoàn toàn có thể `enc = initial_state ^ mix_in_0 ^ mix_in_1 ^ ... = initial_state ^ mix_in_n - 1 ^ mix_in_n - 2 ^ ...`.
+
+do trong mỗi hàm mã hóa đều có hàm dịch bytes
+```py
+        for _ in range(i):
+            mix_in = rotate_right(mix_in, i+11)
+            mix_in = xor(mix_in, X_bytes)
+            mix_in = rotate_left(mix_in, i+6)
+```
+
+nên ta có thể gửi một block có các bytes giống nhau khiến việc dịch bytes vòng trở nên vô nghĩa. Còn hàm xor mix_in thì cx không quan trọng lắm bởi vì khi trong initial_state nó cũng luỗn có số lượng giống nhau nên bị không ảnh hưởng. -> Từ đó ta có ý tưởng là gửi các block có thể khác nhau hoặc giống nhau đều được và hoán vị nó đi ta sẽ có hai msg khác nhau nhưng có chung một mã hash.
+
+```py
+
+
+from Crypto.Util.number import *
+
+c = 1094555114006097458981
+e = 65537
+n = 3367854845750390371489
+
+p = 49450786403
+q = 68105182763
+
+assert p * q == n and isPrime(q) and isPrime(p)
+
+d = pow(e, -1, (p - 1) * (q - 1))
+print(d)
+flag = pow(c, d, n)
+print(long_to_bytes(88120158913819069790518253772632752253 + 741196932671749699250 ))
+# BKSEC{*********}
+    
+# know + x = m (mod n)
+know = bytes_to_long(b"BKSEC{\x00\x00\x00\x00\x00\x00\x00\x00\x00}")
+
+print(bytes_to_long(b"a" * 16))
+```
+
 > Please send two hex encoded messages m1, m2 formatted in JSON:
 > {"flag": "Oh no! Looks like we have some more work to do... As promised, here's your flag: crypto{Always_add_padding_even_if_its_a_whole_block!!!}"}
 
