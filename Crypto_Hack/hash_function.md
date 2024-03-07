@@ -229,3 +229,111 @@ def cryptohash(msg):
 ```
 
 ---
+
+Bài nãy cũng khá hay làm mình tốn một thời gian kha khá và nhờ wu trên mạng. Mình để ý rằng trước khi dc mã hóa nó phải được pad sao cho đủ 32 block nên mình chỉ cần tìm hai msg sao cho sau khi pad nó trở nên giống nhau là được từ đó ta có thể tìm ra nhiều msg khác nhau thỏa mãn bài này. (msg vẫn khác nhau nhưg pad(msg) như nhau nên nó ra cùng một cái giống nhau)
+
+```py
+
+
+from pwn import *
+from json import *
+
+# socket.cryptohack.org 13405
+
+s = connect("socket.cryptohack.org", 13405)
+
+print(s.recv().decode())
+
+s.sendline(dumps({"m1": "01" * 31, "m2" : "01" * 32}).encode())
+
+print(s.recv().decode())
+
+```
+
+> Please send two hex encoded messages m1, m2 formatted in JSON:
+> {"flag": "Oh no! Looks like we have some more work to do... As promised, here's your flag: crypto{Always_add_padding_even_if_its_a_whole_block!!!}"}
+
+### 5. PriMeD5
+
+---
+
+**_TASK:_**
+
+I've invented a nice simple version of HMAC authentication, hopefully it isn't vulnerable to the same problems as Merkle–Damgård construction hash functions...
+
+Connect at socket.cryptohack.org 13388
+
+Challenge files:
+  - 13388.py
+
+
+Challenge contributed by randomdude999
+
+**_FILE:_**
+
+```py
+
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+import os
+from utils import listener
+
+
+FLAG = "crypto{???????????????}"
+
+
+def bxor(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+
+
+def hash(data):
+    data = pad(data, 16)
+    out = b"\x00" * 16
+    for i in range(0, len(data), 16):
+        blk = data[i:i+16]
+        out = bxor(AES.new(blk, AES.MODE_ECB).encrypt(out), out)
+    return out
+
+
+class Challenge():
+    def __init__(self):
+        self.before_input = "You'll never forge my signatures!\n"
+        self.key = os.urandom(16)
+
+    def challenge(self, msg):
+        if "option" not in msg:
+            return {"error": "You must send an option to this server."}
+
+        elif msg["option"] == "sign":
+            data = bytes.fromhex(msg["message"])
+            if b"admin=True" in data:
+                return {"error": "Unauthorized to sign message"}
+            sig = hash(self.key + data)
+
+            return {"signature": sig.hex()}
+
+        elif msg["option"] == "get_flag":
+            sent_sig = bytes.fromhex(msg["signature"])
+            data = bytes.fromhex(msg["message"])
+            real_sig = hash(self.key + data)
+
+            if real_sig != sent_sig:
+                return {"error": "Invalid signature"}
+
+            if b"admin=True" in data:
+                return {"flag": FLAG}
+            else:
+                return {"error": "Unauthorized to get flag"}
+
+        else:
+            return {"error": "Invalid option"}
+
+
+"""
+When you connect, the 'challenge' function will be called on your JSON
+input.
+"""
+listener.start_server(port=13388)
+
+```
+---
