@@ -870,3 +870,110 @@ listener.start_server(port=13388)
 
 ```
 ---
+
+Lmao. Bài này khá dễ nhưng cần chú ý đến việc pad dữ liệu trước khi gửi đi.
+
+Mã hóa này sử dụng AES mode ECB theo kiểu hàm đệ quy. Từ đó nếu ta biết được dữ liệu của khối trước hoàn toàn có thể tìm được khối sau của nó vì đã có code của hàm hash. Tư dó bài này mình làm như sau:
+
+Gửi cho server một data là b"\x01" * 15 sau khi sever pad thì nó sẽ thành b"\x01" * 16 từ đó ta có mã hóa của hash(key + data). Vi mình cần có hash(key + data') vơi data' có chuỗi "admin=True" thôi chứ không yêu cầu vị trí cụ thể nên mình tìm data' = data + "admin=True" mà theo như trên mình đã nói hoàn toàn có thể tìm được hash(key + data + "admin=True") nên ta chỉ cần viết lại hàm rồi gửi nó cho server là được.
+
+```py
+
+
+from pwn import *
+from json import *
+from HashTools import *
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import *
+
+def send_obj(s: bytes, obj: dict) -> dict:
+    s.sendline(dumps(obj).encode())
+    return loads(s.recvline())
+
+def hash(data: bytes) -> bytes:
+    data = pad(data, 16)
+    out = b"\x00" * 16
+    for i in range(0, len(data), 16):
+        blk = data[i:i+16]
+        out = xor(AES.new(blk, AES.MODE_ECB).encrypt(out), out)
+    return out
+
+def main() -> None:
+    
+    s = connect("socket.cryptohack.org", 13388)
+    print(s.recv().decode())
+
+    sig: bytes = bytes.fromhex(send_obj(s, {"option": "sign", "message": (b"\x01" * 15).hex()})["signature"])
+
+    new_sig: bytes = xor(AES.new(pad(b"admin=True", 16), AES.MODE_ECB).encrypt(sig), sig)
+
+    print(send_obj(s, {"option": "get_flag", "signature": new_sig.hex(), "message": (b"\x01" * 16 + b"admin=True").hex()}))
+
+
+if __name__ == "__main__":
+
+    main()
+
+```
+
+### 9. MDFlag
+
+---
+
+**_TASK:_**
+
+MD0 had a serious weakness, here is a new improved MD5-based HMAC.
+
+Connect at socket.cryptohack.org 13407
+
+Challenge files:
+  - 13407.py
+
+
+Challenge contributed by giladk
+
+**_FILE:_**
+
+```py
+from itertools import cycle
+from hashlib import md5
+import os
+from utils import listener
+
+
+FLAG = b'crypto{??????????????????????????????????????}'
+
+
+def bxor(a, b):
+    return bytes(x ^ y for x, y in zip(a, b))
+
+
+class Challenge():
+    def __init__(self):
+        self.before_input = "Enter data\n"
+
+    def challenge(self, msg):
+        if "option" not in msg:
+            return {"error": "You must send an option to this server."}
+
+        elif msg["option"] == "message":
+            data = bytes.fromhex(msg["data"])
+
+            if len(data) < len(FLAG):
+              return {"error": "Bad input"}
+
+            salted = bxor(data, cycle(FLAG))
+            return {"hash": md5(salted).hexdigest()}
+
+        else:
+            return {"error": "Invalid option"}
+
+
+"""
+When you connect, the 'challenge' function will be called on your JSON
+input.
+"""
+listener.start_server(port=13407)
+```
+
+---
