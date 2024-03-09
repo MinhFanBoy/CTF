@@ -370,3 +370,149 @@ listener.start_server(port=13388)
 
 ```
 ---
+
+Bài này ban đầu mỉnh định sử dụng số giả prime để làm nhưng thấy sai sai nên quay qua đọc wu.
+
+Ta thấy nếu hai block có 64 bytes(vì nó là block đầy đủ cần cho mỗi lần mã hóa dữ liệu) có hai mã hóa giống nhau thì ta hoàn toàn có thể pad thêm vào hai block đó mà hoàn toàn làm cho mã hash của nó giống nhau, tức:
+
+nếu md5(A) = md5(B) thì md5(A + C) = md5(B + C)
+
+nên bây giờ mình tìm hai đầu vào khác nhau A, B co chung đầu ra. Mình tìm thêm đoạn C để khiến A + C là prime là xong. (và sympy đã hỗ trợ săn hàm tìm số prime gần nhất rồi nên ta chỉ cần dịch bytes nó đi để tránh làm thay đổi bytes đầu và tìm là có )
+
+```py
+
+
+from array import array 
+from Crypto.Util.number import *
+from pwn import * 
+from json import *
+from sympy import nextprime
+
+
+def signature(obj: dict) -> bytes:
+    s.sendline(dumps(obj).encode())
+    return loads(s.recvline().decode())
+
+input1 = array('I',  [0x6165300e,0x87a79a55,0xf7c60bd0,0x34febd0b,0x6503cf04,
+    0x854f709e,0xfb0fc034,0x874c9c65,0x2f94cc40,0x15a12deb,0x5c15f4a3,0x490786bb,
+    0x6d658673,0xa4341f7d,0x8fd75920,0xefd18d5a])
+
+input2 = array('I', [x^y for x,y in zip(input1, [0, 0, 0, 0, 0, 1<<10, 0, 0, 0, 0, 1<<31, 0, 0, 0, 0, 0])])
+
+input1: bytes = input1.tobytes()
+input2: bytes = input2.tobytes()
+
+prime: int = nextprime(bytes_to_long(input1) << 512)
+
+assert isPrime(prime)
+
+input1 = long_to_bytes(prime)
+input2 = input2 + input1[64:]
+a = 1083337
+
+s = connect("socket.cryptohack.org", 13392)
+print(s.recv().decode())
+
+sig = signature({"option": "sign", "prime": prime})["signature"]
+print(signature({"option": "check", "prime": bytes_to_long(input2), "signature": sig, "a" : a}))
+```
+
+### 6. TwinKeys
+
+---
+
+**_Task:_**
+
+Cryptohack's secure safe requires two keys to unlock its secret. However, Jack and Hyperreality can't remember the keys, only the start of one of them. Can you help find the lost keys to unlock the safe?
+
+Connect at socket.cryptohack.org 13397
+
+Challenge files:
+  - 13397.py
+
+Challenge contributed by ciphr
+
+**_File:_**
+
+```py
+
+import os
+import random
+from Crypto.Hash import MD5
+from utils import listener
+
+KEY_START = b"CryptoHack Secure Safe"
+FLAG = b"crypto{????????????????????????????}"
+
+
+def xor(a, b):
+    assert len(a) == len(b)
+    return bytes(x ^ y for x, y in zip(a, b))
+
+
+class SecureSafe:
+    def __init__(self):
+        self.magic1 = os.urandom(16)
+        self.magic2 = os.urandom(16)
+        self.keys = {}
+
+    def insert_key(self, key):
+        if len(self.keys) >= 2:
+            return {"error": "All keyholes are already occupied"}
+        if key in self.keys:
+            return {"error": "This key is already inserted"}
+
+        self.keys[key] = 0
+        if key.startswith(KEY_START):
+            self.keys[key] = 1
+
+        return {"msg": f"Key inserted"}
+
+    def unlock(self):
+        if len(self.keys) < 2:
+            return {"error": "Missing keys"}
+
+        if sum(self.keys.values()) != 1:
+            return {"error": "Invalid keys"}
+
+        hashes = []
+        for k in self.keys.keys():
+            hashes.append(MD5.new(k).digest())
+
+        # Encrypting the hashes with secure quad-grade XOR encryption
+        # Using different randomized magic numbers to prevent the hashes
+        # from ever being equal
+        h1 = hashes[0]
+        h2 = hashes[1]
+        for i in range(2, 2**(random.randint(2, 10))):
+            h1 = xor(self.magic1, xor(h2, xor(xor(h2, xor(h1, h2)), h2)))
+            h2 = xor(xor(xor(h1, xor(xor(h2, h1), h1)), h1), self.magic2)
+
+        assert h1 != bytes(bytearray(16))
+
+        if h1 == h2:
+            return {"msg": f"The safe clicks and the door opens. Amongst its secrets you find a flag: {FLAG}"}
+        return {"error": "The keys does not match"}
+
+
+class Challenge():
+    def __init__(self):
+        self.securesafe = SecureSafe()
+        self.before_input = "Can you help find our lost keys to unlock the safe?\n"
+
+    def challenge(self, your_input):
+        if not 'option' in your_input:
+            return {"error": "You must send an option to this server"}
+        elif your_input['option'] == 'insert_key':
+            key = bytes.fromhex(your_input["key"])
+            return self.securesafe.insert_key(key)
+        elif your_input['option'] == 'unlock':
+            return self.securesafe.unlock()
+        else:
+            return {"error": "Invalid option"}
+
+
+listener.start_server(port=13397)
+```
+
+---
