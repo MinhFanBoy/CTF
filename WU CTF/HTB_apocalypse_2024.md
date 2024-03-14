@@ -1,7 +1,7 @@
 Tables of contents
 ------------------
 
-### Crypto
+### I. Crypto
 
 ### 1. Dynastic
 
@@ -45,7 +45,7 @@ DJF_CTA_SWYH_NPDKK_MBZ_QPHTIGPMZY_KRZSQE?!_ZL_CN_PGLIMCU_YU_KJODME_RYGZXL
 ```
 ---
 
-Bài này khá dễ. Tóm tắt đề như sau: Lấy lần lượt từng ký tự của txt chuyển sang số nếu m không phải là ký tự thì in nó ra, nếu nó là ký tự thì $(m - 0x41 + stt) % 26 + 0x41$. Từ đó ta chỉ cần code ngược lại nó là được.
+Bài này khá dễ. Tóm tắt đề như sau: Lấy lần lượt từng ký tự của txt chuyển sang số nếu m không phải là ký tự thì in nó ra, nếu nó là ký tự thì $(m - 0x41 + stt) % 26 + 0x41$. Từ đó ta chỉ cần code ngược lại là được. Thật ra là chatGPT.
 
 ```py
 
@@ -84,7 +84,7 @@ print(m)
 ```
 ---
 
-Khi nhìn vào nó mình nhận thấy đây là mã hóa hoán đổi các vị trí của flag nên bây giờ mình cần tìm lại vị trí của nó. Thấy flag_form là HTB{} mà trong enc ta thấy chữ HTb ở cuối nên ta viết ngược nó lại rồi hoán đổi vị trí của chữ lại như ban đầu là được
+Khi nhìn vào nó mình nhận thấy đây là mã hóa hoán đổi các vị trí của flag nên bây giờ mình cần tìm lại vị trí của nó. Thấy flag_form là HTB{} mà trong enc ta thấy chữ HTb ở cuối nên ta viết ngược nó lại rồi hoán đổi vị trí của chữ lại như ban đầu.
 
 ```py
 
@@ -129,7 +129,7 @@ c = 1511419090525354224749569664976622494364756524557579303372217336238189508157
 
 ---
 
-Thấy hàm `n = math.prod([getPrime(1024) for _ in range(2**0)])` tạo ra số n là số prime nên ta hoàn tàon có thể dễ dàng tìm phi và từ đó có flag.
+Thấy hàm `n = math.prod([getPrime(1024) for _ in range(2**0)])` tạo ra số n là số prime nên ta hoàn toàntoàn có thể dễ dàng tìm phi và từ đó có flag.
 
 ```py
 
@@ -445,7 +445,7 @@ Bài này yêu cầu ta phải tìm hidden_curve trong khi ta biết a và phả
 
 nên $y ^ 2 - ( x ^ 3 + a * x) = b \pmod{p}$
 
-Do ta có 3 điểm thuộc đường "cong" nên từ đó ta có thể tìm được 3 giá trị của b thỏa mãn điều kiện sau:
+Do ta có 3 điểm thuộc đường "cong" là A, B, G nên từ đó ta có thể tìm được 3 giá trị của b thỏa mãn điều kiện sau:
 
 $$b_0 = b_1 = b_2 \pmod{p} \to b_0 - b1 = 0 = b_0 - b_2 \pmod{p}$$
 
