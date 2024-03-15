@@ -527,7 +527,9 @@ encrypted = cipher.encrypt(pad(FLAG, 16))
 print('c =', encrypted)
 ```
 **_OUTPUT:_**
+
 file nặng quá nên k cho vào dc
+
 ---
 Trong đoạn script trên ta có một class là Permultation , là một cấu trúc đại số được ký hiệu như sau $M = (x_1, x_2, ... x_n)$ hay
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/0e8a7d6e-741f-4159-be64-b647b602b23d)
@@ -606,4 +608,61 @@ ta gọi A, B, G là phần tử của nhóm hoán vị (các giá trị của A
 
 từ đó ta có thể sử dụng polig hellman để có tính a, b và hoành thành chall.
 
+```sage
+
+g = PermutationGroupElement(Permutation([i+1 for i in g]))
+A = PermutationGroupElement(Permutation([i+1 for i in A]))
+B = PermutationGroupElement(Permutation([i+1 for i in B]))
+
+o = g.order()
+print(o)
+a = []
+b = []
+for p,e in factor(o):
+    tg = g^(ZZ(o/p^e))
+    tA = A^(ZZ(o/p^e))
+    tB = B^(ZZ(o/p^e))
+    for i in range(p^e):
+        if tg^i==tA:
+            a.append([i,p^e])
+    for i in range(p^e):
+        if tg^i==tB:
+            b.append([i,p^e])
+a = crt([i[0] for i in a],[i[1] for i in a])
+b = crt([i[0] for i in b],[i[1] for i in b])
+assert g^a == A
+assert g^b == B
+print(f'{a = }')
+print(f'{b = }')
+```
+
 ```py
+
+c = b'\x89\xba1J\x9c\xfd\xe8\xd0\xe5A*\xa0\rq?!wg\xb0\x85\xeb\xce\x9f\x06\xcbG\x84O\xed\xdb\xcd\xc2\x188\x0cT\xa0\xaaH\x0c\x9e9\xe7\x9d@R\x9b\xbd'
+
+a = 839949590738986464
+b = 828039274502849303
+
+A = Permutation(A)
+g = Permutation(g)
+B = Permutation(B)
+
+A = g ** a
+C = A ** b
+
+sec = tuple(C.mapping)
+sec = hash(sec)
+sec = long_to_bytes(sec)
+
+hash = sha256()
+hash.update(sec)
+
+key = hash.digest()[16:32]
+iv = b"mg'g\xce\x08\xdbYN2\x89\xad\xedlY\xb9"
+
+cipher = AES.new(key, AES.MODE_CBC, iv)
+
+encrypted = cipher.decrypt(c)
+print('d =', encrypted)
+
+```
