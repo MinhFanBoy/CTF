@@ -1047,6 +1047,44 @@ if __name__ == "__main__":
     main()
 ```
 
+## II. Blockchain
+
+### 1. Russian Roulette
+Lmao Blockchain nhuw c meo hieu j
+
+
+## III. MISC
+
+### 1. Character
+
+---
+**_TASK_**
+
+Khi ta gửi cho server một số ta sẽ nhẫn lại được flag tại vọ trí đó.
+    assert all([Cipher(key_0).encrypt(b"00" * 8) ==vị trí đó.
+
+---
+
+from pwn import *
+
+def main() -> None:
+    i = 0
+    s = remote("83.136.252.194", 57105)
+
+    while True:
+        s.recvuntil(b"Enter an index: ")
+
+        s.sendline(f"{i}".encode())
+        
+        s.recvuntil(f"at Index {i}: ".encode())
+        print(s.recvline()[:-1].decode(), end="", flush=True)
+        i += 1
+
+if __name__ == "__main__":
+    main()
+    
+```
+
 ### 2. Unbreakable
 
 ---
