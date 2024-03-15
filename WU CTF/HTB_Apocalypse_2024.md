@@ -1290,10 +1290,15 @@ if __name__ == "__main__":
 
 ### 4. Cu
 ---
+
 **_SOURCE:_**
+
 [here](https://github.com/hackthebox/cyber-apocalypse-2024/blob/main/misc/%5BEasy%5D%20Cubicle%20Riddle/release/misc_cubicle_riddle.zip) :v
+
 ---
+
 Bài này có mấu chốt chủ yếu là ở phần này:
+
 ```py
  
     def _construct_answer(self, answer: bytes) -> types.CodeType:
