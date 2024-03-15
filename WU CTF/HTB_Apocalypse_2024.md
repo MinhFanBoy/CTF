@@ -1,8 +1,12 @@
 Tables of contents
 ------------------
+
 ### I. Crypto
+
 ### 1. Dynastic
+
 ---
+
 **_SOURCE:_**
 ```py
 from secret import FLAG
@@ -26,13 +30,18 @@ with open('output.txt', 'w') as f:
     f.write('Make sure you wrap the decrypted text with the HTB flag format :-]\n')
     f.write(encrypt(FLAG))
 ```
+
 **_OUTPUT:_**
+
 ```py
 Make sure you wrap the decrypted text with the HTB flag format :-]
 DJF_CTA_SWYH_NPDKK_MBZ_QPHTIGPMZY_KRZSQE?!_ZL_CN_PGLIMCU_YU_KJODME_RYGZXL
 ```
+
 ---
+
 Bài này khá dễ. Tóm tắt đề như sau: Lấy lần lượt từng ký tự của txt chuyển sang số nếu m không phải là ký tự thì in nó ra, nếu nó là ký tự thì $(m - 0x41 + stt) % 26 + 0x41$. Từ đó ta chỉ cần code ngược lại là được. Thật ra là chatGPT.
+
 ```py
 enc = "DJF_CTA_SWYH_NPDKK_MBZ_QPHTIGPMZY_KRZSQE?!_ZL_CN_PGLIMCU_YU_KJODME_RYGZXL"
 def to_identity_map(a):
@@ -51,14 +60,20 @@ for i in range(len(enc)):
     m += ech
 print(m)
 ```
+
 ### 2. Makeshift
+
 ---
+
 **_OUTPUT:_**
+
 ```py
 !?}De!e3d_5n_nipaOw_3eTR3bt4{_THB
 ```
 ---
+
 Khi nhìn vào nó mình nhận thấy đây là mã hóa hoán đổi các vị trí của flag nên bây giờ mình cần tìm lại vị trí của nó. Thấy flag_form là HTB{} mà trong enc ta thấy chữ HTb ở cuối nên ta viết ngược nó lại rồi hoán đổi vị trí của chữ lại như ban đầu.
+
 ```py
 enc: str = "!?}De!e3d_5n_nipaOw_3eTR3bt4{_THB"
 enc = enc[::-1]
@@ -67,8 +82,11 @@ for x in range(0, len(enc), 3):
     print(enc[x + 2], end= "")
     print(enc[x ], end= "")
 ```
+
 ### 3. PrimaryKnowledge
+
 ---
+
 **_SOURCE:_**
 ```py
 import math
@@ -83,7 +101,9 @@ with open('output.txt', 'w') as f:
     f.write(f'{e = }\n')
     f.write(f'{c = }\n')
 ```
+
 **_OUTPUT:_**
+
 ```py
 n = 144595784022187052238125262458232959109987136704231245881870735843030914418780422519197073054193003090872912033596512666042758783502695953159051463566278382720140120749528617388336646147072604310690631290350467553484062369903150007357049541933018919332888376075574412714397536728967816658337874664379646535347
 e = 65537
@@ -100,8 +120,11 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 ```
+
 ### 4. Blunt
+
 ---
+
 **_SOURCE:_**
 ```py
 from Crypto.Cipher import AES
@@ -130,8 +153,12 @@ cipher = AES.new(key, AES.MODE_CBC, iv)
 encrypted = cipher.encrypt(pad(FLAG, 16))
 print(f'ciphertext = {encrypted}')
 ```
+
+
 **_OUTPUT:_**
+
 ```py
+
 p = 0xdd6cc28d
 g = 0x83e21c05
 A = 0xcfabb6dd
@@ -139,8 +166,11 @@ B = 0xc4a21ba9
 ciphertext = b'\x94\x99\x01\xd1\xad\x95\xe0\x13\xb3\xacZj{\x97|z\x1a(&\xe8\x01\xe4Y\x08\xc4\xbeN\xcd\xb2*\xe6{'
 ```
 ---
+
 Đây là một bài sử dụng Diffie-Hellman ECC điển hình ta thấy số p rất nhỏ và nó cũng là số smoothprime nên ta hoàn toàn có thể dùng hàm có sẵn của thư viện để tìm discrete_log và tìm lại secret
+
 ```py
+
 from Crypto.Cipher import AES
 from Crypto.Util.number import long_to_bytes
 from hashlib import sha256
@@ -159,9 +189,12 @@ iv = b'\xc1V2\xe7\xed\xc7@8\xf9\\\xef\x80\xd7\x80L*'
 cipher = AES.new(key, AES.MODE_CBC, iv)
 print(f'{cipher.decrypt(ciphertext) = }')
 ```
+
 ### 5. Trà đá
+
 ---
 **_SOURCE:_**
+
 ```py
 import os
 from secret import FLAG
@@ -221,12 +254,16 @@ if __name__ == '__main__':
     with open('output.txt', 'w') as f:
         f.write(f'Key : {KEY.hex()}\nCiphertext : {ct.hex()}')
 ```
+
 **_OUTPUT:_**
+
 ```py
 Key : 850c1413787c389e0b34437a6828a1b2
 Ciphertext : b36c62d96d9daaa90634242e1e6c76556d020de35f7a3b248ed71351cc3f3da97d4d8fd0ebc5c06a655eb57f2b250dcb2b39c8b2000297f635ce4a44110ec66596c50624d6ab582b2fd92228a21ad9eece4729e589aba644393f57736a0b870308ff00d778214f238056b8cf5721a843
 ```
+
 ---
+
 Bài này mình sử dụng chatgpt để làm vì nó khá là tốn thời gian :) Why not?
 ```py
 from Crypto.Util.Padding import unpad
@@ -286,7 +323,9 @@ if __name__ == '__main__':
     pt = cipher.decrypt(ct)
     print("Decrypted Flag:", pt.decode())
 ```
+
 ### 6. Arranged
+
 ---
 **_SOURCE:_**
 ```sage
@@ -321,12 +360,19 @@ print(encrypted)
 b'V\x1b\xc6&\x04Z\xb0c\xec\x1a\tn\xd9\xa6(\xc1\xe1\xc5I\xf5\x1c\xd3\xa7\xdd\xa0\x84j\x9bob\x9d"\xd8\xf7\x98?^\x9dA{\xde\x08\x8f\x84i\xbf\x1f\xab'
 ```
 ---
+
 Bài này yêu cầu ta phải tìm hidden_curve trong khi ta biết a và phải tìm b, p. Ta có:
+
 + ECC có dạng $y ^ 2 = x ^ 3 + a * x + b \pmod{p}$
+  
 nên $y ^ 2 - ( x ^ 3 + a * x) = b \pmod{p}$
+
 Do ta có 3 điểm thuộc đường "cong" là A, B, G nên từ đó ta có thể tìm được 3 giá trị của b thỏa mãn điều kiện sau:
+
 $$b_0 = b_1 = b_2 \pmod{p} \to b_0 - b1 = 0 = b_0 - b_2 \pmod{p}$$
+
 Giả sử: $b_0 - b_1 = k * p$ và $b_0 - b_2 = u * p$ thì ta dễ thấy $p = GCD(b_0 - b_1, b_0 - b_2)$ sau khi có p ta có thể tìm b một cách dễ dàng:B
+
 Còn phần sau thì mình sử dụng hàm discrete_log của sage vì đây là số smoothprime và từ đó dễ dàng có được flag.
 ```sage
 from Crypto.Cipher import AES
@@ -363,9 +409,13 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
 ### 7. partial tenacity
+
 ---
+
 **_SOURCE:_**
+
 ```py
 from secret import FLAG
 from Crypto.PublicKey import RSA
@@ -387,7 +437,9 @@ with open('output.txt', 'w') as f:
     f.write(f'p = {str(cipher.key.p)[::2]}\n')
     f.write(f'q = {str(cipher.key.q)[1::2]}')
 ```
+
 **_OUTPUT:_**
+
 ```py
 n = 118641897764566817417551054135914458085151243893181692085585606712347004549784923154978949512746946759125187896834583143236980760760749398862405478042140850200893707709475167551056980474794729592748211827841494511437980466936302569013868048998752111754493558258605042130232239629213049847684412075111663446003
 ct = 7f33a035c6390508cee1d0277f4712bf01a01a46677233f16387fae072d07bdee4f535b0bd66efa4f2475dc8515696cbc4bc2280c20c93726212695d770b0a8295e2bacbd6b59487b329cc36a5516567b948fed368bf02c50a39e6549312dc6badfef84d4e30494e9ef0a47bd97305639c875b16306fcd91146d3d126c1ea476
@@ -395,14 +447,23 @@ p = 1514414733571361529852169803975255913058750942887388206990692716740221679026
 q = 15624342005774166525024608067426557093567392652723175301615422384508274269305
 ```
 ---
+
 Tóm tắt lại đề bài, ta có đây là RSA với mã hóa PKCS1 padding với e = 65537 và ta có phần leak của `p = cipher.key.p)[::2], q = cipher.key.q)[1::2]`.
+
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/ce082550-71a7-4849-8b82-9c00f4f06381)
+
 [Mình sử dụng tai liệu này](https://eprint.iacr.org/2020/1506.pdf)
+
 Ta dễ thấy với hai số, giả sử xxx * yyy = zzz thì với mọi k ta luôn có kxxx * yyy = ?zzz tức với khi thêm một số vào số hang của phép nhân thì một vài số của tích vẫn không thay đổi :M không hiểu miêu tả kiểu j:
+
 xét:
+
 `x4x3 * 0x5x = 6003` từ đó ta thử brute với mọi x có thể từ '0 -> 9' nên ta thử brute nếu x thỏa mãn thì ta lưu lại (nhưng vì có thể có nhiều x thỏa mãn nên ta lưu nó trong list rồi tách ra thử cách trường hợp khác). Mình sử dụng thuật toán như sau.
+
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/1688b0eb-d8f6-466c-a186-0fd456f371f6)
+
 đề có thể biết vị trí mình cần brute thì mình tạo ra một str với các số 0, 1 nếu vị trí hiện tại là 1 thì ta bỏ qua không brute, ngược lại nếu là 0 thì ta tiến hành brute dựa trên những điều trên
+
 ```py
     p_mask = "".join(["1" if i % 2 == 0 else "0" for i in range(prime_len)])
     q_mask = "".join(["1" if i % 2 == 1 else "0" for i in range(prime_len)])
@@ -429,7 +490,9 @@ def brute_prime(n: int, p: int, q: int, p_h: int, q_h: int, p_mask: str, q_mask:
     assert p * q == n
     return p, q
 ```
+
 Từ đó ta có thể tìm lại được flag và hoàn thành chall.
+
 ```py
 from Crypto.Util.number import *
 from gmpy2 import iroot
@@ -468,8 +531,11 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 ```
+
 ### 8. Permulted
+
 ---
+
 **_SOURCE:_**
 ```py
 from Crypto.Cipher import AES
@@ -531,12 +597,19 @@ print('c =', encrypted)
 file nặng quá nên k cho vào dc
 
 ---
+
 Trong đoạn script trên ta có một class là Permultation , là một cấu trúc đại số được ký hiệu như sau $M = (x_1, x_2, ... x_n)$ hay
+
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/0e8a7d6e-741f-4159-be64-b647b602b23d)
+
 với :
+
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/4a43437b-5d35-4e3a-b790-c9bd03a7529a)
+
 thì ta có p(1) = 2, p(2) = 3, p(3) = 1. Thấy đây là một nhóm hoán vị thuộc $S_3$ , mà tập hợp các đầu vào có thể của một nhóm hoán vị $S_n$ là n.
+
 Trong python, nhóm hoán vị được biểu diễn theo dạng ma trận với
+
 ```py
 def __init__(self, mapping):
     self.length = len(mapping)
@@ -550,7 +623,9 @@ def __call__(self, *args, **kwargs):
     assert idx in range(self.length)
     return self.mapping[idx]
 ```
+
 hàm call sẽ trả lại giá trị tại index mà chúng ta nhập vào.
+
 ```py
 p = Permutation([2, 3, 1])
 print(p(2))		# outputs 1
@@ -563,20 +638,26 @@ def __mul__(self, other):
     return Permutation(ans)
 ```
 với hàm mul để hiểu được nó ta cần nói qua về nhóm hoán vị để có thể hiểu được nó.
+
 + ta có i = [0, 1, 2, ..., n - 1] là phần tử đơn vị vì dễ thấy hoán vị của chính nó luôn bằng chính nó
 + với phép nhân được quy ước như sau $p * q = p(q(x)) \forall x \in [0, 1, .., length - 1]$ với điều kiện hai phần tử có độ dài bằng nhau.
 + Theo định nghĩa cơ bản của hoán vị thì nó là một song ánh tức nó luôn tồn tại một nghịch đảo của nó.
 + Vì thành phần hàm hoán vị có tính kết hợp nên ta có a(b * c) = a * b * c. Do đó, tích của hai hoán vị trở lên thường được viết mà không thêm dấu ngoặc đơn để biểu thị việc phân nhóm; chúng cũng thường được viết mà không có dấu chấm hoặc dấu hiệu khác để biểu thị phép nhân
 Nên đầy hoàn toàn là một nhóm (không có tính chất hoán vị)
+
 ví dụ:
+
 ```py
 p = Permutation([2, 3, 1])
 q = Permutation([3, 2, 1])
 comp = p * q
 print(comp.mapping)		# [1, 3, 2]
 ```
+
 ta có $com = [p(q(x)) \forall x \in [0, 1, ..., length - 1]] =[p(q(1)), p(q(2)), p(q(3))] = [p(3), p(2), p(1)] = [1, 3, 2]$
+
 cuối cùng là hàm mũ sử dụng thuật toán double and add để giảm thời gian tính toán và theo như lý thyết ở trên $p ^ n = p * p * ... * p$ từ đó ta hoàn toàn có thể tính toán được hàm mũ.
+
 ```py
 def __pow__(self, power, modulo=None):
     ans = Permutation.identity(self.length)
