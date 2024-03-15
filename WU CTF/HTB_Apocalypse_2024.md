@@ -1370,22 +1370,7 @@ def main() -> None:
 
     print(s.recvuntil(b"(Answer wisely) >").decode())
     s.sendline(ans.encode())
-    print(s.recvuntil(b"}").decode())
-
-if __name__ == "__main__":
-    main()
-
-```
-### 5. Multi...
-
----
-**_TASK:_**
-
-![image](https://github.com/MinhFanBoy/CTF/assets/145200520/e5e478c0-0731-4931-b123-be3529145917)
-
----
-
-Bài này khá là hay. Có thể giải theo cách timming attack. Đề bài yêu cầu ta phải nhập vào một program có thể chạy được nhiều ngôn ngữ để đọc file, máy chủ sẽ chạy file đó qua từng ngôn ngữ khác nhau cho tới khi thỏa mãn hết sẽ in ra flag. Nhưng việc code như vậy sẽ khá tốn công nên lợi dụng việc chương trình chạy code mà ta gửi để có thể lợi dựng điều đó để chạy một vìa hàm leak ra thông tin gì đó về flag (ở đây nó leak ra dưới dạng thời gian phản hồi).
+   vài hàm leak ra thông tin gì đó về flag (ở đây nó leak ra dưới dạng thời gian phản hồi).
 
 Khi ta gửi chương trình này:
 
