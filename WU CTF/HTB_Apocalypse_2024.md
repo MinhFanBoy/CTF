@@ -879,7 +879,7 @@ Ngoài ra vì các ciphertext và key ta gửi sẽ được mã hóa CBC mà ta
 
 $c_i = e(p_i \oplus c_{i-1}), c_{-1} = IV$
 
-nên từ đó ta có decrypt(enc) = iv $\oplus# msg[:8] nên ta có iv = msg[:8] $\oplus$ decrypt(enc)
+nên từ đó ta có decrypt(enc) = iv $\oplus$ msg[:8] nên ta có iv = msg[:8] $\oplus$ decrypt(enc)
 
 ĐĐể giải mã enc mình sử dụng code từ bài trước để giải mã enc với key mà mình gửi( mình gửi key là 00 cho dễ tính).
 
