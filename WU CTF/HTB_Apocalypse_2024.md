@@ -1362,14 +1362,24 @@ if __name__ == "__main__":
 ### 5. Multi...
 
 ---
-@@ -1395,6 +1394,60 @@ import time
+**_TASK:_**
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/e5e478c0-0731-4931-b123-be3529145917)
+
+---
+
+Bài này khá là hay. Có thể giải theo cách timming attack. Đề bài yêu cầu ta phải nhập vào một program có thể chạy được nhiều ngôn ngữ để đọc file, máy chủ sẽ chạy file đó qua từng ngôn ngữ khác nhau cho tới khi thỏa mãn hết sẽ in ra flag. Nhưng việc code như vậy sẽ khá tốn công nên lợi dụng việc chương trình chạy code mà ta gửi để có thể lợi dựng điều đó để chạy một vài hàm leak ra thông tin gì đó về flag (ở đây nó leak ra dưới dạng thời gian phản hồi).
+
+Khi ta gửi chương trình này:
+
+
+```py
+import time
 flag = open('flag.txt', 'r').read()
 time.sleep(ord(flag[{i}]) / 10)
 ```
-
 Máy chủ sẽ chạy nó, trong khi nó vẫn thỏa mãn yêu cầu của sever và cũng leak cho chúng ta thông tin thêm về flag.
 
-Từ đó, ta gửi yêu cầu nhiều lần lêmạng)
 Từ đó, ta gửi yêu cầu nhiều lần lên lên máy chủ, mỗi lần đọc từng ký tự của flag khi đó chương trình sẽ tạm dừng chương trình một khoảng thời gian đúng bằng (ord(flag) / 10) nên ta tính toán khoảng thời gian chênh lệch là ta có flag ( trong đoạng code có bị trừ đi cho 2 là do một vài yếu tố mội trường như tốc độ mang, máy tính ảnh hưởng tới thời gian)
 
 ```py
