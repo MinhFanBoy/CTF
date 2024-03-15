@@ -597,6 +597,8 @@ def brute_prime(n: int, p: int, q: int, p_h: int, q_h: int, p_mask: str, q_mask:
     return p, q
 ```
 
+Từ đó ta có thể tìm lại được flag và hoàn thành chall.
+
 ```py
 
 from Crypto.Util.number import *
