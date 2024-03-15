@@ -1287,25 +1287,19 @@ if __name__ == "__main__":
     main()
 ```
 
+
 ### 4. Cu
-
 ---
-
 **_SOURCE:_**
-
 [here](https://github.com/hackthebox/cyber-apocalypse-2024/blob/main/misc/%5BEasy%5D%20Cubicle%20Riddle/release/misc_cubicle_riddle.zip) :v
-
 ---
-
 Bài này có mấu chốt chủ yếu là ở phần này:
-
 ```py
  
     def _construct_answer(self, answer: bytes) -> types.CodeType:
         co_code: bytearray = bytearray(self.co_code_start)
         co_code.extend(answer)
         co_code.extend(self.co_code_end)
-
         code_obj: types.CodeType = types.CodeType(
             1,
             0,
@@ -1333,16 +1327,13 @@ mình có thể gửi một đoạn bytes vào phần co_de. Chúng ta cần ch�
 + codeobject.co_consts là mảng tuple chứa các giá trị của hàm, ở trong trường hợp này là (None, self.max_int, self.min_int)
 + codeobject.co_varnames là mảng gồm tên của các biến trong hàm, ở trong trường hợp này là ("num_list", "min", "max", "num")
 + codeobject.co_code đây là phần quan trong nhất, là một chuỗi byte biểu thị chuỗi hướng dẫn mã byte trong hàm.
-
+  
 Từ đó chúng ta có thể gán giá trị của một số nào đó cho min, max rồi có thể trả nó về. Trong python có hỗ trợ thư viện [này](https://unpyc.sourceforge.net/Opcodes.html) giúp chuyển hàm thành dạng code khá hay ho và nên đọc thử. 
 
-Từ đó ta tổng hợp tất cả các thông tin đã có như sau: ta viết một hàm tìm ra giá trị lớn nhất, nhỏ nhất của nums_list rồi lưu lại vào biến min, max đã có sẵn, sau đó chuyển nó thành dạng bytes và gửi nó đi là ta thành công có được flag.
+Tổng hợp tất cả các thông tin đã có như sau: ta viết một hàm tìm ra giá trị lớn nhất, nhỏ nhất của nums_list rồi lưu lại vào biến min, max đã có sẵn, sau đó chuyển nó thành dạng bytes và gửi nó đi là ta thành công có được flag.
 
 ```py
-
-
 from pwn import *
-
 def _answer_func(num_list: int):
     min: int = 1000
     max: int = -1000
@@ -1352,36 +1343,33 @@ def _answer_func(num_list: int):
         if num > max:
             max = num
     return (min, max)
-
-
-
-
 def main() -> None:
-
     s = remote("94.237.54.30", 56070)
-
     ans: bytes = _answer_func.__code__.co_code
     ans = ",".join([str(x) for x in ans])
     print(ans)
     
     print(s.recvuntil(b"(Choose wisely) > ").decode())
-
     s.sendline(b"1")
-
     print(s.recvuntil(b"(Answer wisely) >").decode())
     s.sendline(ans.encode())
-   vài hàm leak ra thông tin gì đó về flag (ở đây nó leak ra dưới dạng thời gian phản hồi).
+    print(s.recvuntil(b"}").decode())
+if __name__ == "__main__":
+    main()
 
-Khi ta gửi chương trình này:
+```
 
-```py
-import time
+### 5. Multi...
+
+---
+@@ -1395,6 +1394,60 @@ import time
 flag = open('flag.txt', 'r').read()
 time.sleep(ord(flag[{i}]) / 10)
 ```
 
 Máy chủ sẽ chạy nó, trong khi nó vẫn thỏa mãn yêu cầu của sever và cũng leak cho chúng ta thông tin thêm về flag.
 
+Từ đó, ta gửi yêu cầu nhiều lần lêmạng)
 Từ đó, ta gửi yêu cầu nhiều lần lên lên máy chủ, mỗi lần đọc từng ký tự của flag khi đó chương trình sẽ tạm dừng chương trình một khoảng thời gian đúng bằng (ord(flag) / 10) nên ta tính toán khoảng thời gian chênh lệch là ta có flag ( trong đoạng code có bị trừ đi cho 2 là do một vài yếu tố mội trường như tốc độ mang, máy tính ảnh hưởng tới thời gian)
 
 ```py
