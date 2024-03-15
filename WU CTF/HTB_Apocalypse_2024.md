@@ -877,11 +877,11 @@ Ngoài ra vì các ciphertext và key ta gửi sẽ được mã hóa CBC mà ta
 
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/f7c12134-d90f-4e65-88fa-5f06421d5943)
 
-$c_i = e(p_i \text{xor} c_{i-1}), c_{-1} = IV$
+$c_i = e(p_i \oplus c_{i-1}), c_{-1} = IV$
 
-nên từ đó ta có $decrypt(enc) = iv \oplus msg[:8]$
+nên từ đó ta có decrypt(enc) = iv $\oplus# msg[:8] nên ta có iv = msg[:8] $\oplus$ decrypt(enc)
 
-để giải mã enc mình sử dụng code từ bài trước
+ĐĐể giải mã enc mình sử dụng code từ bài trước để giải mã enc với key mà mình gửi( mình gửi key là 00 cho dễ tính).
 
 ```py
 
