@@ -747,3 +747,308 @@ encrypted = cipher.decrypt(c)
 print('d =', encrypted)
 
 ```
+
+### 9. tsayaki
+
+---
+
+**_secret.py_**
+```py
+IV = b'\r\xdd\xd2w<\xf4\xb9\x08'
+FLAG = 'HTB{th1s_4tt4ck_m4k3s_T34_1n4ppr0pr14t3_f0r_h4sh1ng!}'
+```
+
+**_tea.py_**
+```py
+from Crypto.Util.Padding import pad
+from Crypto.Util.number import bytes_to_long as b2l, long_to_bytes as l2b
+from enum import Enum
+
+class Mode(Enum):
+    ECB = 0x01
+    CBC = 0x02
+
+class Cipher:
+    def __init__(self, key, iv=None):
+        self.BLOCK_SIZE = 64
+        self.KEY = [b2l(key[i:i+self.BLOCK_SIZE//16]) for i in range(0, len(key), self.BLOCK_SIZE//16)]
+        self.DELTA = 0x9e3779b9
+        self.IV = iv
+        if self.IV:
+            self.mode = Mode.CBC
+        else:
+            self.mode = Mode.ECB
+    
+    def _xor(self, a, b):
+        return b''.join(bytes([_a ^ _b]) for _a, _b in zip(a, b))
+
+    def encrypt(self, msg):
+        msg = pad(msg, self.BLOCK_SIZE//8)
+        blocks = [msg[i:i+self.BLOCK_SIZE//8] for i in range(0, len(msg), self.BLOCK_SIZE//8)]
+        
+        ct = b''
+        if self.mode == Mode.ECB:
+            for pt in blocks:
+                ct += self.encrypt_block(pt)
+        elif self.mode == Mode.CBC:
+            X = self.IV
+            for pt in blocks:
+                enc_block = self.encrypt_block(self._xor(X, pt))
+                ct += enc_block
+                X = enc_block
+        return ct
+
+    def encrypt_block(self, msg):
+        m0 = b2l(msg[:4])
+        m1 = b2l(msg[4:])
+        K = self.KEY
+        msk = (1 << (self.BLOCK_SIZE//2)) - 1
+
+        s = 0
+        for i in range(32):
+            s += self.DELTA
+            m0 += ((m1 << 4) + K[0]) ^ (m1 + s) ^ ((m1 >> 5) + K[1])
+            m0 &= msk
+            m1 += ((m0 << 4) + K[2]) ^ (m0 + s) ^ ((m0 >> 5) + K[3])
+            m1 &= msk
+        
+        m = ((m0 << (self.BLOCK_SIZE//2)) + m1) & ((1 << self.BLOCK_SIZE) - 1) # m = m0 || m1
+
+        return l2b(m)
+```
+
+**_server.py_**
+```py
+from tea import Cipher as TEA
+from secret import IV, FLAG
+import os
+
+ROUNDS = 10
+
+def show_menu():
+    print("""
+============================================================================================
+|| I made this decryption oracle in which I let users choose their own decryption keys.   ||
+|| I think that it's secure as the tea cipher doesn't produce collisions (?) ... Right?   ||
+|| If you manage to prove me wrong 10 times, you get a special gift.                      ||
+============================================================================================
+""")
+
+def run():
+    show_menu()
+
+    server_message = os.urandom(20)
+    print(f'Here is my special message: {server_message.hex()}')
+    
+    used_keys = []
+    ciphertexts = []
+    for i in range(ROUNDS):
+        print(f'Round {i+1}/10')
+        try:
+            ct = bytes.fromhex(input('Enter your target ciphertext (in hex) : '))
+            assert ct not in ciphertexts
+
+            for j in range(4):
+                key = bytes.fromhex(input(f'[{i+1}/{j+1}] Enter your encryption key (in hex) : '))
+                assert len(key) == 16 and key not in used_keys
+                used_keys.append(key)
+                cipher = TEA(key, IV)
+                enc = cipher.encrypt(server_message)
+                if enc != ct:
+                    print(f'Hmm ... close enough, but {enc.hex()} does not look like {ct.hex()} at all! Bye...')
+                    exit()
+        except:
+            print('Nope.')
+            exit()
+            
+        ciphertexts.append(ct)
+
+    print(f'Wait, really? {FLAG}')
+
+
+if __name__ == '__main__':
+    run()
+```
+
+---
+
+Khi nhìn vào source code mình thấy Iv đã được cố định nên mình sẽ đi tìm Iv vì nó sẽ giúp bài toán trở nên dễ dàng hơn.
+Ngoài ra vì các ciphertext và key ta gửi sẽ được mã hóa CBC mà ta đã biết trước được msg nên mình có hướng tìm iv như sau.
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/f7c12134-d90f-4e65-88fa-5f06421d5943)
+
+$c_i = e(p_i \text{xor} c_{i-1}), c_{-1} = IV$
+
+nên từ đó ta có $decrypt(enc) = iv \oplus msg[:8]$
+
+để giải mã enc mình sử dụng code từ bài trước
+
+```py
+
+from pwn import *
+
+from Crypto.Util.Padding import pad
+from Crypto.Util.number import bytes_to_long as b2l, long_to_bytes as l2b
+from enum import Enum
+from Crypto.Util.number import bytes_to_long as b2l, long_to_bytes as l2b
+
+def decrypt_block(key, ct):
+    m0 = b2l(ct[:4])
+    m1 = b2l(ct[4:])
+    msk = (1 << 32) - 1
+
+    DELTA = 0x9e3779b9
+    s = 0xc6ef3720
+
+    for i in range(32):
+        m1 -= ((m0 << 4) + key[2]) ^ (m0 + s) ^ ((m0 >> 5) + key[3])
+        m1 &= msk
+        m0 -= ((m1 << 4) + key[0]) ^ (m1 + s) ^ ((m1 >> 5) + key[1])
+        m0 &= msk
+        s -= DELTA
+    m = ((m0 << 32) + m1) & ((1 << 64) - 1)
+    return l2b(m)
+
+def main() -> None:
+
+    s = process(["python3", "server.py"])
+    s.recvuntil(b"message: ")
+
+    msg = bytes.fromhex(s.recvline().decode())
+
+    print(s.recvuntil(b"(in hex) :").decode())
+
+    s.sendline(b"00" * 8)
+    print(s.recvuntil(b"(in hex) : ").decode())
+    s.sendline(b"00" * 16)
+    print(s.recvuntil(b", but ").decode())
+    tmp = bytes.fromhex((s.recvuntil(b" ").decode())[:-1])
+    print(tmp)
+
+    iv = xor(decrypt_block(b"\x00" * 16,tmp[:8]), msg[:8])
+    print(bytes.fromhex(iv.hex()))
+
+    # \r\xdd\xd2w<\xf4\xb9\x08
+if __name__ == "__main__":
+    main()
+```
+
+Từ đó mình có được iv. Bài toán của bài này là ta phải tìm được 4 key khác nhau và không được lặp lại sao cho nó có $e_{k_1}(m) = e_{k_2}(m) = e_{k_3}(m) = e_{k_4}(m)$
+
+Bây giừo ta hãy nhìn qua hàm mã hóa của nó:
+
+```py
+        m0 += ((m1 << 4) + K[0]) ^ (m1 + s) ^ ((m1 >> 5) + K[1])
+        m1 += ((m0 << 4) + K[2]) ^ (m0 + s) ^ ((m0 >> 5) + K[3])
+```
+
+Nhờ vào thông tin từ [này](https://link.springer.com/chapter/10.1007/3-540-68697-5_19) và [này](https://www.tayloredge.com/reference/Mathematics/VRAndem.pdf). Điều mình thấy là ta chỉ cần tìm các $k_i^{'}$ sao cho thỏa mãn:
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/2ff71678-1eff-437d-a8db-0ac6f1f5e639)
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/f6766431-40cd-49d9-9627-fc808f50d205)
+
+Bây giờ ta chỉ cần code theo nữa là xong :k.
+
+```py
+
+from pwn import *
+from Crypto.Util.Padding import pad
+from Crypto.Util.number import bytes_to_long as b2l, long_to_bytes as l2b
+from enum import Enum
+
+class Mode(Enum):
+    ECB = 0x01
+    CBC = 0x02
+
+class Cipher:
+    def __init__(self, key, iv=None):
+        self.BLOCK_SIZE = 64
+        self.KEY = [b2l(key[i:i+self.BLOCK_SIZE//16]) for i in range(0, len(key), self.BLOCK_SIZE//16)]
+        self.DELTA = 0x9e3779b9
+        self.IV = iv
+        if self.IV:
+            self.mode = Mode.CBC
+        else:
+            self.mode = Mode.ECB
+    
+    def _xor(self, a, b):
+        return b''.join(bytes([_a ^ _b]) for _a, _b in zip(a, b))
+
+    def encrypt(self, msg):
+        msg = pad(msg, self.BLOCK_SIZE//8)
+        blocks = [msg[i:i+self.BLOCK_SIZE//8] for i in range(0, len(msg), self.BLOCK_SIZE//8)]
+        
+        ct = b''
+        if self.mode == Mode.ECB:
+            for pt in blocks:
+                ct += self.encrypt_block(pt)
+        elif self.mode == Mode.CBC:
+            X = self.IV
+            for pt in blocks:
+                enc_block = self.encrypt_block(self._xor(X, pt))
+                ct += enc_block
+                X = enc_block
+        return ct
+
+    def encrypt_block(self, msg):
+        m0 = b2l(msg[:4])
+        m1 = b2l(msg[4:])
+        K = self.KEY
+        msk = (1 << (self.BLOCK_SIZE//2)) - 1
+
+        s = 0
+        for i in range(32):
+            s += self.DELTA
+            m0 += ((m1 << 4) + K[0]) ^ (m1 + s) ^ ((m1 >> 5) + K[1])
+            m0 &= msk
+            m1 += ((m0 << 4) + K[2]) ^ (m0 + s) ^ ((m0 >> 5) + K[3])
+            m1 &= msk
+        
+        m = ((m0 << (self.BLOCK_SIZE//2)) + m1) & ((1 << self.BLOCK_SIZE) - 1) # m = m0 || m1
+
+        return l2b(m)
+def get_keys() -> list:
+
+    pad = l2b(1 << 31)
+
+    key = os.urandom(16)
+
+    keys = [key[i:i+4] for i in range(0, len(key), 4)]
+
+    key_0 = keys[0] + keys[1] + keys[2] + keys[3]
+    key_1 = xor(keys[0], pad) + xor(keys[1], pad) + keys[2] + keys[3]
+    key_2 = keys[0] + keys[1] + xor(keys[2], pad) + xor(keys[3], pad)
+    key_3 = xor(keys[0], pad) + xor(keys[1], pad) + xor(keys[2], pad) + xor(keys[3], pad)
+
+    assert all([Cipher(key_0).encrypt(b"00" * 8) == Cipher(key).encrypt(b"00" * 8) for key in [key_1, key_2, key_3]])
+    return [key_0, key_1, key_2, key_3]
+
+def main() -> None:
+
+    iv: bytes = b"\r\xdd\xd2w<\xf4\xb9\x08"
+
+    s = process(["python3", "server.py"])
+    s.recvuntil(b"message: ")
+
+    msg = bytes.fromhex(s.recvline().decode())
+
+    for i in range(10):
+        keys = get_keys()
+        enc = Cipher(keys[0], iv).encrypt(msg)
+        print(s.recvuntil(b"ciphertext (in hex) :").decode())
+        s.sendline(enc.hex().encode())
+
+        for y in range(4):
+            print(s.recvuntil(b"encryption key (in hex) :").decode())
+            s.sendline(keys[y].hex().encode())
+
+    print(s.recvuntil(b"Wait, really? ").decode())
+    print(s.recvline().decode())
+
+
+
+
+if __name__ == "__main__":
+    main()
+```
