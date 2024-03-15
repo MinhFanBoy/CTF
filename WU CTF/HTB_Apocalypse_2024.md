@@ -1021,52 +1021,7 @@ def get_keys() -> list:
     key_2 = keys[0] + keys[1] + xor(keys[2], pad) + xor(keys[3], pad)
     key_3 = xor(keys[0], pad) + xor(keys[1], pad) + xor(keys[2], pad) + xor(keys[3], pad)
 
-    assert all([Cipher(key_0).encrypt(b"00" * 8) == Cipher(key).encrypt(b"00" * 8) for key in [key_1, key_2, key_3]])
-    return [key_0, key_1, key_2, key_3]
-
-def main() -> None:
-
-    iv: bytes = b"\r\xdd\xd2w<\xf4\xb9\x08"
-
-    s = process(["python3", "server.py"])
-    s.recvuntil(b"message: ")
-
-    msg = bytes.fromhex(s.recvline().decode())
-
-    for i in range(10):
-        keys = get_keys()
-        enc = Cipher(keys[0], iv).encrypt(msg)
-        print(s.recvuntil(b"ciphertext (in hex) :").decode())
-        s.sendline(enc.hex().encode())
-
-        for y in range(4):
-            print(s.recvuntil(b"encryption key (in hex) :").decode())
-            s.sendline(keys[y].hex().encode())
-
-    print(s.recvuntil(b"Wait, really? ").decode())
-    print(s.recvline().decode())
-
-
-
-
-if __name__ == "__main__":
-    main()
-```
-
-## II. Blockchain
-
-### 1. Russian Roulette
-Lmao Blockchain nhuw c meo hieu j
-
-
-## III. MISC
-
-### 1. Character
-
----
-**_TASK_**
-
-Khi ta gửi cho server một số ta sẽ nhẫn lại được flag tại vọ trí đó.
+    assert all([Cipher(key_0).encrypt(b"00" * 8) ==vị trí đó.
 
 ---
 
@@ -1207,4 +1162,90 @@ if __name__ == "__main__":
     main()
 ```
 
-### 3. 
+### 3. Stop Drop and Roll
+
+---
+**_SOURCE:_**
+
+```py
+import random
+
+CHOICES = ["GORGE", "PHREAK", "FIRE"]
+FLAG = "HTB{1_wiLl_sT0p_dR0p_4nD_r0Ll_mY_w4Y_oUt!}"
+
+print("===== THE FRAY: THE VIDEO GAME =====")
+print("Welcome!")
+print("This video game is very simple")
+print("You are a competitor in The Fray, running the GAUNTLET")
+print("I will give you one of three scenarios: GORGE, PHREAK or FIRE")
+print("You have to tell me if I need to STOP, DROP or ROLL")
+print("If I tell you there's a GORGE, you send back STOP")
+print("If I tell you there's a PHREAK, you send back DROP")
+print("If I tell you there's a FIRE, you send back ROLL")
+print("Sometimes, I will send back more than one! Like this: ")
+print("GORGE, FIRE, PHREAK")
+print("In this case, you need to send back STOP-ROLL-DROP!")
+
+ready = input("Are you ready? (y/n) ")
+
+if ready.lower() != "y":
+    print("That's a shame!")
+    exit(0)
+
+print("Ok then! Let's go!")
+
+count = 0
+tasks = []
+
+for _ in range(500):
+    tasks = []
+    count = random.randint(1, 5)
+
+    for _ in range(count):
+        tasks.append(random.choice(CHOICES))
+
+    print(', '.join(tasks))
+
+    result = input("What do you do? ")
+    correct_result = "-".join(tasks).replace("GORGE", "STOP").replace("PHREAK", "DROP").replace("FIRE", "ROLL")
+
+    if result != correct_result:
+        print("Unfortunate! You died!")
+        exit(0)
+
+print(f"Fantastic work! The flag is {FLAG}")
+```
+---
+
+Bài này cũng không có gìgì ta chỉ cần nhận vào một list rồi gửi lại một list khác với các giá trị tương ứng là được.
+
+```py
+# nc 83.136.251.232 58416
+
+from pwn import *
+
+def main() -> None:
+
+    s = remote("83.136.251.232", 58416)
+
+    s.sendlineafter(b'(y/n) ', b'y')
+    s.recvline()
+
+    while True:
+        recv = s.recvlineS().strip()
+        print(recv)
+        if 'GORGE' not in recv and 'PHREAK' not in recv and 'FIRE' not in recv:
+            print(recv)
+            break
+
+        result = recv.replace(", ", "-")
+        result = result.replace("GORGE", "STOP")
+        result = result.replace("PHREAK", "DROP")
+        result = result.replace("FIRE", "ROLL")
+
+        s.sendlineafter(b'do? ', result.encode())
+
+
+if __name__ == "__main__":
+    main()
+```
