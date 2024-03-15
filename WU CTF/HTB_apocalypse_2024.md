@@ -498,4 +498,155 @@ if __name__ == '__main__':
     main()
 ```
 
+### 7. partial tenacity
 
+---
+**_SOURCE:_**
+
+```py
+from secret import FLAG
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+
+class RSACipher:
+    def __init__(self, bits):
+        self.key = RSA.generate(bits)
+        self.cipher = PKCS1_OAEP.new(self.key)
+    
+    def encrypt(self, m):
+        return self.cipher.encrypt(m)
+
+    def decrypt(self, c):
+        return self.cipher.decrypt(c)
+
+cipher = RSACipher(1024)
+
+enc_flag = cipher.encrypt(FLAG)
+
+with open('output.txt', 'w') as f:
+    f.write(f'n = {cipher.key.n}\n')
+    f.write(f'ct = {enc_flag.hex()}\n')
+    f.write(f'p = {str(cipher.key.p)[::2]}\n')
+    f.write(f'q = {str(cipher.key.q)[1::2]}')
+```
+
+**_OUTPUT:_**
+
+```py
+
+n = 118641897764566817417551054135914458085151243893181692085585606712347004549784923154978949512746946759125187896834583143236980760760749398862405478042140850200893707709475167551056980474794729592748211827841494511437980466936302569013868048998752111754493558258605042130232239629213049847684412075111663446003
+ct = 7f33a035c6390508cee1d0277f4712bf01a01a46677233f16387fae072d07bdee4f535b0bd66efa4f2475dc8515696cbc4bc2280c20c93726212695d770b0a8295e2bacbd6b59487b329cc36a5516567b948fed368bf02c50a39e6549312dc6badfef84d4e30494e9ef0a47bd97305639c875b16306fcd91146d3d126c1ea476
+p = 151441473357136152985216980397525591305875094288738820699069271674022167902643
+q = 15624342005774166525024608067426557093567392652723175301615422384508274269305
+```
+
+---
+
+
+Tóm tắt lại đề bài, ta có đây là RSA với mã hóa PKCS1 padding với e = 65537 và ta có phần leak của `p = cipher.key.p)[::2], q = cipher.key.q)[1::2]`.
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/ce082550-71a7-4849-8b82-9c00f4f06381)
+
+[Mình sử dụng tai liệu này](https://eprint.iacr.org/2020/1506.pdf)
+
+Ta dễ thấy với hai số, giả sử xxx * yyy = zzz thì với mọi k ta luôn có kxxx * yyy = ?zzz tức với khi thêm một số vào số hang của phép nhân thì một vài số của tích vẫn không thay đổi :M không hiểu miêu tả kiểu j:
+
+xét:
+`x4x3 * 0x5x = 6003` từ đó ta thử brute với mọi x có thể từ '0 -> 9' nên ta thử brute nếu x thỏa mãn thì ta lưu lại (nhưng vì có thể có nhiều x thỏa mãn nên ta lưu nó trong list rồi tách ra thử cách trường hợp khác). Mình sử dụng thuật toán như sau.
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/1688b0eb-d8f6-466c-a186-0fd456f371f6)
+
+đề có thể biết vị trí mình cần brute thì mình tạo ra một str với các số 0, 1 nếu vị trí hiện tại là 1 thì ta bỏ qua không brute, ngược lại nếu là 0 thì ta tiến hành brute dựa trên những điều trên
+
+```py
+    p_mask = "".join(["1" if i % 2 == 0 else "0" for i in range(prime_len)])
+    q_mask = "".join(["1" if i % 2 == 1 else "0" for i in range(prime_len)])
+```
+
+khi đó ta sử dụng hàm như sau để tìm giá trị cần tìm:
+
+```py
+def brute_int(i: int, n: int, know_prime: int, prime_check: int, hint_prime: int) -> list:
+
+    know_prime = (hint_prime % 10) * (10 ** i) + know_prime
+
+    for brute in range(10):
+
+        test = brute * (10 ** i) + prime_check
+
+        if n % (10 ** (i + 1)) == know_prime * test % (10 ** (i + 1)):
+            return know_prime, test, hint_prime // 10
+```
+
+với hint_prime = p or q leak, knowprime là số mình biết, primecheck là số ta muốn brute
+
+và từ đó ta brute lần lượt từng phần tử của p,q thỏa mãn:
+
+```py
+def brute_prime(n: int, p: int, q: int, p_h: int, q_h: int, p_mask: str, q_mask: str) -> int:
+
+    for i in range(len(p_mask)):
+
+        if p_mask[- (i + 1)] == "1":
+            p, q, p_h = brute_int(i, n, p, q, p_h)
+            
+        else:
+            q, p, q_h = brute_int(i, n, q, p, q_h)
+
+    assert p * q == n
+    return p, q
+```
+
+```py
+
+from Crypto.Util.number import *
+from gmpy2 import iroot
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+
+def brute_int(i: int, n: int, know_prime: int, prime_check: int, hint_prime: int) -> list:
+
+    know_prime = (hint_prime % 10) * (10 ** i) + know_prime
+
+    for brute in range(10):
+
+        test = brute * (10 ** i) + prime_check
+
+        if n % (10 ** (i + 1)) == know_prime * test % (10 ** (i + 1)):
+            return know_prime, test, hint_prime // 10
+
+def brute_prime(n: int, p: int, q: int, p_h: int, q_h: int, p_mask: str, q_mask: str) -> int:
+
+    for i in range(len(p_mask)):
+
+        if p_mask[- (i + 1)] == "1":
+            p, q, p_h = brute_int(i, n, p, q, p_h)
+            
+        else:
+            q, p, q_h = brute_int(i, n, q, p, q_h)
+
+    assert p * q == n
+    return p, q
+
+
+def main() -> None:
+    n: int = 118641897764566817417551054135914458085151243893181692085585606712347004549784923154978949512746946759125187896834583143236980760760749398862405478042140850200893707709475167551056980474794729592748211827841494511437980466936302569013868048998752111754493558258605042130232239629213049847684412075111663446003
+    ct: bytes = bytes.fromhex("7f33a035c6390508cee1d0277f4712bf01a01a46677233f16387fae072d07bdee4f535b0bd66efa4f2475dc8515696cbc4bc2280c20c93726212695d770b0a8295e2bacbd6b59487b329cc36a5516567b948fed368bf02c50a39e6549312dc6badfef84d4e30494e9ef0a47bd97305639c875b16306fcd91146d3d126c1ea476")
+    p_h: int = 151441473357136152985216980397525591305875094288738820699069271674022167902643
+    q_h: int = 15624342005774166525024608067426557093567392652723175301615422384508274269305
+    e: int = 65537
+
+    prime_len = len(str(int(iroot(n, 2)[0])))
+    
+    p_mask = "".join(["1" if i % 2 == 0 else "0" for i in range(prime_len)])
+    q_mask = "".join(["1" if i % 2 == 1 else "0" for i in range(prime_len)])
+
+    p, q = brute_prime(n, 0, 0, p_h, q_h, p_mask, q_mask)
+    print(p, q)
+    key = RSA.RsaKey(n = n, e = e, d = pow(65537, -1, (p - 1) * (q - 1)), p = p, q = q, u = pow(p, -1, q))
+    cipher = PKCS1_OAEP.new(key)
+    print(cipher.decrypt(ct))
+
+if __name__ == "__main__":
+    main()
+```
