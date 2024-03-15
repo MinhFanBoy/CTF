@@ -1021,7 +1021,7 @@ def get_keys() -> list:
     key_2 = keys[0] + keys[1] + xor(keys[2], pad) + xor(keys[3], pad)
     key_3 = xor(keys[0], pad) + xor(keys[1], pad) + xor(keys[2], pad) + xor(keys[3], pad)
 
-    assert all([Cipher(key_0).encrypt(b"00" * 8) ==vị trí đó.
+    assert all([Cipher(key_0).encrypt(b"00" * 8) == Cipher(key).encrypt(b"00" * 8) for key in [key_1, key_2, key_3]])
 
 ---
 
@@ -1060,11 +1060,10 @@ Lmao Blockchain nhuw c meo hieu j
 ---
 **_TASK_**
 
-Khi ta gửi cho server một số ta sẽ nhẫn lại được flag tại vọ trí đó.
-    assert all([Cipher(key_0).encrypt(b"00" * 8) ==vị trí đó.
+Khi ta gửi cho server một số ta sẽ nhẫn lại được flag tại vị trí đó.
 
 ---
-
+```py
 from pwn import *
 
 def main() -> None:
