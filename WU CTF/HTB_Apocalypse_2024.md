@@ -1165,7 +1165,7 @@ print(f'Uhm... how did you do that? I thought I had cryptanalyzed it enough ... 
 
 Từ đó ta phải tìm một state khác sao cho $H_{s'}(M) = H_{s}(M)$ với s' khác s là một random sate của sever và M là một chuỗi bytes ngẫu nhiên. Ngoài ta S được định nghĩa như sau: $s_1, s_2, s_3, s_4, s_5, s_6$ với $s_1$ đến $s_4$ trong khoảng 0 -> 127 và $s_5, s_6$ trong khoảng [0, 2 ^ x - 1] trong khi đó s chỉ được gửi đi một S khác nhau mỗi lần và tổng của 2 giá trị đầu lớn hơn 2(để nó k bị gửi đi với toàn các số 0).
 
-Tổng quát $H = h_1 || h_2$ và $M = m_1 || m_2$ và $ h_1 = R(x, r_1) \oplus R(y, r_2) \oplus m_1\ h_2 = R(x, r_3) \oplus R(y, r_4) \oplus m_2 $
+Tổng quát $H = h_1 || h_2$ và $M = m_1 || m_2$ và $h_1 = R(x, r_1) \oplus R(y, r_2) \oplus m_1\ h_2 = R(x, r_3) \oplus R(y, r_4) \oplus m_2$
 
 
 ## II. Blockchain
