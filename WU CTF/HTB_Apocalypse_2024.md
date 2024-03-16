@@ -1171,11 +1171,156 @@ Tổng quát $H = h_1 || h_2$ và $M = m_1 || m_2$ và $h_1 = R(x, r_1) \oplus R
 
 what's the hell! z3 fail ?
 
-Từ đó ta phải tìm $h_1^{'}$, $h_2^{'}$
+Từ đó ta phải tìm $h_1^{'} = h_1$, $h_2^{'} = h_2$
+
+
 
 Dựa vào cái [này](https://crypto.stackexchange.com/questions/107005/a-problem-related-to-two-bitwise-sums-of-rotations-of-two-different-bitstrings)
 
-ta có hướng tìm 
+ta có hướng tìm như sau:
+
+XOR hai phần tử trong một trường GF chính là phép cộng của đa thức. Ví dụ: $7 + 5 = (x^2 + x + 1) + (x^2 + 1) = 2x^2 + x + 2 = x \equiv 2$
+
+Từ đó chúng ta phải tìm lời giả cho $x,y, s_i$. Chuyển vế $m_1, m_$ sang phía bên kia và nhận được: $h_1 \oplus m_1 = R(x, r_1) \oplus R(y, r_2) = H_1\ h_2 \oplus m_2 = R(x, r_3) \oplus R(y, r_4 ) = H_2$ Lúc này, thêo như bài viết ở trên, chúng ta có thể đặt $r_1 = r_2 = r_3 = 0$
+
+  Và $r_4 = 1$. Do đó, $H_1 = x \oplus y\ H_2 = x \oplus zy$ Sau đó, chúng ta có thể XOR hai vế và nhận được: $(z \oplus 1)y = H_1 \oplus H_2$ Như $z \oplus 1$  là một yếu tố của $H_1 \oplus H_2$, thì một nghiệm là y. $y = \frac{H_1 \oplus H_2}{z \oplus 1}$ Khi đó chúng ta có thể giải được $H_1 \oplus H_2$ như: $x = H_1 \oplus y$ Từ đó, ta có đáp án $z \oplus 1$.
+
+```py
+
+import itertools
+import math
+from pwn import *
+from Crypto.Util.number import *
+
+N = 128
+
+F.<w> = GF(2 ^ 128)
+PR.<x> = PolynomialRing(GF(2))
+
+def int2pre(i: int):
+
+    coeffs = list(map(int, bin(i)[2:].Zfill(N)))[::-1]
+    return PR(coeffs)
+
+def pre2int(p: list):
+
+    coeffs = p.coefficients(sparse = False)
+    return sum((2 ^ i) * int(coeffs[i]) for i in range(len(coeffs)))
+
+def get_all_possible_candidates():
+
+    powers = "0123456789"
+    cands = itertools.product(powers, repeat = 2)
+    d = {}
+    for cand in cands:
+        r2 = int(cand[0])
+        r4 = int(cand[1])
+
+        s = 2 ** r2 + 2 ** r4
+        d[s] = sorted([r2, r4])
+    
+    return d
+
+def extract_r2_r4_candicate(B, d, visited):
+    factors = sorted([F(i ^ j).to_integer() for i, j in list(B.factors())])
+
+    for factor in factors:
+        if factor in visited:
+            continue
+        
+        if factor in d:
+
+            r2, r4 = d(factor)
+            visited.append(factor)
+            return r2, r4
+
+def extract_r1_r3_candicates(number):
+
+    num_fators = sorted([F(i ^ j).to_integer() for i, j in list(number.factors())])
+
+    cands = []
+    for factor in factors:
+        r1 = int(math.log2(factor))
+        if 2 ^ r1 == factor:
+            r3 = r1
+            cands.append((r1, r3))
+
+    return cands
+
+
+
+def extract_m1_m2(server_msg):
+
+    m1 = server_msg >> N
+    m2 = server_msg & (2**N - 1)
+    return m1, m2
+
+def compute_H1_H2(server_msg, server_hash):
+
+	m1, m2 = extract_m1_m2(server_msg)
+	H1 = bytes_to_long(server_hash[:16]) ^^ m1
+    H2 = bytes_to_long(server_hash[16:]) ^^ m2
+    return H1, H2
+
+def send_state(io, r1, r2, r3, r4, x, y):
+	io.sendlineafter(b' :: ', f'{r1},{r2},{r3},{r4},{x},{y}'.encode())
+
+def main() -> None:
+    # 83.136.254.223:46148
+
+    s = connect("83.136.254.223", 46148)
+
+    d = get_all_possible_candidates()
+
+    used_states = []
+    visited = []
+
+    for i in range(3):
+
+        io.recvuntil(b'H('))
+
+        server_msg = int(io.recv(64), 16)
+        io.recvuntil(b' = ')
+        server_hash = l2b(int(io.recvline().strip().decode(), 16))
+        return server_msg, server_hash
+
+        H1, H2 = compute_H1_H2(server_msg, server_hash)
+
+        B = int2pre(H1) + int2pre(H2)
+
+        r2, r4 = extract_r2_r4_candicate(B, d, visited)
+
+        y = B / int2pre(2 ^ r2 + 2 ^ r4)
+        nember = int2pre(H1) - y * int(2 ^ r2)
+
+        r1_r3 = extract_r1_r3_candicates(number)
+
+        for (r1, r3) in r1_r3:
+
+            x = number / int(2 ^ r1)
+
+            x = pre2int(PR(x))
+            y = pre2int(PR(y))
+
+            if sorted([r1, r2, r3, r4]) in used_states:
+                continue
+
+            if H1 == R(x, r1) ^^ R(y, r2) and H2 == R(x, r3) ^^ R(y, r4):
+                state = r1, r2, r3, r4, x, y
+                
+                break
+
+        r1, r2, r3, r4, x, y = state
+        send_state(io, r1, r2, r3, r4, x, y)
+        done += 1
+        used_states.append(sorted([r1, r2, r3, r4]))
+        print(f'round {done} done!')        
+
+
+if __name__ == "__main__":
+    main()
+
+```
 
 ## II. Blockchain
 
