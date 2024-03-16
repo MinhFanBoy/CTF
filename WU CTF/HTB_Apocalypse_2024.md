@@ -1181,9 +1181,9 @@ ta có hướng tìm như sau:
 
 XOR hai phần tử trong một trường GF chính là phép cộng của đa thức. Ví dụ: $7 + 5 = (x^2 + x + 1) + (x^2 + 1) = 2x^2 + x + 2 = x \equiv 2$
 
-Từ đó chúng ta phải tìm lời giả cho $x,y, s_i$. Chuyển vế $m_1, m_$ sang phía bên kia và nhận được: $h_1 \oplus m_1 = R(x, r_1) \oplus R(y, r_2) = H_1\ h_2 \oplus m_2 = R(x, r_3) \oplus R(y, r_4 ) = H_2$ Lúc này, thêo như bài viết ở trên, chúng ta có thể đặt $r_1 = r_2 = r_3 = 0$
+Từ đó chúng ta phải tìm lời giả cho $x,y, s_i$. Chuyển vế $m_1, m_2$ sang phía bên kia và nhận được: $h_1 \oplus m_1 = R(x, r_1) \oplus R(y, r_2) = H_1\ h_2 \oplus m_2 = R(x, r_3) \oplus R(y, r_4 ) = H_2$ Lúc này, thêo như bài viết ở trên, chúng ta có thể đặt $r_1 = r_2 = r_3 = 0$
 
-  Và $r_4 = 1$. Do đó, $H_1 = x \oplus y\ H_2 = x \oplus zy$ Sau đó, chúng ta có thể XOR hai vế và nhận được: $(z \oplus 1)y = H_1 \oplus H_2$ Như $z \oplus 1$  là một yếu tố của $H_1 \oplus H_2$, thì một nghiệm là y. $y = \frac{H_1 \oplus H_2}{z \oplus 1}$ Khi đó chúng ta có thể giải được $H_1 \oplus H_2$ như: $x = H_1 \oplus y$ Từ đó, ta có đáp án $z \oplus 1$.
+  Và $r_4 = 1$. Do đó, $H_1 = x \oplus y\ H_2 = x \oplus z * y$ Sau đó, chúng ta có thể XOR hai vế và nhận được: $(z \oplus 1)y = H_1 \oplus H_2$ Như $z \oplus 1$  là một yếu tố của $H_1 \oplus H_2$, thì một nghiệm là y. $y = \frac{H_1 \oplus H_2}{z \oplus 1}$ Khi đó chúng ta có thể giải được $H_1 \oplus H_2$ như: $x = H_1 \oplus y$ Từ đó, ta có đáp án $z \oplus 1$.
 
 ```py
 
