@@ -1154,7 +1154,20 @@ for _ in range(ROUNDS):
 
 print(f'Uhm... how did you do that? I thought I had cryptanalyzed it enough ... {FLAG}')
 ```
+
 ---
+
+Đầu tiên ta thấy có một hàm Hashroll được tạo ra và sử dụng tới cuối thử thách, ta phải gửi cho server tổng cộng 3 cái state có chung hash với state ngẫu nhiên của chall.  
+
++ Máy chủ tạo một thông báo 32 byte ngẫu nhiên và tính toán hàm băm của máy chủ bằng hàm băm HashRoll. Chúng ta sẽ đi sâu vào nó sau.
++ Ta chỉ có 2 giây để tính toán và gửi lại server
++ cuối cùng ta phải cung cấp state khác để bằng với mã hóa của thử thách.
+
+Từ đó ta phải tìm một state khác sao cho $H_{s'}(M) = H_{s}(M)$ với s' khác s là một random sate của sever và M là một chuỗi bytes ngẫu nhiên. Ngoài ta S được định nghĩa như sau: $s_1, s_2, s_3, s_4, s_5, s_6$ với $s_1$ đến $s_4$ trong khoảng 0 -> 127 và $s_5, s_6$ trong khoảng [0, 2 ^ x - 1] trong khi đó s chỉ được gửi đi một S khác nhau mỗi lần và tổng của 2 giá trị đầu lớn hơn 2(để nó k bị gửi đi với toàn các số 0).
+
+Tổng quát $H = h_1 || h_2$ và $M = m_1 || m_2$ và $$ h_1 = R(x, r_1) \oplus R(y, r_2) \oplus m_1\ h_2 = R(x, r_3) \oplus R(y, r_4) \oplus m_2 $$
+
+
 ## II. Blockchain
 
 ### 1. Russian Roulette
@@ -1168,7 +1181,7 @@ Lmao Blockchain nhuw c meo hieu j
 ---
 **_TASK_**
 
-Khi ta gửi cho server một số ta sẽ nhẫn lại được flag tại vị trí đó.
+Khi ta gửi cho server một số ta sẽ nhận lại được flag tại vị trí đó.
 
 ---
 ```py
@@ -1191,17 +1204,6 @@ if __name__ == "__main__":
     main()
     
 ```
-
-Đầu tiên ta thấy có một hàm Hashroll được tạo ra và sử dụng tới cuối thử thách, ta phải gửi cho server tổng cộng 3 cái state có chung hash với state ngẫu nhiên của chall.  
-
-+ Máy chủ tạo một thông báo 32 byte ngẫu nhiên và tính toán hàm băm của máy chủ bằng hàm băm HashRoll. Chúng ta sẽ đi sâu vào nó sau.
-+ Ta chỉ có 2 giây để tính toán và gửi lại server
-+ cuối cùng ta phải cung cấp state khác để bằng với mã hóa của thử thách.
-
-Từ đó ta phải tìm một state khác sao cho $H_{s'}(M) = H_{s}(M)$ với s' khác s là một random sate của sever và M là một chuỗi bytes ngẫu nhiên. Ngoài ta S được định nghĩa như sau: $s_1, s_2, s_3, s_4, s_5, s_6$ với $s_1$ đến $s_4$ trong khoảng 0 -> 127 và $s_5, s_6$ trong khoảng [0, 2 ^ x - 1] trong khi đó s chỉ được gửi đi một S khác nhau mỗi lần và tổng của 2 giá trị đầu lớn hơn 2(để nó k bị gửi đi với toàn các số 0).
-
-Tổng quát $H = h_1 || h_2$ và $M = m_1 || m_2$ và $$ h_1 = R(x, r_1) \oplus R(y, r_2) \oplus m_1\ h_2 = R(x, r_3) \oplus R(y, r_4) \oplus m_2 $$
-
 
 ### 2. Unbreakable
 
