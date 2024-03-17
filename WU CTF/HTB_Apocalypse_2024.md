@@ -1714,3 +1714,202 @@ open(my $file, 'flag.txt');print(<$file>)#";print(puts File.read('flag.txt'));#"
 ```
 
 Nếu bạn đã quá mệt mỏi vì mấy bài brute force 2 ^ 32 thì có thể sử dụng cách này (copy code trên mạng)
+
+### 6. colored_squares
+
+---
+
+**_SOURCE:_**
+
+[here](https://esolangs.org/wiki/Folders)
+
+---
+
+Khi mở file này ra ta thấy đâ gồm rất nhiều file (hơn 3000) và bên trong hầu như trống và không có nhiều ký tự.
+
+Sau một hồi loai hoay tìm hiểu thì mình nhận ra đây là một kiểu script tương tựu như brainfuck. Nền lên mạng thì tìm thấy thư viện [này](https://github.com/SinaKhalili/Folders.py) có thể chuyển nó về file python. Đây là code sau khi mình đã chuyển.
+
+```py
+print("Enter the flag in decimal (one character per line) :\n", end='', flush=True)
+var_0 = input()
+if var_0.isdigit():
+    var_0 = int(var_0)
+else:
+    var_0 = var_0
+var_1 = input()
+if var_1.isdigit():
+    var_1 = int(var_1)
+else:
+    var_1 = var_1
+var_2 = input()
+if var_2.isdigit():
+    var_2 = int(var_2)
+else:
+    var_2 = var_2
+var_3 = input()
+if var_3.isdigit():
+    var_3 = int(var_3)
+else:
+    var_3 = var_3
+var_4 = input()
+if var_4.isdigit():
+    var_4 = int(var_4)
+else:
+    var_4 = var_4
+var_5 = input()
+if var_5.isdigit():
+    var_5 = int(var_5)
+else:
+    var_5 = var_5
+var_6 = input()
+if var_6.isdigit():
+    var_6 = int(var_6)
+else:
+    var_6 = var_6
+var_7 = input()
+if var_7.isdigit():
+    var_7 = int(var_7)
+else:
+    var_7 = var_7
+var_8 = input()
+if var_8.isdigit():
+    var_8 = int(var_8)
+else:
+    var_8 = var_8
+var_9 = input()
+if var_9.isdigit():
+    var_9 = int(var_9)
+else:
+    var_9 = var_9
+var_10 = input()
+if var_10.isdigit():
+    var_10 = int(var_10)
+else:
+    var_10 = var_10
+var_11 = input()
+if var_11.isdigit():
+    var_11 = int(var_11)
+else:
+    var_11 = var_11
+var_12 = input()
+if var_12.isdigit():
+    var_12 = int(var_12)
+else:
+    var_12 = var_12
+var_13 = input()
+if var_13.isdigit():
+    var_13 = int(var_13)
+else:
+    var_13 = var_13
+var_14 = input()
+if var_14.isdigit():
+    var_14 = int(var_14)
+else:
+    var_14 = var_14
+var_15 = input()
+if var_15.isdigit():
+    var_15 = int(var_15)
+else:
+    var_15 = var_15
+var_16 = input()
+if var_16.isdigit():
+    var_16 = int(var_16)
+else:
+    var_16 = var_16
+var_17 = input()
+if var_17.isdigit():
+    var_17 = int(var_17)
+else:
+    var_17 = var_17
+var_18 = input()
+if var_18.isdigit():
+    var_18 = int(var_18)
+else:
+    var_18 = var_18
+var_19 = input()
+if var_19.isdigit():
+    var_19 = int(var_19)
+else:
+    var_19 = var_19
+var_20 = input()
+if var_20.isdigit():
+    var_20 = int(var_20)
+else:
+    var_20 = var_20
+var_21 = input()
+if var_21.isdigit():
+    var_21 = int(var_21)
+else:
+    var_21 = var_21
+if (((var_7) - (var_18)) == ((var_8) - (var_9))):
+    if (((var_6) + (var_10)) == (((var_16) + (var_20)) + (12))):
+        if (((var_8) * (var_14)) == (((var_13) * (var_18)) * (2))):
+            if ((var_19) == (var_6)):
+                if (((var_9) + (1)) == ((var_17) - (1))):
+                    if (((var_11) / ((var_5) + (7))) == (2)):
+                        if (((var_5) + ((var_2) / (2))) == (var_1)):
+                            if (((var_16) - (9)) == ((var_13) + (4))):
+                                if (((var_12) / (3)) == (17)):
+                                    if ((((var_4) - (var_5)) + (var_12)) == ((var_14) + (20))):
+                                        if ((((var_12) * (var_15)) / (var_14)) == (24)):
+                                            if ((var_18) == ((173) - (var_4))):
+                                                if ((var_6) == ((63) + (var_5))):
+                                                    if (((32) * (var_16)) == ((var_7) * (var_0))):
+                                                        if ((125) == (var_21)):
+                                                            if (((var_3) - (var_2)) == (57)):
+                                                                if (((var_17) - (var_15)) == ((var_18) + (1))):
+                                                                    print("Good job! :)", end='', flush=True)
+```
+
+Thấy flag có 22 ký tự và các ký tự thỏa mãn với nhau theo các điều kiện trong hàm if nên từ đó ta có 22 ẩn và rất nhiều phương trình. Sử dụng các điều kiện ở trên với điều kiện các ký tự kia thuộc ascii và ta có thể đọc được nên ta gán khoảng giá trị cho nó 44 < x < 125, ngoài ra ta cũng có flag form là HTB{..} tương ứng với các vị trí trong flag nên ta cũng sử dụng nó để tính. Và đây là code (gần) của mình.
+
+```py
+
+
+from z3 import *
+
+def main() -> None:
+    
+    flag = BitVecs('v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21', 8)
+
+    s = Solver()
+
+    s.add(flag[7] - flag[18] == flag[8] - flag[9])
+    s.add(flag[6] + flag[10] == flag[16] + flag[20] + 12)
+    s.add(flag[8] * flag[14] == 2 * flag[18] * flag[13])
+    s.add(flag[19] == flag[6])
+    s.add(flag[9] + 1 == flag[17] - 1)
+    s.add(flag[11] == 2 * (flag[5] + 7))
+    s.add(flag[5] + flag[2]/2 == flag[1])
+    s.add(flag[16] - 9 == flag[13] + 4)
+    s.add(flag[12] == 17 * 3)
+    s.add(flag[4] - flag[5] + flag[12] == flag[14] + 20)
+    s.add(flag[12] * flag[15] == 24 * flag[14])
+    s.add(flag[18] + flag[4] == 173)
+    s.add(flag[6] == flag[5] + 63)
+    s.add(flag[16] * 32 == flag[0] * flag[7])
+    s.add(flag[21] == 125)
+    s.add(flag[3] - flag[2] == 57)
+    s.add(flag[17] - flag[15] == flag[18] + 1)
+    for i in range(len(flag)):
+        s.add(flag[i] >= 48)
+        s.add(flag[i] <= 125)
+
+    s.add(flag[0] == ord('H'))
+    s.add(flag[1] == ord('T'))
+    s.add(flag[2] == ord('B'))
+    s.add(flag[3] == ord('{'))
+    s.add(flag[21] == ord('}'))
+    f = ''
+    if s.check() == sat:
+        m = s.model()
+        for v in flag:
+            f += chr(m[v].as_long())
+    else:
+        print('fail')
+    
+    print(f"flag: {f}")
+
+if __name__ == "__main__":
+    main()
+```
