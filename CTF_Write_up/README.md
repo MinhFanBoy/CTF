@@ -1,3 +1,1 @@
-
-
-hhmmmm
+Bị Burn out rồi!
