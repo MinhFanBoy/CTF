@@ -975,5 +975,141 @@ input.
 """
 listener.start_server(port=13407)
 ```
+### 8. Mixed Up
 
 ---
+
+**_SOURCE:_**
+
+```py
+from hashlib import sha256
+import os
+from utils import listener
+
+
+FLAG = b"crypto{???????????????????????????????}"
+
+
+def _xor(a, b):
+    return bytes([_a ^ _b for _a, _b in zip(a, b)])
+
+def _and(a, b):
+    return bytes([_a & _b for _a, _b in zip(a, b)])
+
+def shuffle(mixed_and, mixed_xor):
+    return bytes([mixed_xor[i%len(mixed_xor)] for i in mixed_and])
+
+
+class Challenge():
+    def __init__(self):
+        self.before_input = "Oh no, how are you going to unmix this?\n"
+
+    def challenge(self, msg):
+        if "option" not in msg:
+            return {"error": "You must send an option to this server."}
+
+        elif msg["option"] == "mix":
+            if not "data" in msg:
+                return {"error": "Please send hex-encoded data"}
+
+            data = bytes.fromhex(msg["data"])
+            if len(data) < len(FLAG):
+                data += os.urandom(len(FLAG) - len(data))
+
+            mixed_and = _and(FLAG, data)
+            mixed_xor = _xor(_xor(FLAG, data), os.urandom(len(FLAG)))
+
+            very_mixed = shuffle(mixed_and, mixed_xor)
+            super_mixed = sha256(very_mixed).hexdigest()
+
+            return {"mixed": super_mixed}
+
+        else:
+            return {"error": "Invalid option"}
+
+
+"""
+When you connect, the 'challenge' function will be called on your JSON
+input.
+"""
+listener.start_server(port=13402)
+
+```
+
+Để làm được bài này mình cần dựa vào các tính chất quan trọng của phép $&$ như sau:
+
++ 1 & 1 = 1
++ 0 & 1 = 0
++ 0 & 1 = 0
++ 0 & 0 = 0
+
+nó làm nền tảng để ta có thể giải quyết bài này.
+
+ta thấy trước khi được hash thì ta có đầu vào sẽ được mã hóa trước qua các hàm sau:
+
+```pt
+def _xor(a, b):
+    return bytes([_a ^ _b for _a, _b in zip(a, b)])
+
+def _and(a, b):
+    return bytes([_a & _b for _a, _b in zip(a, b)])
+
+def shuffle(mixed_and, mixed_xor):
+    return bytes([mixed_xor[i%len(mixed_xor)] for i in mixed_and])
+```
+
+Ta thấy hàm xor sẽ xor flag với một random nên ta sẽ không thể dự đoán được gì nên hãy bỏ qua nó.
+khi nhìn kỹ hơn vào hàm `mixed_xor[i%len(mixed_xor)] for i in mixed_and` ta thấy nếu tất cả cacs mixed_and bằng nhau thì ta sẽ có kết quả là các số giống nhau.
+mã mixed_and = `[_a & _b for _a, _b in zip(a, b)` trong đó ta có thể nhập b còn a = flag nên ta hoàn toàn có thể điều chỉnh được nó theo ý muốn của ta. Từ đó ta gửi một data có tất cả các bit bằng 0 và một bit bằng 1 khi đó nếu bit ở vị trí tương ứng bằng không thì ta sẽ có kết quả là một số gồm toàn các bit là 0. Ngược lại nếu bit ở vị trí tương ứng là 1 thì ta có bit đó sau phép and sẽ là một. khi đó kết quả của hàm suffle sẽ hoành toàn có thể dự đoán được:
+
++ nếu kết quả của hàm suffle là một chuỗi các bytes giống nhau ta có thể kết luận vị trí của bit tương ứng với bit 1 mà ta gửi có giá trị bằng một.
++ ngườ lại ta có thể kết luận vị trí đó bằng 0.
+
+mà kết quả mà nhận được từ sever là mã hóa sha256(suffle) nên ta thử brute các bytes có thể từ 0 -> 256 nếu kết tìm thấy thì ta kết luận nó bit đó là 0 còn nếu không tìm thấy ta kết luận là .
+
+thực hiện nhiều lần như vậy với mỗi bit của flag là ta có thể lần lượt phục hồi các bit của flag và hoàn thành chall này.
+
+```py
+
+from pwn import *
+from hashlib import sha256
+from json import *
+from Crypto.Util.number import *
+
+# socket.cryptohack.org 13402
+
+s = connect("socket.cryptohack.org", 13402)
+
+FLAG = b"crypto{???????????????????????????????}"
+
+flag = ""
+
+def brute_force(hash: bytes) -> bool:
+
+    for i in range(256):
+        if sha256(i.to_bytes(length= 1, byteorder= "little") * len(FLAG)).hexdigest() == hash:
+            return False
+    
+    return True
+print(s.recvline())
+for i in range(8 * len(FLAG)):
+
+    tmp = long_to_bytes(1 << i)
+    tmp = b"\x00" * (len(FLAG) - len(tmp)) + tmp
+    bit = "0"
+
+    for y in range(4):
+
+        s.sendline(dumps({"option": "mix", "data": tmp.hex()}).encode())
+        h = loads(s.recvline().decode())["mixed"]
+
+        if brute_force(h):
+            bit = '1'
+
+    flag = bit + flag
+
+print(long_to_bytes(int(flag, 2)))
+        
+``
+
+> crypto{y0u_c4n7_m1x_3v3ry7h1n6_1n_l1f3}
