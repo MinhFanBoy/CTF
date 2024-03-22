@@ -975,7 +975,7 @@ input.
 """
 listener.start_server(port=13407)
 ```
-### 8. Mixed Up
+### 10. Mixed Up
 
 ---
 
@@ -1036,7 +1036,7 @@ listener.start_server(port=13402)
 
 ```
 
-Để làm được bài này mình cần dựa vào các tính chất quan trọng của phép $&$ như sau:
+Để làm được bài này mình cần dựa vào các tính chất quan trọng của phép & như sau:
 
 + 1 & 1 = 1
 + 0 & 1 = 0
