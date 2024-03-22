@@ -61,3 +61,60 @@ for vi in v[1:]:
 print(u)
 print(round(u[3][1], 5))
 ```
+### 2. Gaussian Reduction
+
+---
+
+**_TASK:_**
+
+```txt
+
+v = (846835985, 9834798552), u = (87502093, 123094980) and by applying Gauss's algorithm, find the optimal basis. The flag is the inner product of the new basis vectors.
+```
+
+```py
+
+Loop
+   (a) If ||v2|| < ||v1||, swap v1, v2
+   (b) Compute m = ⌊ v1∙v2 / v1∙v1 ⌉
+   (c) If m = 0, return v1, v2
+   (d) v2 = v2 - m*v1
+Continue Loop
+```
+
+---
+
+hmm bài này cũng khá dễ mình có sử dụng code của bài trước để tiết kiệm thời gian.
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/ab0a6855-8d36-4ed2-900f-4b6019f898d4)
+
+Đây là thuật toán để đưa hai cơ sở (nhấn mạnh là hai vì nó không thực hiện khi có chiều khác) thành cơ sở gắn (không phải là gắn nhất) và gần như trực giao với nhau( tức đưa về thành hai vector gần vuông góc và có độ dài ngắn) theo mình thấy thì nó không có tác dụng nhiều vì mình đã có thuật toán khác mạnh hơn là LLL rồi. Có thể đọc qua ở [đây](https://en.wikipedia.org/wiki/Lattice_reduction)
+
+```py
+
+v = (846835985, 9834798552)
+u = (87502093, 123094980)
+
+def _length(v_1 : list, v_2) -> int:
+    return sum([x * y for x, y in zip(v_1, v_2)])
+def _minus(v_1: list, v_2: list) -> int:
+    return tuple(x - y for x, y in zip(v_1, v_2))
+def _times(a: int, v: list) -> list:
+    return tuple(a * x for x in v)
+
+m = 0
+
+if _length(v, v) < _length(u, u):
+    u, v= v, u
+while True:
+
+    m = round(_length(u, v)/ _length(u, u))
+
+    if m == 0: 
+        print(f"find solution: {v = }, {u = }")
+        break
+    
+    v = _minus(v, _times(m, u))
+
+print(f"Flag is {_length((-4053281223, 2941479672), (87502093, 123094980)) = }")
+```
