@@ -178,7 +178,7 @@ Encrypted Flag: 5605696495253720664142881956908624307570671858477482119657436163
 ---
 
 hmm. Bài này mình có ý tưởng dựa vào $e = r * h + m \pmod{q}$ nhưng không biết code kiểu gì.
-Nên mình quay sang hướng $h = f ^ {-1} * g \pmod(q)$ $\to$ $h *& f = g \pmod(q)$ $\to$ $f * h - g - k * q = 0$ từ đó mình xây dựng lattice như sau:
+Nên mình quay sang hướng $h = f ^ {-1} * g \pmod{q}$ $\to$ $h * f = g \pmod{q}$ $\to$ $f * h - g - k * q = 0$ từ đó mình xây dựng lattice như sau:
 + [[h, 1], [q, 0]] thỏa mãn điều kiện trên
 
 mà ta dễ thấy nó có nghiệm là [f, -k] mà nó thường rất nhỏ(hmmm) nên ta đưa nó về bài toán vector ngắn nhất. Từ đó mình sử dụng LLL để đưa cơ sở trên thành cơ sở đơn giản hơn và sẽ đưa cho chúng ta g, f.
