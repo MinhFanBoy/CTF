@@ -229,7 +229,7 @@ $$m ^ 8 = a \pmod{n} \quad \to \quad m ^ 4 = b \pmod{q} ...$$
 
 cứ tương tự như vậy mình sẽ tìm lại được m. Mình đã thử viết code tìm thặng dư bậc hai nhưng có vẻ nó hơi khó với mình và mình khá lười nên mình thay đổi hướng.
 
-Dựa vào ý tưởng bài no more basic math hồi recruiment thì mình tạo ra một phương trinhg một ẩn rồi sử dụng hàm small_roots để tìm lại ma trận nghiệm của nó (maybe là như thế này bởi vì hiện tại mình cũng chưa hiểu ý tưởng của nó lắm) như vậy là xong bài này.
+Dựa vào ý tưởng bài no more basic math hồi recruitment thì mình tạo ra một phương  một ẩn rồi sử dụng hàm small_roots để tìm lại ma trận nghiệm của nó (maybe là như thế này bởi vì hiện tại mình cũng chưa hiểu ý tưởng của nó lắm) như vậy là xong bài này.
 
 ```sage
 
