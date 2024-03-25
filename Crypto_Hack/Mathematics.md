@@ -439,9 +439,9 @@ $$m * (m ^ {e - 1} - 1) = 0 \pmod{n}$$
 
 mà mình cũng thấy $e - 1 = 2 ^ 16$ tức ta có $m * (m ^ {2 ^ {16}} - 1) = 0 \pmod{n}$ từ đó ta dùng hằng đẳng thức $x ^ 2 - 1 = (x + 1) * (x - 1)$ cho phương trình trên ta sẽ có
 
-$$m * (m ^ 2 + 1) * (m ^ 4 + 1) * ... * (m ^ {15} + 1) = 0 \pmod{n}$$
+$$m * (m ^ 2 + 1) * (m ^ 4 + 1) * ... * (m ^ {2 ^ {15}} + 1) = 0 \pmod{n}$$
 
-$$m * (m ^ 2 + 1) * (m ^ 4 + 1) * ... * (m ^ {15} + 1) = k * n = k * p * q$$
+$$m * (m ^ 2 + 1) * (m ^ 4 + 1) * ... * (m ^ {2 ^ {15}} + 1) = k * n = k * p * q$$
 
 từ đó mình thấy rằng vế phải có một phần tử tỷ lệ với p hoặc q tức gcd($(m ^ i + 1)$, N) = p vì p là số nguyên tố. Khi đó mình có thể tìm lại được p, q và dễ dàng hoàn thành bài này.
 
