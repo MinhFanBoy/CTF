@@ -594,7 +594,7 @@ if __name__ == "__main__":
     main() 
 ```
 
-### 7. Cofactor Cofantasy
+### 8. Cofactor Cofantasy
 
 ----
 
@@ -784,4 +784,4 @@ if __name__ == "__main__":
     main()
 ```
 
-Code này không hiểu sao mình cố sủa cho nó đẹp hơn thì toàn gặp lỗi.
+Code này không hiểu sao mình cố sửa cho nó đẹp hơn thì toàn gặp lỗi.
