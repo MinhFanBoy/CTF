@@ -563,8 +563,9 @@ Bài này yêu cầu mình phải tìm số giả nguyên tố thỏa mãn hàm 
 
 Mình đã cố nhưng khó quá, khi nào có trình cao hơn qua lại sau.
 
-(hint)[https://eprint.iacr.org/2018/749.pdf]
-(hint)[https://math.stackexchange.com/questions/1528789/generating-false-positives-to-the-rabin-miller-primality-test]
+[hint](https://eprint.iacr.org/2018/749.pdf)
+
+[hint](https://math.stackexchange.com/questions/1528789/generating-false-positives-to-the-rabin-miller-primality-test)
 
 ```py
 
