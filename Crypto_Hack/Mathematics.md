@@ -593,3 +593,195 @@ def main() -> None:
 if __name__ == "__main__":
     main() 
 ```
+
+### 7. Cofactor Cofantasy
+
+----
+
+**_Source:_**
+
+```py
+from utils import listener
+from Crypto.Random.random import randint
+
+FLAG = b"crypto{???????????????????????????????????}"
+
+# N is a product of safe primes
+N = 56135841374488684373258694423292882709478511628224823806418810596720294684253418942704418179091997825551647866062286502441190115027708222460662070779175994701788428003909010382045613207284532791741873673703066633119446610400693458529100429608337219231960657953091738271259191554117313396642763210860060639141073846574854063639566514714132858435468712515314075072939175199679898398182825994936320483610198366472677612791756619011108922142762239138617449089169337289850195216113264566855267751924532728815955224322883877527042705441652709430700299472818705784229370198468215837020914928178388248878021890768324401897370624585349884198333555859109919450686780542004499282760223378846810870449633398616669951505955844529109916358388422428604135236531474213891506793466625402941248015834590154103947822771207939622459156386080305634677080506350249632630514863938445888806223951124355094468682539815309458151531117637927820629042605402188751144912274644498695897277
+phi = 56135841374488684373258694423292882709478511628224823806413974550086974518248002462797814062141189227167574137989180030483816863197632033192968896065500768938801786598807509315219962138010136188406833851300860971268861927441791178122071599752664078796430411769850033154303492519678490546174370674967628006608839214466433919286766123091889446305984360469651656535210598491300297553925477655348454404698555949086705347702081589881912691966015661120478477658546912972227759596328813124229023736041312940514530600515818452405627696302497023443025538858283667214796256764291946208723335591637425256171690058543567732003198060253836008672492455078544449442472712365127628629283773126365094146350156810594082935996208856669620333251443999075757034938614748482073575647862178964169142739719302502938881912008485968506720505975584527371889195388169228947911184166286132699532715673539451471005969465570624431658644322366653686517908000327238974943675848531974674382848
+g = 986762276114520220801525811758560961667498483061127810099097
+
+def get_bit(i):
+    if FLAG[i // 8] & (1 << (i % 8)):
+        return pow(g, randint(2, phi - 1), N)
+    else:
+        return randint(1, N - 1)
+
+class Challenge():
+    def __init__(self):
+        self.before_input = "Is this real life, or is it just overly complicated math?\n"
+
+    def challenge(self, your_input):
+        if "option" not in your_input:
+            return {"error": "Your input should contain an option"}
+        if your_input["option"] == "get_bit":
+            if "i" not in your_input:
+                return {"error": "Open your eyes, look up to the skies and see: there's no bit index here."}
+            i = int(your_input["i"])
+            if not 0 <= i < 8*len(FLAG):
+                return {"error": "This bit is a little high or a little low."}
+            return {"bit": hex(get_bit(i))}
+        else:
+            return {"error": "I'm just a poor boy from a poor fantasy, I don't know how to do that."}
+
+
+listener.start_server(port=13398)
+```
+
+----
+
+Bài này mình có cố gắng làm nhưng k được:
+
+Mình thấy có hai cách chính để làm bài này:
++ c1: dựa vào tính chất toán học
++ c2: timming attack (khá hay nên học hỏi)
+
+C1:
+
+Mình thấy hàm
+
+```py
+def get_bit(i):
+    if FLAG[i // 8] & (1 << (i % 8)):
+        return pow(g, randint(2, phi - 1), N)
+    else:
+        return randint(1, N - 1)
+```
+
+trả về các ký tự ngẫu nhiên mỗi khi ta gọi. Nếu
+
++ bit_i = 1 -> return $g ^ r \pmod{n}$ r là số random thuộc khoảng [2, phi -1]
++ bit_i = 0 -> return $r$ với r là số random thuộc khoảng [1, N - 1]
+
+từ đó ta thấy có 50% khả năng r là số chẵn từ đó ta có $g ^ {2 * r / 2} \pmod{n}$ từ đó $g ^ {r / 2}$ là thặng dư bậc hai trong mod n.
+
+Mình gửi nhiều lần yêu cầu get_bit tại một vị trí nếu có trường hợp nó trả ra một số thỏa mãn thặng dư bậc hai thì ta có thể kết luận bit tại đó là 1. Còn trường hợp nếu sau nhiều lần mà vẫn không thỏa mãn thì đó khả năng cao là bit 0 vì vẫn có trường hợp random ra các số lẻ liên tục (Nhưng ta có thể cải thiện bằng cách gửi đi nhiều lần hơn). Cứ làm như vậy đến khi biết hết các bit của flag.
+
+
+```py
+
+from Crypto.Random.random import randint
+from factordb.factordb import FactorDB
+from pwn import *
+from json import *
+from Crypto.Util.number import *
+
+def check_bit(n: int, factors: int) -> bool:
+
+    for factor in factors:
+
+        if pow(n, (factor - 1) // 2, factor) != 1:
+            return False
+    
+    return True
+
+def main() -> None:
+
+    N = 56135841374488684373258694423292882709478511628224823806418810596720294684253418942704418179091997825551647866062286502441190115027708222460662070779175994701788428003909010382045613207284532791741873673703066633119446610400693458529100429608337219231960657953091738271259191554117313396642763210860060639141073846574854063639566514714132858435468712515314075072939175199679898398182825994936320483610198366472677612791756619011108922142762239138617449089169337289850195216113264566855267751924532728815955224322883877527042705441652709430700299472818705784229370198468215837020914928178388248878021890768324401897370624585349884198333555859109919450686780542004499282760223378846810870449633398616669951505955844529109916358388422428604135236531474213891506793466625402941248015834590154103947822771207939622459156386080305634677080506350249632630514863938445888806223951124355094468682539815309458151531117637927820629042605402188751144912274644498695897277
+    phi = 56135841374488684373258694423292882709478511628224823806413974550086974518248002462797814062141189227167574137989180030483816863197632033192968896065500768938801786598807509315219962138010136188406833851300860971268861927441791178122071599752664078796430411769850033154303492519678490546174370674967628006608839214466433919286766123091889446305984360469651656535210598491300297553925477655348454404698555949086705347702081589881912691966015661120478477658546912972227759596328813124229023736041312940514530600515818452405627696302497023443025538858283667214796256764291946208723335591637425256171690058543567732003198060253836008672492455078544449442472712365127628629283773126365094146350156810594082935996208856669620333251443999075757034938614748482073575647862178964169142739719302502938881912008485968506720505975584527371889195388169228947911184166286132699532715673539451471005969465570624431658644322366653686517908000327238974943675848531974674382848
+    g = 986762276114520220801525811758560961667498483061127810099097
+    FLAG = b"crypto{???????????????????????????????????}"
+    flag = [0 for i in range(len(FLAG))]
+
+    s = FactorDB(N)
+    s.connect()
+
+    factors = s.get_factor_list()
+    
+    s = connect("socket.cryptohack.org", 13398)
+    print(s.recvuntil(b"\n"))
+
+    for i in range(8 * len(FLAG)):
+
+        print(flag)
+        print(f"i = {i}")
+
+        for _ in range(15):
+
+            s.sendline(dumps({
+                "option": "get_bit",
+                "i": i
+            }).encode())
+
+            response = loads(s.recvline())["bit"]
+
+            if check_bit(int(response[2:], 16), factors):
+                flag[i // 8] += (1 << (i % 8))
+                break
+
+if __name__ == "__main__":
+    main()
+```
+
+C2:
+
+Mình dễ thấy tốc độ tính toán phép mũ và random nhỏ hơn mỗi lần random nên từ đó thời gian trả về của bit 0 và bit 1 là khác nhau ta có thể dựa vào thời gian đó để tìm lại được flag.
+
+```py
+
+
+from pwn import *
+from json import *
+import time
+from Crypto.Util.number import *
+
+def calculate_time(lst: list) -> str:
+
+    min_time = min(lst)
+    max_time = max(lst)
+
+    label = ""
+    for i in lst:
+
+        if abs(i - min_time) < abs(i - max_time):
+            label += "0"
+        else:
+            label += "1"
+    return long_to_bytes(int(label, 2))
+
+def main() -> None:
+    
+    recursion: int = 5
+    FLAG = b"crypto{???????????????????????????????????}"
+
+    s = connect("socket.cryptohack.org", 13398)
+
+    s.recvuntil(b"\n")
+
+    for i in range(0, 8 * len(FLAG), 8):
+
+        part = []
+        for j in range(8):
+            
+            tmp = []
+            for _ in range(recursion):
+
+                start = time.time()
+                s.sendline(dumps({
+                    "option": "get_bit",
+                    "i": i + j
+                }).encode())
+
+                response = s.recvline()
+                end = time.time()
+
+                tmp.append(end - start)
+            part.append(sum(tmp)/recursion)
+        print(calculate_time(part[::-1]))
+
+
+if __name__ == "__main__":
+    main()
+```
+
+Code này không hiểu sao mình cố sủa cho nó đẹp hơn thì toàn gặp lỗi.
