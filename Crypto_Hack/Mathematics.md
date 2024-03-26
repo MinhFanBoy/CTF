@@ -472,13 +472,14 @@ if __name__ == "__main__":
     main()
 ```
 
-### 7. https://cryptohack.org/challenges/maths/
+### 7. Prime and Prejudice
 
 ---
 
 **_SOURCE:_**
 
 ``py
+
 #!/usr/bin/env python3
 
 from utils import listener
@@ -552,6 +553,7 @@ class Challenge():
 
 
 listener.start_server(port=13385)
+
 ```
 
 
