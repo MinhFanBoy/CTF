@@ -1125,3 +1125,193 @@ if __name__ == "__main__":
 
 ```
 
+### 12. Ellipse Curve Cryptography
+
+---
+**_SOURCE:_**
+
+```py
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Util.number import *
+from hashlib import sha1
+import random
+
+from collections import namedtuple
+# Create a simple Point class to represent the affine points.
+Point = namedtuple("Point", "x y")
+
+FLAG = b"crypto{????????????????????????????????}"  # REMOVE ME
+
+
+def point_addition(P, Q):
+    Rx = (P.x*Q.x + D*P.y*Q.y) % p
+    Ry = (P.x*Q.y + P.y*Q.x) % p
+    return Point(Rx, Ry)
+
+
+def scalar_multiplication(P, n):
+    Q = Point(1, 0)
+    while n > 0:
+        if n % 2 == 1:
+            Q = point_addition(Q, P)
+        P = point_addition(P, P)
+        n = n//2
+    return Q
+
+
+def gen_keypair():
+    private = random.randint(1, p-1)
+    public = scalar_multiplication(G, private)
+    return (public, private)
+
+
+def gen_shared_secret(P, d):
+    return scalar_multiplication(P, d).x
+
+
+def encrypt_flag(shared_secret: int, flag: bytes):
+    # Derive AES key from shared secret
+    key = sha1(str(shared_secret).encode('ascii')).digest()[:16]
+    # Encrypt flag
+    iv = os.urandom(16)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ciphertext = cipher.encrypt(pad(flag, 16))
+    # Prepare data to send
+    data = {}
+    data['iv'] = iv.hex()
+    data['encrypted_flag'] = ciphertext.hex()
+    return data
+
+
+# ================ #
+# Curve parameters #
+# ================ #
+p = 173754216895752892448109692432341061254596347285717132408796456167143559
+D = 529
+G = Point(29394812077144852405795385333766317269085018265469771684226884125940148,
+          94108086667844986046802106544375316173742538919949485639896613738390948)
+
+A, n_a = gen_keypair()
+B, n_b = gen_keypair()
+assert (A.x**2 - D*A.y**2) % p == 1
+assert (B.x**2 - D*B.y**2) % p == 1
+
+print(f"Alice's public key: {A}")
+print(f"Bob's public key: {B}")
+
+shared_secret = gen_shared_secret(B, n_a)
+flag_enc = encrypt_flag(shared_secret, FLAG)
+
+print(f'Encrypted flag: {flag_enc}')
+```
+
+**_OUTPUT:_**
+
+```py
+Alice's public key: Point(x=155781055760279718382374741001148850818103179141959728567110540865590463, y=73794785561346677848810778233901832813072697504335306937799336126503714)
+Bob's public key: Point(x=171226959585314864221294077932510094779925634276949970785138593200069419, y=54353971839516652938533335476115503436865545966356461292708042305317630)
+Encrypted flag: {'iv': '64bc75c8b38017e1397c46f85d4e332b', 'encrypted_flag': '13e4d200708b786d8f7c3bd2dc5de0201f0d7879192e6603d7c5d6b963e1df2943e3ff75f7fda9c30a92171bbbc5acbf'}
+```
+
+---
+
+Khi nhìn vào bài này mình thấy vấn đề quan trọng nhất cần phải giải quyết là hàm này.
+
+```py
+def point_addition(P, Q):
+    Rx = (P.x*Q.x + D*P.y*Q.y) % p
+    Ry = (P.x*Q.y + P.y*Q.x) % p
+    return Point(Rx, Ry)
+```
+
+và
+
+```py
+assert (A.x**2 - D*A.y**2) % p == 1
+assert (B.x**2 - D*B.y**2) % p == 1
+
+```
+
+Mình k làm được bài này nên có tìm lại wu trên mạng vào có cách giải như sau( sau khi đọc wu mình cũng không hiểu lắm vì toàn các kiến thức chưa học).
+
+Dựa vào tài liệu [này](https://web.archive.org/web/20210506165729/https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.66.8688&rep=rep1&type=pdf)
+
+
+Điều mình cần biết khi nhìn vào bài này đó là:
++ D = 529 là thặng dư bậc 2 trong mod p($\sqrt{D} = 23$)
++ Nhóm (ECC, $\oplus$) là nhóm alben (có thể tự chứng minh một cách dễ dàng)
++ $A(x, y) \forall x, y \in Z_{p}$
++ ${A_x} ^ 2 - D * {A_y} ^ 2 = 1$ và cũng tương tự với B
+
+Mình thấy đây là hàm ánh xạ từ không gian này vào không gian khác.
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/a3e60394-1008-4cde-81fc-085f53dffc11)
+
+![image](https://github.com/MinhFanBoy/CTF/assets/145200520/b5698d99-3820-4ff0-b51b-61edc2e9468c)
+
+đến chỗ này thì mình trầm cảm k hiểu j.
+Khi có kiến thức tốt hơn sẽ quay lại giải thích rõ ràng chỗ này.
+
+```py
+
+
+from collections import namedtuple
+from Crypto.Cipher import AES
+from Crypto.Util.number import *
+from hashlib import sha1
+from sympy.ntheory.residue_ntheory import sqrt_mod, discrete_log
+
+Point = namedtuple("Point", "x y")
+A = Point(x=155781055760279718382374741001148850818103179141959728567110540865590463, y=73794785561346677848810778233901832813072697504335306937799336126503714)
+B =  Point(x=171226959585314864221294077932510094779925634276949970785138593200069419, y=54353971839516652938533335476115503436865545966356461292708042305317630)
+enc: bytes = {'iv': '64bc75c8b38017e1397c46f85d4e332b', 'encrypted_flag': '13e4d200708b786d8f7c3bd2dc5de0201f0d7879192e6603d7c5d6b963e1df2943e3ff75f7fda9c30a92171bbbc5acbf'}
+p: int = 173754216895752892448109692432341061254596347285717132408796456167143559
+D: int = 529
+G = Point(29394812077144852405795385333766317269085018265469771684226884125940148,
+        94108086667844986046802106544375316173742538919949485639896613738390948)
+
+def point_addition(P, Q):
+    Rx = (P.x*Q.x + D*P.y*Q.y) % p
+    Ry = (P.x*Q.y + P.y*Q.x) % p
+    return Point(Rx, Ry)
+
+def scalar_multiplication(P, n):
+    Q = Point(1, 0)
+    while n > 0:
+        if n % 2 == 1:
+            Q = point_addition(Q, P)
+        P = point_addition(P, P)
+        n = n//2
+    return Q
+
+def gen_shared_secret(P, d):
+    return scalar_multiplication(P, d).x
+
+def decrypt_flag(shared_secret: int, flag: bytes, iv: bytes):
+
+    key = sha1(str(shared_secret).encode('ascii')).digest()[:16]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return cipher.decrypt(flag)
+
+def main() -> None:
+
+    # D is quadratic residue modulo p
+    a = sqrt_mod(D, p)
+
+    alpha = (G.x - a * G.y) % p
+    h = (A.x - a * A.y) % p
+    secret = gen_shared_secret(B, discrete_log(p, h, alpha))
+    print(decrypt_flag(secret, bytes.fromhex(enc['encrypted_flag']), bytes.fromhex(enc['iv'])))
+
+if __name__ == "__main__":
+    main()
+```
+
+
+## Hết
+
+Vậy là tất cả các chall math trong crypto hack đã được làm xong. Các thử thách này khá hay và cũng học được nhiều thứ, nhưng vẫn còn nhiều cái chưa hiểu rõ lắm.
+Mong khi nào quay lại các thử thách này mình có thể tự làm và có thể hiểu được nó.
+
+-3/28/2024-
