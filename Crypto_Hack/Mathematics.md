@@ -767,21 +767,336 @@ def main() -> None:
             for _ in range(recursion):
 
                 start = time.time()
-                s.sendline(dumps({
-                    "option": "get_bit",
-                    "i": i + j
-                }).encode())
+              Real
 
-                response = s.recvline()
-                end = time.time()
+---
 
-                tmp.append(end - start)
-            part.append(sum(tmp)/recursion)
-        print(calculate_time(part[::-1]))
+**_Source:_**
+```py
+import math
+from decimal import *
+getcontext().prec = 100
 
+FLAG = "crypto{???????????????}"
+PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103]
+
+h = Decimal(0.0)
+
+for i, c in enumerate(FLAG):
+    h += ord(c) * Decimal(PRIMES[i]).sqrt()
+
+ct = math.floor(h*16**64)
+print(f"ciphertext: {ct}")
+
+# ciphertext: 1350995397927355657956786955603012410260017344805998076702828160316695004588429433
+```
+
+---
+
+Bài này khá hay, nó có nói về một kiến thức quan trọng trong toán đại số đó chính là không gian vector và cơ sở.
+
+Mình tóm gọn lại đề bài như sau:
+
+$$\sum_{i = 0} ^ {len(flag)} {flag[i]* PRIMES[i] * (16 ^ {64})}  = h$$
+
+Từ đó mình xây dựng lại lattice như sau:
+
+```py
+[1 0 0 ... primes[0]]
+[0 1 0 ... primes[1]]
+...
+[0 0 0 ... primes[n]]
+[0 0 0 ...  0   h   ]
+```
+
+Xong rồi mình sử dụng LLL để đưa lattice trên về cơ sở gắn nhất trực giao với nhau và tìm lại flag ?
+
+```py
+
+PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103]
+ciphertext=  1350995397927355657956786955603012410260017344805998076702828160316695004588429433
+
+length = len(PRIMES)
+
+M = [[0 for i in range(length + 1)] for y in  range(length + 1)]
+
+for i in range(length):
+    M[i][i] = 1
+    M[i][-1] = round(sqrt(PRIMES[i]) * (16 ^ 64))
+
+M[length][length] = ciphertext
+
+M = Matrix(ZZ, M).LLL()
+print(b"".join([bytes([-x]) if x < 0 else bytes([x]) for x in M[0]]))
+```
+
+### 10. Backpack Cryptography
+
+
+---
+
+**_Source:_**
+
+```py
+import random
+from collections import namedtuple
+import gmpy2
+from Crypto.Util.number import isPrime, bytes_to_long, inverse, long_to_bytes
+
+FLAG = b'crypto{??????????????????????????}'
+PrivateKey = namedtuple("PrivateKey", ['b', 'r', 'q'])
+
+def gen_private_key(size):
+    s = 10000
+    b = []
+    for _ in range(size):
+        ai = random.randint(s + 1, 2 * s)
+        assert ai > sum(b)
+        b.append(ai)
+        s += ai
+    while True:
+        q = random.randint(2 * s, 32 * s)
+        if isPrime(q):
+            break
+    r = random.randint(s, q)
+    assert q > sum(b)
+    assert gmpy2.gcd(q,r) == 1
+    return PrivateKey(b, r, q)
+
+
+def gen_public_key(private_key: PrivateKey):
+    a = []
+    for x in private_key.b:
+        a.append((private_key.r * x) % private_key.q)
+    return a
+
+
+def encrypt(msg, public_key):
+    assert len(msg) * 8 <= len(public_key)
+    ct = 0
+    msg = bytes_to_long(msg)
+    for bi in public_key:
+        ct += (msg & 1) * bi
+        msg >>= 1
+    return ct
+
+
+def decrypt(ct, private_key: PrivateKey):
+    ct = inverse(private_key.r, private_key.q) * ct % private_key.q
+    msg = 0
+    for i in range(len(private_key.b) - 1, -1, -1):
+         if ct >= private_key.b[i]:
+             msg |= 1 << i
+             ct -= private_key.b[i]
+    return long_to_bytes(msg)
+
+
+private_key = gen_private_key(len(FLAG) * 8)
+public_key = gen_public_key(private_key)
+encrypted = encrypt(FLAG, public_key)
+decrypted = decrypt(encrypted, private_key)
+assert decrypted == FLAG
+
+print(f'Public key: {public_key}')
+print(f'Encrypted Flag: {encrypted}')
+```
+
+---
+
+
+Khi đọc đề trên ta thấy đây là loại mã hóa backpack của Merkle- Hellman
+
+Đầu tiên tạo ra một chuỗi siêu tăng tức $ a_i \in A \forall a_i > \sum_{k = o} ^ {i} {a_k}$. Đây được gọi là khóa bí mật của nó.
+Sau đó ta sẽ tìm một số nguyên tố p sao cho $p > \sum{A}$ là cơ số cả hệ mật. Tìm số k khác trong khoảng $2 < k < p$ và gcd(k, p) = 1 để tạo ra khóa công khai.
+
+từ đó khóa công khai sẽ là $b_i = {a_i} * k \pmod{p}$.
+
+Với plaintext là chuỗi nhị phân dạng m = [$m_0, m_1, ..., m_n$], và n phải nhỏ hơn hoặc bằng số phần tử của public key.
+
+Ta sẽ mã hóa như sau : $c = \sum_{k = 0} ^ {n} {{b_ i} * m_i}$
+
+và giải mã bằng cách tìm lại khóa bí mật như sau $a_i = {b_i} * k ^ {- 1} \pmod{p}$
+
+sau đó sử dụng bài toán giải dãy siêu tăng(thường sử dụng thuật toán tham lam để giải) từ đó tìm ra lần lượt các bit của flag.
+
+Từ đó ta thấy mã hóa này sử dụng mấu chốt chính là bài toán giải dãy siêu tăng(rất dễ) nhưng nếu dãy đấy bị xáo trộn lên thì nó sẽ trở thành bài toán khó.
+
+Nhưng nó cũng để lộ ra một điểm yếu là việc các plaintext là các vector nhỏ nên mình có thể phá được bài toán này theo hướng lattice. Ta tạo ra một lattice từ các dự liệu đã biết rồi đưa nó về bài toán tìm vector gần nhất.
+
+Mình xây dựng lattice như sau:
+
+```py
+
+[2 0 0 ... key[0]]
+[0 2 0 ... key[1]]
+...
+[0 0 0 ... key[n]]
+[1 1 1 ...  enc  ]
+```
+
+Hơi tiêc là mình cũng chưa hiêu rõ là tại sao lại xây dựng lattice như này mà không phải bài như bài trên.
+
+```py
+rom Crypto.Util.number import long_to_bytes
+
+length = len(key)
+
+I = identity_matrix(length)
+
+I = 2 * I
+I = I.insert_row(length, [ZZ(1) for _ in range(length)])
+key.append(enc)
+
+key = [[ZZ(x)] for x in key]
+I = I.augment(Matrix(key))
+
+M = Matrix(ZZ, I)
+M = M.LLL()
+
+for i in M:
+    flag = long_to_bytes(int(''.join(str(k) for k in [1 if k == -1 else 0 for k in i][::-1]),2))
+    if b'crypto' in flag:
+        print(flag)
+        break
+
+```
+
+### 11. Roll your Own
+
+---
+**_Source:_**
+
+
+```py
+from Crypto.Util.number import getPrime
+import random
+from utils import listener
+
+FLAG = 'crypto{???????????????????????????????????}'
+
+class Challenge():
+    def __init__(self):
+        self.no_prompt = True
+        self.q = getPrime(512)
+        self.x = random.randint(2, self.q)
+
+        self.g = None
+        self.n = None
+        self.h = None
+
+        self.current_step = "SHARE_PRIME"
+
+    def check_params(self, data):
+        self.g = int(data['g'], 16)
+        self.n = int(data['n'], 16)
+        if self.g < 2:
+            return False
+        elif self.n < 2:
+            return False
+        elif pow(self.g,self.q,self.n) != 1:
+            return False
+        return True
+
+    def check_secret(self, data):
+        x_user = int(data['x'], 16)
+        if self.x == x_user:
+            return True
+        return False
+
+    def challenge(self, your_input):
+        if self.current_step == "SHARE_PRIME":
+            self.before_send = "Prime generated: "
+            self.before_input = "Send integers (g,n) such that pow(g,q,n) = 1: "
+            self.current_step = "CHECK_PARAMS"
+            return hex(self.q)
+
+        if self.current_step == "CHECK_PARAMS":
+            check_msg = self.check_params(your_input)
+            if check_msg:
+                self.x = random.randint(0, self.q)
+                self.h = pow(self.g, self.x, self.n)
+            else:
+                self.exit = True
+                return {"error": "Please ensure pow(g,q,n) = 1"}
+
+            self.before_send = "Generated my public key: "
+            self.before_input = "What is my private key: "
+            self.current_step = "CHECK_SECRET"
+
+            return hex(self.h)
+
+        if self.current_step == "CHECK_SECRET":
+            self.exit = True
+            if self.check_secret(your_input):
+                return {"flag": FLAG}
+            else:
+                return {"error": "Protocol broke somewhere"}
+
+        else:
+            self.exit = True
+            return {"error": "Protocol broke somewhere"}
+
+
+listener.start_server(port=13403)
+
+```
+
+---
+
+Đây là một bài theo kiểu giao thức chuyển khóa Diffe-Hellman, ta phải gửi cặp số (g, n) sao cho thỏa mãn $g ^ p = 1 \pmod{n}$ và nó sẽ trả cho ta $g ^ x = h \pmod{n}$ và nhiệm vụ chính của ta là phải tìm lại x.
+
+Ban đầu mình có hướng như sau:
+
+```py
+(2 ^ (p - 1)) ^ p = 1  pmod(p ** 2)
+(2 ^ (p * (p - 1))) = 1 \pmod(p ** 2)
+2 ^ (x * (p - 1)) = h \pmod(p ** 2)
+2 ^ (x * (p - 1)) = h + k * p ** 2
+2 ^ (xp - x) = h + k * p ** 2
+2 * 2 ^ - x = h \pmod(p)
+2 / h = 2 ^ x \pmod(p)
+
+```
+từ đó mình đưa về bài toán log rời rạc cơ sở 2 trường p. Mình nghĩ nó có thể khả thi nhưng discrete_log lại không ra được đáp án nên mình làm theo hướng khác như sau.
+
+với g = p + 1, n = p ** 2
+
+ta có: $g ^ p = (p + 1) ^ p = 1 + p ^ 2 = 1 \pmod{p ^ 2}$
+ta có: $g ^ x = (p + 1) ^ x = 1 + p * x ^ 2 = h \pmod{p ^ 2}$
+
+từ đó ta có thể dễ dàng tìm lại $x = (h - 1) / p$.
+
+```py
+
+from pwn import *
+from json import *
+
+def main() -> None:
+     
+    # socket.cryptohack.org 13403
+
+    s = connect("socket.cryptohack.org", 13403)
+
+    s.recvuntil(b"Prime generated: ")
+
+    p = int(s.recvline()[3: -2], 16)
+
+    s.recv()
+    s.sendline(dumps({
+        "g": hex(p + 1)[2:],
+        "n": hex(p ** 2)[2:]
+    }).encode())
+
+    s.recvuntil(b": ")
+    h = int(s.recvline()[3: -2], 16)
+
+    t = ((h - 1) // p) % p ** 2
+    s.send(dumps({
+        "x": hex(t)[2:]
+    }).encode())
+    print(s.recvline())
 
 if __name__ == "__main__":
     main()
-```
 
-Code này không hiểu sao mình cố sửa cho nó đẹp hơn thì toàn gặp lỗi.
+```
