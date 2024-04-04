@@ -63,6 +63,26 @@ Remember, given any input data, JACK11 has been designed to produce a determinis
 
 ---
 
+Ở bài này ta phải tìm một số sao cho trong tập hợp có n chuỗi string khác nhau thì có it nhất 2 chuỗi có chung mã hash.
+
+dựa vào nghịch lý ngày sinh nhật ta có công thức:
+
+`P(n, k) = 1 – n!/(n-k)!(n^k) > 1 – e^((-k*(k-1))/2n)`
+
+từ đó mình code theo và có đáp án.
+
+
+```py
+
+n = 2 ** 11
+want = 0.75
+
+for k in range(2 ** 11):
+    tmp = 1 - 2.73 ** ((-k*(k-1))/ (2 * n))
+    if tmp >= want:
+        print(k)
+        break
+```
 
 ### 3. Collider
 
