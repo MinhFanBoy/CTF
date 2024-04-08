@@ -1,0 +1,9 @@
+
+a = open("truncated/public.pem", "r").read()
+
+from Crypto.Util.number import *
+from Crypto.PublicKey import RSA
+from base64 import b64decode
+print(vars(RSA.import_key(a)))
+print(b64decode("ZXPI0zfM5EJkeooRvNr3RKQEoQKBgQD0WrYbxhBveSRYvkOV0+omfutwS6wIoCmeCYCq5MboHdZn8NDCHy+Y66b+G/GMZJewqEKQSLwHcAjKHxouneFXp6AxV0rkBWtORNnjXfthsWXvOgBJzGm8CJQS+xVtUpYc4l1QnYaQpc0/SClSTPG775H5DnJ8t4rKoNQur+/pcwKBgD1BU0AjW6x+GYPXUzA0/tXQpu5XaAMxkinhiiOJWT/AExzJU8JteQULJ3EDENG6acSuwMhm0WMLhQ0JG6gIejRyOBZSIqjESWGHPmkU1XbUDz0iLb1hHTqJMAWYKWJs4RnJbx6NGJAhd2Ni4CyOGmujYpqNnp1qfZNhmcj/VOeBAoGBAJgDstU2c9UVlTIMM7mLG1kVjlzPBtha42ko2j32k3Ol1FPXcdfCVPcaa0ockjnX/rJtCvP9+9PYs+8iSESF/cFtS/BGMRYH9Qi9NpwHRLMzDIo2GCXRIFpVL+FbCKp5PV/8xza2uRdVvolG2EYWDjDvym0Zusmx2YtTYI0m8ObXAoGAZ6T8aF6GAZ0s814ZfEcyzZGrZZQ/MJ7W8ZGdU1/y+204LzfGsW+d+sTPfQPYhn03/qU3SFhP095sYzELeOOZ3yITOftHEdMP3XffnAudgn3tBHrtu0EsVFL44H7CWe4hx3M49M0lfERD60lPwUG18hY5qcthSko1f1WkTgN7Rrs="))
+print(b64decode("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA64u2qOSKwRf6GWPrq9ZX"))
