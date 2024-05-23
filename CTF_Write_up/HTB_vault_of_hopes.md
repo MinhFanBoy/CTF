@@ -107,4 +107,9 @@ def decrypt_data(data, k):
 print(decrypt_data(enc, key))
 ```
 
+### 2. Living with Elegance
 
+----
+
+**__**
+---
