@@ -76,4 +76,35 @@ Từ đó mình thấy hàm mã hóa có thể viết dưới dạng `enc_n = xo
         
 **Solution:**
 
-+ Từ trên mình thấy enc_0 = xor(key, plaintetx) mà plaintext này chỉ là 32 ký tự đầu thôi trong khi ta đã biết tới 40 ký tự đầu của 
++ Từ trên mình thấy enc_0 = xor(key, plaintetx) mà plaintext này chỉ là 32 ký tự đầu thôi trong khi ta đã biết tới 40 ký tự đầu của plaintext. Từ đó theo tính chất của phếp xor mình có `key_0 = xor(plaintext[:32], ciphertetx[:32])`
++ Khi đã có được key_0 thì ta có thể dễ dàng tìm lại các key_n bằng hàm hash sha_256 và thực hiện tính toán như trên để tìm lại toàn bộ plaintext.
+
+**Code:**
+```py
+from pwn import xor
+from hashlib import sha256
+enc = "fd94e649fc4c898297f2acd4cb6661d5b69c5bb51448687f60c7531a97a0e683072bbd92adc5a871e9ab3c188741948e20ef9afe8bcc601555c29fa6b61de710a718571c09e89027413e2d94fd3126300eff106e2e4d0d4f7dc8744827731dc6ee587a982f4599a2dec253743c02b9ae1c3847a810778a20d1dff34a2c69b11c06015a8212d242ef807edbf888f56943065d730a703e27fa3bbb2f1309835469a3e0c8ded7d676ddb663fdb6508db9599018cb4049b00a5ba1690ca205e64ddc29fd74a6969b7dead69a7341ff4f32a3f09c349d92e0b21737f26a85bfa2a10d"
+enc = bytes.fromhex(enc)    
+
+leak = ("Great and Noble Leader of the Tariaki").encode()[:32]
+
+key = xor(leak, enc[:32])
+
+def decrypt_data(data, k):
+    LENGTH = 32
+    plaintext = b''
+
+    for i in range(0, len(data), LENGTH):
+        chunk = data[i:i+LENGTH]
+
+        for a, b in zip(chunk, k):
+            plaintext += bytes([a ^ b])
+
+        k = sha256(k).digest()
+
+    return plaintext
+
+print(decrypt_data(enc, key))
+```
+
+
