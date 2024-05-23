@@ -286,3 +286,219 @@ print(bf)
 Thay vì mình gửi từng lần và chờ server phản hồi từng cái sẽ rất lâu nên ta có thể gửi đồng loạt nhiều lần tới server thì thời gian sẽ nhanh hơn.
 
 ### 3. Bloom Bloom
+
+---
+**_source.py_**
+
+```
+
+from random import randint, shuffle
+from Crypto.Util.number import getPrime
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+from hashlib import sha256
+from secret import *
+import os
+
+assert sha256(KEY).hexdigest().startswith('786f36dd7c9d902f1921629161d9b057')
+
+class BBS:
+    def __init__(self, bits, length):
+        self.bits = bits
+        self.out_length = length
+
+    def reset_params(self):
+        self.state = randint(2, 2 ** self.bits - 2)
+        self.m = getPrime(self.bits//2) * getPrime(self.bits//2) * randint(1, 2)
+    
+    def extract_bit(self):
+        self.state = pow(self.state, 2, self.m)
+        return str(self.state % 2)
+
+    def gen_output(self):
+        self.reset_params()
+        out = ''
+        for _ in range(self.out_length):
+            out += self.extract_bit()
+        return out
+
+    def encrypt(self, msg):
+        out = self.gen_output()
+        key = sha256(out.encode()).digest()
+        iv = os.urandom(16)
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        return (iv.hex(), cipher.encrypt(pad(msg.encode(), 16)).hex())
+
+encryptor = BBS(512, 256)
+
+enc_messages = []
+for msg in MESSAGES:
+    enc_messages.append([encryptor.encrypt(msg) for _ in range(10)])
+
+enc_flag = AES.new(KEY, AES.MODE_ECB).encrypt(pad(FLAG, 16))
+
+with open('output.txt', 'w') as f:
+    f.write(f'{enc_messages}\n')
+    f.write(f'{enc_flag.hex()}\n')
+```
+----
+
+**Phân tích:**
+
+Đây là bài về AES gồm 2 phần:
++ phần 1: khôi phục lại msg
++ phần 2: từ msg vừa khôi phục tìm lại key và giải mã ciphertext
+
+Các msg được chia ra rồi mã hóa bằng hàm của chương trình:
+```py
+for msg in MESSAGES:
+    enc_messages.append([encryptor.encrypt(msg) for _ in range(10)])
+```
+
+với hàm mã hóa
+```py
+
+class BBS:
+    def __init__(self, bits, length):
+        self.bits = bits
+        self.out_length = length
+
+    def reset_params(self):
+        self.state = randint(2, 2 ** self.bits - 2)
+        self.m = getPrime(self.bits//2) * getPrime(self.bits//2) * randint(1, 2)
+    
+    def extract_bit(self):
+        self.state = pow(self.state, 2, self.m)
+        return str(self.state % 2)
+
+    def gen_output(self):
+        self.reset_params()
+        out = ''
+        for _ in range(self.out_length):
+            out += self.extract_bit()
+        return out
+
+    def encrypt(self, msg):
+        out = self.gen_output()
+        key = sha256(out.encode()).digest()
+        iv = os.urandom(16)
+        cipher = AES.new(key, AES.MODE_CBC, iv)
+        return (iv.hex(), cipher.encrypt(pad(msg.encode(), 16)).hex())
+
+encryptor = BBS(512, 256)
+```
+
+Có:
++ `reset_params` là hàm tạo m và state một cách ngẫu nhiên
++ `extract_bit` trả lại bit của $ ({state} ^ 2) $ % m % 2
++ `gen_output` trả lại một chuỗi bytes là kết của của hàm `extract_bit`
++ `encrypt` là hàm mã hóa AES bình thường với key là kết quả của hàm `gen_output`, một iv random và trả lại iv và ciphertext.
+
+Nhìn kỹ hơn vào hàm `extract_bit`:
+
+```py
+    def extract_bit(self):
+        self.state = pow(self.state, 2, self.m)
+        return str(self.state % 2)
+```
+
+Mình thấy rằng nếu state và m cùng chẵn thì ${state} ^ 2$ cũng sẽ chẵn nên dẫn tới ${state} ^ 2 \pmod{m}$  cũng sẽ chẵn nên ${state} ^ 2 \pmod{m} \pmod{2}$  = 0, mà state sau lại được tính bằng `state = pow(self.state, 2, self.m)` nên các state sau cũng sẽ chẵn cùng nhau. Từ đó mình thấy hàm `gen_output` cũng sẽ trả lại các bytes `\x00` và nó cũng được sử dụng làm key để mã hóa AES từ đó mình có thể tìm lại các msg.
+
+```py
+from output import *
+from random import randint, shuffle
+from Crypto.Util.number import getPrime, long_to_bytes
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+from hashlib import sha256
+import os
+
+out = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+
+key_sha = sha256(out.encode()).digest()
+
+lst = []
+
+for i in enc:
+    for j in i:
+        try:
+            iv = bytes.fromhex(j[0])
+            cipher = AES.new(key_sha, AES.MODE_CBC, iv)
+            lst.append(cipher.decrypt(bytes.fromhex(j[1])).decode())
+            break
+        except:
+            pass
+
+for i in lst:
+    print(i)
+
+```
+
+Với code trên mình thu lại được msg ban đầu như sau:
+
+```
+Welcome! If you see this you have successfully decrypted the first message. To get the symmetric key that decrypts the 
+flag you need to do the following:
+
+1. Collect all 5 shares from these messages
+2. Use them to interpolate the polynomial in a finite field that will be revealed in another message
+3. Convert the constant term of the polynomial to bytes and use it to decrypt the flag. Here is your first share!      
+
+Share#1#: (1, 27006418753792019267647881709336369603809025474153761185424552629526746515909)♣♣♣♣♣
+Keep up the good work! Offered say visited elderly and. Waited period are played family man formed. He ye body or made 
+on pain part meet. You one delay nor begin our folly abode. By disposed replying mr me unpacked no. As moonlight of my 
+resolving unwilling. Turned it up should no valley cousin he. Speaking numerous ask did horrible packages set. Ashamed 
+herself has distant can studied mrs.
+
+Share#2#: (2, 76590454267924193303526931251420387908730989759486987968207839464816350274449)
+
+Only a few more are left! Of be talent me answer do relied. Mistress in on so laughing throwing endeavor occasion welcomed. Gravity sir brandon calling can. No years do widow house delay stand. Prospect six kindness use steepest new ask. 
+High gone kind calm call as ever is. Introduced melancholy estimating motionless on up as do. Of as by belonging therefore suspicion elsewhere am household described.
+
+Share#3#: (3, 67564500698667187837224046797217120599664632018519685208508601443605280795068)♫♫♫♫♫♫♫♫♫♫♫♫♫♫
+You are almost there! Not him old music think his found enjoy merry. Listening acuteness dependent at or an. Apartments thoroughly unsatiable terminated sex how themselves. She are ten hours wrong walls stand early. Domestic perceive on an ladyship extended received do. Why jennings our whatever his learning gay perceive. Is against no he without subject. Bed connection unreserved preference partiality not unaffected.
+
+Share#4#: (4, 57120102994643471094254225269948720992016639286627873340589938545214763610538)
+Congratulations!!! Not him old music think his found enjoy merry. Listening acuteness dependent at or an. Apartments thoroughly unsatiable terminated how themselves. She are ten hours wrong walls stand early. Domestic perceive on an ladyship extended received do. You need to interpolate the polynomial in the finite field GF(88061271168532822384517279587784001104302157326759940683992330399098283633319).
+
+Share#5#: (5, 87036956450994410488989322365773556006053008613964544744444104769020810012336)
+```
+
+Sau khi đọc msg trên mình thấy cần phải tìm key như sau:
+
++ Tạo một đa thức trên GF(88061271168532822384517279587784001104302157326759940683992330399098283633319) thỏa mãn 5 điểm sau:
+
+        s_1 = (1, 27006418753792019267647881709336369603809025474153761185424552629526746515909)
+        s_2 = (2, 76590454267924193303526931251420387908730989759486987968207839464816350274449)
+        s_3 = (3, 67564500698667187837224046797217120599664632018519685208508601443605280795068)
+        s_4 = (4, 57120102994643471094254225269948720992016639286627873340589938545214763610538)
+        s_5 = (5, 87036956450994410488989322365773556006053008613964544744444104769020810012336)
+
++ Lấy phần hằng số của đa thức đem đi hash sha_256 để tìm lại được key.
+
+Biết đa thức mình cần tìm có dạng $y = a * x ^ 4 + b * x ^ 3 + c * x ^ 2 + d * x + e \pmod(q)$
+
+mình có nhiều hướng như đưa về ma trận, hoặc thay điểm, .. nhưng ở đây mình có dùng hàm viết sẵn của sage để làm.
+
+```py
+P = GF(88061271168532822384517279587784001104302157326759940683992330399098283633319)
+x1 = (1, 27006418753792019267647881709336369603809025474153761185424552629526746515909)
+x2 = (2, 76590454267924193303526931251420387908730989759486987968207839464816350274449)
+x3 = (3, 67564500698667187837224046797217120599664632018519685208508601443605280795068)
+x4 = (4, 57120102994643471094254225269948720992016639286627873340589938545214763610538)
+x5 = (5, 87036956450994410488989322365773556006053008613964544744444104769020810012336)
+R = P['x']
+a = R.lagrange_polynomial([x1,x2,x3,x4,x5])
+
+print(a.constant_coefficient())
+```
+
+Tới đây là mình gần tìm được key rồi, chỉ cần hash và gải mã lại là có flag.
+
+```py
+KEY = long_to_bytes(22331541891232741461963319196247128182955676795440837739609455776666597012019)
+
+print(AES.new(KEY, AES.MODE_ECB).decrypt(bytes.fromhex(enc_flag)))
+```
+
+### 4. Not that random
