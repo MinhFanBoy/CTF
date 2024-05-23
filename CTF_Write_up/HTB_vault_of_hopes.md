@@ -55,7 +55,7 @@ fd94e649fc4c898297f2acd4cb6661d5b69c5bb51448687f60c7531a97a0e683072bbd92adc5a871
 
 ----
 
-**Phân tích đề:**
+**Phân tích:**
 
 Thấy flag được mã hóa bằng hàm enc như sau `enc = encrypt_data(plaintext, key)` mà key là 32 bytes ngẫu nhiên, ngoài ra ta đã biết một đoạn nhỏ của plaintext
 
@@ -111,5 +111,174 @@ print(decrypt_data(enc, key))
 
 ----
 
-**__**
+**_server.py_**
+
+```py
+from secrets import token_bytes, randbelow
+from Crypto.Util.number import bytes_to_long as b2l
+
+class ElegantCryptosystem:
+    def __init__(self):
+        self.d = 16
+        self.n = 256
+        self.S = token_bytes(self.d)
+
+    def noise_prod(self):
+        return randbelow(2*self.n//3) - self.n//2
+
+    def get_encryption(self, bit):
+        A = token_bytes(self.d)
+        b = self.punc_prod(A, self.S) % self.n
+        e = self.noise_prod()
+        if bit == 1:
+            return A, b + e
+        else:
+            return A, randbelow(self.n)
+    
+    def punc_prod(self, x, y):
+        return sum(_x * _y for _x, _y in zip(x, y))
+
+def main():
+    FLAGBIN = bin(b2l(open('flag.txt', 'rb').read()))[2:]
+    crypto = ElegantCryptosystem()
+
+    while True:
+        idx = input('Specify the index of the bit you want to get an encryption for : ')
+        if not idx.isnumeric():
+            print('The index must be an integer.')
+            continue
+        idx = int(idx)
+        if idx < 0 or idx >= len(FLAGBIN):
+            print(f'The index must lie in the interval [0, {len(FLAGBIN)-1}]')
+            continue
+        
+        bit = int(FLAGBIN[idx])
+        A, b = crypto.get_encryption(bit)
+        print('Here is your ciphertext: ')
+        print(f'A = {b2l(A)}')
+        print(f'b = {b}')
+
+
+if __name__ == '__main__':
+    main()
+```
+
+
 ---
+
+**Phân tích:**
+
+```py
+class ElegantCryptosystem:
+    def __init__(self):
+        self.d = 16
+        self.n = 256
+        self.S = token_bytes(self.d)
+
+    def noise_prod(self):
+        return randbelow(2*self.n//3) - self.n//2
+
+    def get_encryption(self, bit):
+        A = token_bytes(self.d)
+        b = self.punc_prod(A, self.S) % self.n
+        e = self.noise_prod()
+        if bit == 1:
+            return A, b + e
+        else:
+            return A, randbelow(self.n)
+    
+    def punc_prod(self, x, y):
+        return sum(_x * _y for _x, _y in zip(x, y))
+```
+
+Đây là hàm mã hóa chính của bài này:
++ hàm `noise_prod` sẽ trả lại một giá trị random ngẫu nhiên trong một khoảng
++ hàm `punc_prod` trat lại tổng của tích các phần tử được nhập vào $\sum _{i = 0} ^{n} ({x_i} * {y_i})$
++ hàm `get_encryption` sẽ ngẫu nhiên trả lại `token_bytes(self.d), self.punc_prod(A, self.S) % self.n + self.noise_prod()` hoặc `token_bytes(self.d), randbelow(self.n)`
+
+Server ban đầu sẽ mã hóa flag thành bit rồi yêu cầu chúng ta gửi index của flag và trả lại `A, b = crypto.get_encryption(bit)` giá trị mã hóa của bit tại vị trí ta gửi.
+
+**solution:**
+
+Mình thấy kết quả của hàm get_encryption như sau:
+    + nếu bit = 1 và trả lại `b + e = self.punc_prod(A, self.S) % self.n + self.noise_prod() = self.punc_prod(A, self.S) % self.n + randbelow(2*self.n//3) - self.n//2` tức $ - 2 * n / 3 < b + e < n + 2 * n / 3 - n/2$
+    + nếu bit = 0 thì trả lại 0 < `randbelow(self.n)` < n
+
+Nên nếu mình gửi tơi server một index nhiều lần thì kết quả trả lại của b sẽ cho ta biết được bit tại vị trí đó:
++ nếu b < 0 hoặc b > n thì bit tại index đó là 1
++ còn lại thì ta sẽ kết luận là 0
+
+**Code:**
+
+```py
+from pwn import *
+from Crypto.Util.number import *
+from tqdm import tqdm
+
+s = connect("94.237.55.175", 33925)
+
+def get():
+    s.sendlineafter(b"Specify the index of the bit you want to get an encryption for : ", b"0")
+
+    s.recvuntil(b"A = ")
+    A = int(s.recvline()[:-1])
+    s.recvuntil(b"b = ")
+    b = int(s.recvline()[:-1])
+    return A, b
+
+def brute_flag():
+
+    for i in range(15):
+        A, b = get()
+
+        if b < 0:return "1"
+    
+    return "0"
+
+flag = ""
+
+for i in tqdm(range(470)):
+
+    flag = flag + brute_flag()
+    print(flag)
+```
+
+Đây là code của mình, nó cỏ **thể** ra flag nhưng rất ngẫu nhiên và lâu nên mình có tham khảo(copy) code của anh Quốc như sau:
+
+```py
+from pwn import *
+from tqdm import tqdm
+
+conn = remote('83.136.252.165', 59718)
+l = 471
+
+flag = ['0']*l
+payloads = b''
+
+for j in range(l):
+    payload = b''
+    for i in range(30):
+        payload += str(j).encode() + b'\n'
+    payloads += payload 
+
+conn.recvuntil(b'Specify the index of the bit you want to get an encryption for : ')
+conn.sendline(payloads[:-1])
+
+for ind in tqdm(range(l)):
+    for i in range(30):
+        conn.recvuntil(b'A = ')
+        A = int(conn.recvline().strip().decode())
+        conn.recvuntil(b'b = ')
+        b = int(conn.recvline().strip().decode())
+        if b < 0:
+            flag[ind] = '1'
+        
+from Crypto.Util.number import *
+bf = ''.join(flag)
+bf = long_to_bytes(int(bf, 2))
+print(bf)
+````
+
+Thay vì mình gửi từng lần và chờ server phản hồi từng cái sẽ rất lâu nên ta có thể gửi đồng loạt nhiều lần tới server thì thời gian sẽ nhanh hơn.
+
+### 3. Bloom Bloom
