@@ -201,8 +201,12 @@ Server ban đầu sẽ mã hóa flag thành bit rồi yêu cầu chúng ta gửi
 **solution:**
 
 Mình thấy kết quả của hàm get_encryption như sau:
-    + nếu bit = 1 và trả lại `b + e = self.punc_prod(A, self.S) % self.n + self.noise_prod() = self.punc_prod(A, self.S) % self.n + randbelow(2*self.n//3) - self.n//2` tức $ - 2 * n / 3 < b + e < n + 2 * n / 3 - n/2$
-    + nếu bit = 0 thì trả lại 0 < `randbelow(self.n)` < n
+
++ nếu bit = 1 và trả lại `b + e = self.punc_prod(A, self.S) % self.n + self.noise_prod() = self.punc_prod(A, self.S) % self.n + randbelow(2*self.n//3) - self.n//2` tức
+
+$$ - 2 * n / 3 < b + e < n + 2 * n / 3 - n/2 $$
+
++ nếu bit = 0 thì trả lại 0 < `randbelow(self.n)` < n
 
 Nên nếu mình gửi tơi server một index nhiều lần thì kết quả trả lại của b sẽ cho ta biết được bit tại vị trí đó:
 + nếu b < 0 hoặc b > n thì bit tại index đó là 1
