@@ -193,7 +193,7 @@ class ElegantCryptosystem:
 
 Đây là hàm mã hóa chính của bài này:
 + hàm `noise_prod` sẽ trả lại một giá trị random ngẫu nhiên trong một khoảng
-+ hàm `punc_prod` trat lại tổng của tích các phần tử được nhập vào $\sum _{i = 0} ^{n} ({x_i} * {y_i})$
++ hàm `punc_prod` trả lại tổng của tích các phần tử được nhập vào $\sum _{i = 0} ^{n} ({x_i} * {y_i})$
 + hàm `get_encryption` sẽ ngẫu nhiên trả lại `token_bytes(self.d), self.punc_prod(A, self.S) % self.n + self.noise_prod()` hoặc `token_bytes(self.d), randbelow(self.n)`
 
 Server ban đầu sẽ mã hóa flag thành bit rồi yêu cầu chúng ta gửi index của flag và trả lại `A, b = crypto.get_encryption(bit)` giá trị mã hóa của bit tại vị trí ta gửi.
@@ -208,7 +208,7 @@ $$ - 2 * n / 3 < b + e < n + 2 * n / 3 - n/2 $$
 
 + nếu bit = 0 thì trả lại 0 < `randbelow(self.n)` < n
 
-Nên nếu mình gửi tơi server một index nhiều lần thì kết quả trả lại của b sẽ cho ta biết được bit tại vị trí đó:
+Nên nếu mình gửi tới server một index nhiều lần thì kết quả trả lại của b sẽ cho ta biết được bit tại vị trí đó:
 + nếu b < 0 hoặc b > n thì bit tại index đó là 1
 + còn lại thì ta sẽ kết luận là 0
 
