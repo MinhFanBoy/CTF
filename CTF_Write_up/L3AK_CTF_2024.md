@@ -398,7 +398,7 @@ Mình sẽ phân tích các hàm của bài này trước:
         return ((n, g), (Lambda, mu))
   ```
 
-  Tạo ra hai số prime p, q từ đó mình có hai trường Z(n), Z($n ^ 2$) rồi trả lại các tham số ((n, g), (lambda, $mu = {lambda} ^ {- 1}$))
+  Tạo ra hai số prime p, q từ đó mình có hai trường Z(n), Z($n ^ 2$) rồi trả lại các tham số ((n, g), (lambda, $mu = {lambda} ^ {- 1}$)) và g = n + 1 (Cần nhớ cái này vì nó rất quan trọng)
 
 + `encrypt`
 
@@ -457,7 +457,7 @@ từ đó ${enc} ^ {Lambda} = ({g} ^ m * (r) ^ n) ) ^ {Lambda} =  {g} ^ {m * {La
 
 Mà ta có theo định lý Fermat: $ (r) ^ {phi} = 1 \pmod{n}$ mà phi($n ^ 2$) = n * (p - 1) * (q - 1) nên (r) ^ {n * {Lambda}} = 1 \pmod{n ^ 2}
 
-$\to {enc} ^ {Lambda} =  {g} ^ {m * {Lambda}}$
+$\to {enc} ^ {Lambda} =  {g} ^ {m * {Lambda}} = {n + 1} ^ {m * {Lambda}}$
 
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/a2ec0240-4fe1-4b53-ab81-971cb637b955)
 
