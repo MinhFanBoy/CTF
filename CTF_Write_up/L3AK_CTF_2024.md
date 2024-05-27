@@ -455,9 +455,18 @@ có $enc = {g} ^ m * r ^ n \pmod{n ^ 2}$ và Lambda = (q - 1) * (p - 1)
 
 từ đó ${enc} ^ {Lambda} = ({g} ^ m * (r) ^ n) ) ^ {Lambda} =  {g} ^ {m * {Lambda}} * (r) ^ {n * {Lambda}}  \pmod{n ^ 2}$ 
 
-Mà ta có theo định lý Fermat: $ (r) ^ {phi} = 1 \pmod{n}$ mà phi($n ^ 2$) = n * (p - 1) * (q - 1) nên (r) ^ {n * {Lambda}} = 1 \pmod{n ^ 2}
+Mà ta có theo định lý Fermat: $r ^ {phi} = 1 \pmod{n}$ mà phi($n ^ 2$) = $n * (p - 1) * (q - 1)$ nên $r ^ {n * {Lambda}} = 1 \pmod{n ^ 2}$
 
-$\to {enc} ^ {Lambda} =  {g} ^ {m * {Lambda}} = {n + 1} ^ {m * {Lambda}}$
+$\to {enc} ^ {Lambda} =  {g} ^ {m * {Lambda}} = {(n + 1)} ^ {m * {Lambda}}$
 
 ![image](https://github.com/MinhFanBoy/CTF/assets/145200520/a2ec0240-4fe1-4b53-ab81-971cb637b955)
 
+Theo wiki ta có:
+
+$\to {enc} ^ {Lambda} = m * {Lambda} * n + 1 \pmod{n ^ 2}$
+
+Thực hiện chia hai vế cho n, nhưng nên nhớ ở đây phần mod($n ^ 2$) cũng bị chia cho n nên phần mod chỉ còn lại n.
+
+$\to ({enc} ^ {Lambda}  - 1) / ({Lambda} * n) = m  \pmod{n}$
+
+$\to ({enc} ^ {Lambda}  - 1) / n * wu = m  \pmod{n}$ (vì $wu = {Lambda} ^ {- 1}$)
