@@ -1535,3 +1535,8 @@ for row in L.rows():
 ```
 
 + Nguồn này [here](https://blog.trailofbits.com/2020/06/11/ecdsa-handle-with-care/)
+
+
+
+- Phạm Công Minh-
+28/5/2024
