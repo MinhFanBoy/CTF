@@ -973,9 +973,9 @@ Sau đó mình biến đổi như sau:
 + $b = 4 ^ {n} = 2 ^ {2 * n} = {2 ^ n} ^ 2 = a ^ 2\pmod{n}$
 + $c = 8 ^ {n} = 2 ^ {3 * n} = {2 ^ n} ^ 3 = a ^ 3\pmod{n}$
 
-$$b = a ^ 2 \pmod{n} \to a ^ 2 - b = m * n$$
+$$b = a ^ 2 \pmod{n} \to a ^ 2 - b = q * n$$
 
-$$c = a ^ 3 \pmod{n} \to a ^ 3 - c = n * n$$
+$$c = a ^ 3 \pmod{n} \to a ^ 3 - c = p * n$$
 
 $\to {gcd}(a ^ 2 - b, a ^ 3 - c) = n$ 
 
@@ -987,7 +987,7 @@ Ngoài ra mình thấy:
 
 + với n; ${c ^ n}[0][1] = {2 ^ {n - 1}} * n$
 
-nên $k = {c ^ n}[0][1] = {2 ^ {n - 1}} * n \to 2 * k = {2 ^ {n}} * n = a * n \to n = ^ {2 * k} / _ {a}$
+nên $k = {c ^ {flag}}[0][1] = {2 ^ {{flag} - 1}} * {flag} \to 2 * k = {2 ^ {flag}} * {flag} = a * {flag} \to {flag} = ^ {2 * k} / _ {a}$
 
 Từ đó mình có thể tính lại flag.
 
