@@ -987,7 +987,7 @@ Ngoài ra mình thấy:
 
 + với n; ${c ^ n}[0][1] = {2 ^ {n - 1}} * n$
 
-nên $k = {c ^ {flag}}[0][1] = {2 ^ {{flag} - 1}} * {flag} \to 2 * k = {2 ^ {flag}} * {flag} = a * {flag} \to {flag} = ^ {2 * k} / _ {a}$
+nên $k = {c ^ {flag}}[0][1] = {2 ^ {{flag} - 1}} * {flag} \to 2 * k = {2 ^ {flag}} * {flag} = a * {flag} \to {flag} = ^ {k} / _ {2 * a}$
 
 Từ đó mình có thể tính lại flag.
 
