@@ -1003,6 +1003,6 @@ n //= 5
 Z = Zmod(n)
 a = Z(C[0][0])
 b = Z(C[0][1])
-print(bytes.fromhex(hex(b * pow(a * pow(2, -1, n), -1, n))[2:]))
+print(bytes.fromhex(hex(b * 2* pow(a, -1, n) % n)[2:]))
 
 ```
