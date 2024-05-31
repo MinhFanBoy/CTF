@@ -1,3 +1,6 @@
+
+import itertools
+
 def coppersmith(f, bounds, m=1, d=None):
     if not d:
         d = f.degree()
