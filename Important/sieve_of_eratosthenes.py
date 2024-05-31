@@ -1,7 +1,7 @@
 
-def sieve_of_eratosthenes(bit):
-    lower_limit = 2**bit
-    upper_limit = 2**(bit + 1) 
+def sieve_of_eratosthenes(bot_bit, up_bit):
+    lower_limit = 2**(bot_bit)
+    upper_limit = 2**(up_bit) 
     primes = [True] * (upper_limit - lower_limit)
 
     for i in range(2, int(upper_limit ** 0.5) + 1):
