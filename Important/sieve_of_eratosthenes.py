@@ -10,4 +10,4 @@ def sieve_of_eratosthenes(bot_bit, up_bit):
                 primes[j - lower_limit] = False
 
     prime_numbers = [i for i in range(lower_limit, upper_limit) if primes[i - lower_limit]]
-    return prime_number
+    return prime_numbers
