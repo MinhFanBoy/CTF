@@ -556,6 +556,21 @@ Nói sơ qua về đẳng cấu thì:
 + Khi cấp của ECC là prime l thì isogeny sẽ tạo thành một nhóm hoán vị cấp l + 1
 + một isogeny thỏa mãn tính chất của nhóm thông thường.
 
+Có thể thấy
+
+```py
+
+    es = priv[:]
+    while any(es):
+        s = +1 if randint(0, 1) else -1
+        ...
+            es[i] -= s
+
+```
+
+khi đó việc random `s` trở nên không quan trọng và có thể bỏ qua.
+
+
 code:
 ```py
 from Crypto.Cipher import AES
