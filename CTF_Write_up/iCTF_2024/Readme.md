@@ -91,8 +91,8 @@ signature = 12758448217614849838213408441855753934197923379936406127669804717869
 Hàm `crc_hqx` là hàm tương tự như hàm hash nên việc tìm lại được `d` trở nên bất khả thi nên mình hướng tới cách khác. Sau khi tìm hiểu mình thấy kết quả của hàm `crc_hqx` là một số 2 ** 16 bit nên việc tấn công để tìm được kết quả của `crc_hqx(long_to_bytes(d), 42)` chỉ cần vét cạn.
 Từ đó mình có:
 
-+ $c_1 = {flag} ^ e $ mod(n)
-+ $c_2 = {flag} ^ {guess} $ mod(n)
++ $c_1 = {flag} ^ e$ mod(n)
++ $c_2 = {flag} ^ {guess}$ mod(n)
 
 + Dễ thấy với a, b, c = xgcd(e, guess) -> e * b + (guess) * c = a = gcd(e, guess) = 1 vì (e là prime, ..)
 
