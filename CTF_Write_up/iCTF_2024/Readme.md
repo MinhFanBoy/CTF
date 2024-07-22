@@ -263,4 +263,188 @@ s.sendline(packet)
 print(s.recvline())
 ```
 
-### 4. 
+### 4. solitude
+
+---
+
+**_main.py_**:
+
+```py
+#!/usr/bin/env python3
+
+import random
+
+def xor(a: bytes, b: bytes):
+  out = []
+  for m,n in zip(a,b):
+    out.append(m^n)
+  return bytes(out)
+
+class RNG():
+  def __init__(self, size, state=None):
+    self.size = size
+    self.state = list(range(self.size+2))
+    random.shuffle(self.state)
+  def next(self):
+    idx = self.state.index(self.size)
+    self.state.pop(idx)
+    self.state.insert((idx+1) % (len(self.state)+1), self.size)
+    if self.state[0] == self.size:
+      self.state.pop(0)
+      self.state.insert(1, self.size)
+    idx = self.state.index(self.size+1)
+    self.state.pop(idx)
+    self.state.insert((idx+1) % (len(self.state)+1), self.size+1)
+    if self.state[0] == self.size+1:
+      self.state.pop(0)
+      self.state.insert(1, self.size+1)
+    if self.state[1] == self.size+1:
+      self.state.pop(1)
+      self.state.insert(2, self.size+1)
+    c1 = self.state.index(self.size)
+    c2 = self.state.index(self.size+1)
+    self.state = self.state[max(c1,c2)+1:] + [self.size if c1<c2 else self.size+1] + self.state[min(c1,c2)+1:max(c1,c2)] + [self.size if c1>c2 else self.size+1] + self.state[:min(c1,c2)]
+    count = self.state[-1]
+    if count in [self.size,self.size+1]:
+      count = self.size
+    self.state = self.state[count:-1] + self.state[:count] + self.state[-1:]
+    idx = self.state[0]
+    if idx in [self.size,self.size+1]:
+      idx = self.size
+    out = self.state[idx]
+    if out in [self.size,self.size+1]:
+      out = self.next()
+    return out
+
+if __name__ == "__main__":
+  flag = open("flag.txt", "rb").read()
+  while True:
+    i = int(input("got flag? "))
+    for _ in range(i):
+      rng = RNG(128)
+      stream = bytes([rng.next() for _ in range(len(flag))])
+      print(xor(flag, stream).hex())
+```
+---
+
+Bài này xây dựng một lớp `RNG` để tạo ra các  bytes ngẫu nhiên rồi lấy đầu ra của nó để xor với flag.
+
+Ban đầu mình thấy 
+```py
+self.state = self.state[max(c1,c2)+1:] + [self.size if c1<c2 else self.size+1] + self.state[min(c1,c2)+1:max(c1,c2)] + [self.size if c1>c2 else self.size+1] + self.state[:min(c1,c2)]
+```
+có thể giúp mình dịch ngược lại được state ban đầu dựa vào đầu ra của nó nhưng thật sụ nó khá khó và cũng không biết code thế nào.
+
+sao một hồi nghĩ mình nhân thấy :
+
+```py
+#!/usr/bin/env python3
+
+import random
+
+def xor(a: bytes, b: bytes):
+  out = []
+  for m,n in zip(a,b):
+    out.append(m^n)
+  return bytes(out)
+
+class RNG():
+  
+  def __init__(self, size, state=None):
+    self.size = size
+    self.state = list(range(self.size+2))
+    random.shuffle(self.state)
+    
+  def next(self):
+    
+    idx = self.state.index(self.size)
+    self.state.pop(idx)
+    self.state.insert((idx+1) % (len(self.state)+1), self.size)
+    
+    if self.state[0] == self.size:
+      self.state.pop(0)
+      self.state.insert(1, self.size)
+      
+    idx = self.state.index(self.size+1)
+    self.state.pop(idx)
+    self.state.insert((idx+1) % (len(self.state)+1), self.size+1)
+    
+    if self.state[0] == self.size+1:
+      self.state.pop(0)
+      self.state.insert(1, self.size+1)
+      
+    if self.state[1] == self.size+1:
+      self.state.pop(1)
+      self.state.insert(2, self.size+1)
+      
+    c1 = self.state.index(self.size)
+    c2 = self.state.index(self.size+1)
+    self.state = self.state[max(c1,c2)+1:] + [self.size if c1<c2 else self.size+1] + self.state[min(c1,c2)+1:max(c1,c2)] + [self.size if c1>c2 else self.size+1] + self.state[:min(c1,c2)]
+    count = self.state[-1]
+    
+    if count in [self.size,self.size+1]:
+      count = self.size
+      
+    self.state = self.state[count:-1] + self.state[:count] + self.state[-1:]
+    idx = self.state[0]
+    
+    if idx in [self.size,self.size+1]:
+      idx = self.size
+    out = self.state[idx]
+    # print(self.state)
+    if out in [self.size,self.size+1]:
+      out = self.next()
+    return out
+
+if __name__ == "__main__":
+  flag = b"bu bu lmao"
+  rng = RNG(128)
+  tmp = []
+  for k in range(1):
+    stream = [rng.next() for _ in range(33)]
+    print(stream)
+
+    sc = []
+    for i in range(128):
+      sc.append(stream.count(i))
+    tmp.append(sc.index(max(sc)))
+  print(tmp)
+```
+
+khi chạy code như này để kiểm tra đầu ra của `RNG` mình thấy nó bị lệch tỷ lệ, tức tỷ lệ cho ra bytes `\x00` thường lớn hơn các bytes khác nên tận đụng điều đó mình nhận thật nhiều lần rổi xem ký tự nào xuất hiện nhiều nhất thì đó chính là ký tự của flag chuẩn.
+
+code :
+
+```py
+
+from pwn import *
+from Crypto.Util.number import *
+from string import *
+from tqdm import *
+s = connect("solitude.chal.imaginaryctf.org", 1337)
+
+s.recvline()
+s.recvuntil(b"got flag? ")
+
+tmp = []
+s.sendline(b"100000")
+for i in tqdm(range(100000)):
+    # print(s.recvline().strip().decode())
+    tmp.append(bytes.fromhex(s.recvline().strip().decode()))
+    
+for i_ in range(33):
+    k = [tmp[i][i_]for i in range(100000)]
+    count_ = 0
+    max_ = 0
+    for i in (ascii_letters + digits + "{}_").encode():
+        l = k.count(i)
+        if l > count_:
+            max_ = i
+            count_ = l
+            
+    print(chr(max_), end="")
+```
+
+### 5. lf3r
+
+to be continued ...
