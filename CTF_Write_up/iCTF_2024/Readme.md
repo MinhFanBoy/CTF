@@ -570,6 +570,7 @@ Có thể thấy
 
 khi đó việc random `s` trở nên không quan trọng và có thể bỏ qua.
 
+Thấy khi private[i] == 1, thì kết quả cuối sẽ là bội số của ls[i], khi đó isngeny của nó có cấp là 1 với ${isogeny} ^ {- 1}$ của G_A với ls[i]. 
 
 code:
 ```py
@@ -666,3 +667,5 @@ key = sha256(str(shared_secret).encode()).digest()
 cipher = AES.new(key, AES.MODE_CTR, nonce = iv)
 print(cipher.decrypt(ct))
 ```
+
+[Tham khảo](https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt)
