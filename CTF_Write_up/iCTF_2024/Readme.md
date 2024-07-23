@@ -516,10 +516,10 @@ Nó tương đương với `S_0 = (S_1 - x)/2 + 2^(n-1)*y`
 hay viết theo cách khác
 
 gọi `c[i]: ((state & mask).bit_count() & 1) << (self.n - 1)`
-    `v[i] == 2 * (v[i] >> 1) + (xs[i]&1)`
-và cũng dễ thấy `1 << (self.n - 1) = 2 (mod 3)`
+    `v[i] == 2 * (v[i] >> 1) + (v[i]&1)`
+và cũng dễ thấy `1 << (n - 1) = 2 (mod 3)`
 
-(v[i] >> 1) + (2 if c else 0) == xs[i + 1] -> v[i] = 2 * v[i + 1] + (0 | 1) + (2 | 0) (mod 3)
+(v[i] >> 1) + (2 if c else 0) == v[i + 1] -> v[i] = 2 * v[i + 1] + (0 | 1) + (2 | 0) (mod 3)
 
 Khi đã có phương trình phụ thuộc như vậy mình có thể dùng z3 và giải ra flag.
 
