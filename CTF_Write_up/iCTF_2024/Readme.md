@@ -900,7 +900,7 @@ Như vậy hàm
 
 có thể viết lại như sau:
 
-+ $T_n(314159) = 1 / 2 * ( (314159 - \sqrt{314159 ^ 2 - 1}) ^ n + (314159 + \sqrt{314159 ^ 2 - 1}) ^ n) \pmod{p}$
++ $T_n({pi}) = 1 / 2 * ( ({pi} - \sqrt{{pi} ^ 2 - 1}) ^ n + ({pi} + \sqrt{{pi} ^ 2 - 1}) ^ n) \pmod{p}$
 + $T_n(e) = 1 / 2 * ( (e - \sqrt{e ^ 2 - 1}) ^ n + (e + \sqrt{e ^ 2 - 1}) ^ n) \pmod{p}$
 
 Bây giờ mình cần tìm lại n nhưng mình đang không biết tìm kiểu gì ?
@@ -908,6 +908,7 @@ Bây giờ mình cần tìm lại n nhưng mình đang không biết tìm kiểu
 Do được tính trong mod p nên nó cũng tạo thành một nhóm tồn tại như sau:
 
 + Có T_n(x, p - 1) == 1 Or T_n(x, p + 1) == 1 với mọi x.
++ 
 + Với d = pow(n, -1, p - 1) Or d = pow(n, -1, p + 1) thì `x = T_d(T_n(x))` (Mình đang hiểu T_d là hàm ngược của T_n và d là phần tử nghịch đảo nhưng không biết có đúng không)
 
 ---> To be continued....
@@ -917,7 +918,7 @@ Do được tính trong mod p nên nó cũng tạo thành một nhóm tồn tạ
 
 + [Tham khảo github](https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt)
 
-+ [Tham khảo github]([https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt](https://github.com/maple3142/My-CTF-Challenges/tree/master/ImaginaryCTF%202024))
++ [Tham khảo github]((https://github.com/maple3142/My-CTF-Challenges/tree/master/ImaginaryCTF%202024)
 
 
 --24/7/2024--
