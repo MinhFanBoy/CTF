@@ -914,8 +914,10 @@ Do được tính trong mod p nên nó cũng tạo thành một nhóm tồn tạ
 
 
 **_Tham khảo_**
-[Tham khảo github](https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt)
-[Tham khảo github]([https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt](https://github.com/maple3142/My-CTF-Challenges/tree/master/ImaginaryCTF%202024))
+
++ [Tham khảo github](https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt)
+
++ [Tham khảo github]([https://github.com/koba-e964/articles/blob/18fadf77843aa267b0cad650beba7c00fa2d451c/hatena/imaginaryctf-2024.txt](https://github.com/maple3142/My-CTF-Challenges/tree/master/ImaginaryCTF%202024))
 
 
 --24/7/2024--
