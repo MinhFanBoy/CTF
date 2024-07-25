@@ -412,3 +412,50 @@ Ngoài ra sau khi mã hóa hàm `decrypt` sẽ thực hiện hàm `unpad`
 ```
 
 khiến chúng ta thấy rằng với iv có thể điều khiển và hàm `Exception` khiến ta có thể sử dụng padding attack.
+
+Vì ta dễ thấy $m_0 \oplus m^{'}_0 = m_1 \oplus m^{'}_1 = ... = c_0 \oplus {iv}$
+
+nên `m^{'}_0 = c_0 \oplus {iv} \oplus m_0` ta thay đổi iv để kết quả trả về có thể unpad không bị lỗi thì có thể tìm lại $m_0$
+#### Code
+
+```py
+
+from pwn import *
+
+s = process(["python3", "chal.py"])
+
+def padding_oracle(iv, k):
+    s.recvuntil(b">> ")
+    s.sendline((iv + k).hex().encode())
+    
+    k = s.recvline()[:-1]
+    # print(k)
+    if b"Something went wrong" in k:
+        return False
+    else:
+        return True
+
+s.recvuntil(b"certificate: ")
+enc = bytes.fromhex(s.recvline().strip().decode())
+
+c = [enc[i:i+16] for i in range(0, len(enc), 16)]
+
+for i in range(1, len(c)):
+    
+    iv = c[0]
+    c_ = c[1: i + 1]
+    
+    p = [0] * 16
+    
+    for index in range(15, -1, -1):
+        
+        for guess in range(256):
+            
+            iv_ = xor(iv, bytes([0] * index + [guess^ (16 - index)]) + xor(bytes(p[index  + 1:]), bytes([16 - index] * (16 - index - 1))))
+            
+            if padding_oracle(iv_, b"".join(c_)):
+                p[index] = guess 
+                break
+
+    print(bytes(p))
+```
