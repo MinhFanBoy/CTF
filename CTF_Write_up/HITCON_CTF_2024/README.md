@@ -415,7 +415,7 @@ khiến chúng ta thấy rằng với iv có thể điều khiển và hàm `Exc
 
 Vì ta dễ thấy $m_0 \oplus m^{'}_0 = m_1 \oplus m^{'}_1 = ... = c_0 \oplus {iv}$
 
-nên `m^{'}_0 = c_0 \oplus {iv} \oplus m_0` ta thay đổi iv để kết quả trả về có thể unpad không bị lỗi thì có thể tìm lại $m_0$
+nên $m^{'}_0 = c_0 \oplus {iv} \oplus m_0$ ta thay đổi iv để kết quả trả về có thể unpad không bị lỗi thì có thể tìm lại $m_0$
 #### Code
 
 ```py
