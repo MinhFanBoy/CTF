@@ -165,3 +165,396 @@ pad = sha512(str(shared).encode()).digest()
 print(xor(enc, pad))
 
 ```
+### 2. anglerfish and monkfish
+
++ source `anglerfish`
+
+---
+
+**_server.py_**:
+
+```py
+#!/usr/bin/sage
+
+import sys
+print("I caught an anglerfish in the sea! ")
+sys.stdout.flush()
+
+from hashlib import sha256
+from Crypto.Util.number import bytes_to_long
+from random import SystemRandom
+import ast
+
+n = 100
+m = 100
+q = 5
+FF.<x> = GF(q)
+
+def apply(F, v):
+    out = []
+    for i in range(m):
+        out.append((v.T * F[i] * v)[0, 0])
+    return matrix(FF, m, 1, out)
+
+def apply_verif_info(F, a, b):
+    out = []
+    for i in range(m):
+        out.append((a.T * (F[i] + F[i].T) * b)[0, 0])
+    return matrix(FF, m, 1, out)
+
+def create_pok(v, s, F):
+    proofs = []
+    for i in range(64):
+        t = matrix(FF, n, 1, [FF.random_element() for i in range(n)])
+        com = apply(F, t)
+        verif = apply_verif_info(F, t, s)
+        a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+        proofs.append((com, t - a * s, verif))
+    return proofs
+
+def verif_pok(v, F, pis):
+    coms = []
+    for pi in pis:
+        com = pi[0]
+        assert com not in coms
+        coms.append(com)
+        resp = pi[1]
+        verif = pi[2]
+        a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+        out1 = apply(F, resp)
+        out2 = com + (a * a) * v - a * verif
+        assert out1 == out2
+
+rng = SystemRandom()
+gen_seed = []
+
+for i in range(64):
+    gen_seed.append(rng.randint(0, 255))
+
+init_seed = gen_seed
+gen_seed = bytes(gen_seed)
+
+F = []
+
+for i in range(m):
+    cur = []
+    for j in range(n):
+        cur.append([])
+        for k in range(n):
+            cur[-1].append(list(FF)[sha256(gen_seed).digest()[0] % len(list(FF))])
+            gen_seed = sha256(gen_seed).digest()
+    F.append(matrix(FF, n, n, cur))
+
+s = random_matrix(FF, n, 1)
+
+v = apply(F, s)
+
+pok = create_pok(v, s, F)
+verif_pok(v, F, pok)
+
+for pi in pok:
+    print("m0 =", [list(FF).index(i[0]) for i in list(pi[0])])
+    print("m1 =", [list(FF).index(i[0]) for i in list(pi[1])])
+    print("m2 =", [list(FF).index(i[0]) for i in list(pi[2])])
+
+print("Can you catch an anglerfish? ")
+print("seed =", [int(i) for i in init_seed])
+print("v =", [list(FF).index(i[0]) for i in v])
+
+pis = []
+for x in range(64):
+    m0 = [int(i) for i in ast.literal_eval(input("m0 = "))]
+    m1 = [int(i) for i in ast.literal_eval(input("m1 = "))]
+    m2 = [int(i) for i in ast.literal_eval(input("m2 = "))]
+
+    for pi in pok:
+        assert(m0 != [list(FF).index(i[0]) for i in list(pi[0])])
+        assert(m1 != [list(FF).index(i[0]) for i in list(pi[1])])
+        assert(m2 != [list(FF).index(i[0]) for i in list(pi[2])])
+
+    m0 = matrix(FF, m, 1, [list(FF)[i] for i in m0])
+    m1 = matrix(FF, n, 1, [list(FF)[i] for i in m1])
+    m2 = matrix(FF, m, 1, [list(FF)[i] for i in m2])
+
+    assert m0 not in [pi[0] for pi in pok]
+    assert m1 not in [pi[1] for pi in pok]
+    assert m2 not in [pi[2] for pi in pok]
+
+    pi = (m0, m1, m2)
+    pis.append(pi)
+
+verif_pok(v, F, pis)
+
+with open("flag.txt", "r") as f:
+    print(f.read())
+```
+
+---
+
++ source `monkfish`
+
+---
+
+**_server.py_**
+
+```py
+#!/usr/bin/sage
+
+import sys
+print("I caught a monkfish in the sea! ")
+sys.stdout.flush()
+
+from hashlib import sha256
+from Crypto.Util.number import bytes_to_long
+from random import SystemRandom
+import ast
+
+n = 100
+m = 100
+q = 5
+FF.<x> = GF(q)
+
+
+def apply(F, v):
+    out = []
+    for i in range(m):
+        out.append((v.T * F[i] * v)[0, 0])
+    return matrix(FF, m, 1, out)
+
+def apply_verif_info(F, a, b):
+    out = []
+    for i in range(m):
+        out.append((a.T * (F[i] + F[i].T) * b)[0, 0])
+    return matrix(FF, m, 1, out)
+
+def create_pok(v, s, F):
+    t = matrix(FF, n, 1, [FF.random_element() for i in range(n)])
+    com = apply(F, t)
+    verif = apply_verif_info(F, t, s)
+    a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+    return (com, t - a * s, verif)
+
+def verif_pok(v, F, pi):
+    com = pi[0]
+    resp = pi[1]
+    verif = pi[2]
+    a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+    out1 = apply(F, resp)
+    out2 = com + (a * a) * v - a * verif
+    return out1 == out2
+
+rng = SystemRandom()
+gen_seed = []
+
+for i in range(64):
+    gen_seed.append(rng.randint(0, 255))
+
+init_seed = gen_seed
+gen_seed = bytes(gen_seed)
+
+F = []
+
+for i in range(m):
+    cur = []
+    for j in range(n):
+        cur.append([])
+        for k in range(n):
+            cur[-1].append(list(FF)[sha256(gen_seed).digest()[0] % len(list(FF))])
+            gen_seed = sha256(gen_seed).digest()
+    F.append(matrix(FF, n, n, cur))
+
+s = random_matrix(FF, n, 1)
+
+v = apply(F, s)
+
+pok = create_pok(v, s, F)
+assert verif_pok(v, F, pok)
+
+print("m0 =", [list(FF).index(i[0]) for i in list(pok[0])])
+print("m1 =", [list(FF).index(i[0]) for i in list(pok[1])])
+print("m2 =", [list(FF).index(i[0]) for i in list(pok[2])])
+
+print("Can you catch a monkfish? ")
+print("seed =", [int(i) for i in init_seed])
+print("v =", [list(FF).index(i[0]) for i in v])
+m0 = [int(i) for i in ast.literal_eval(input("m0 = "))]
+m1 = [int(i) for i in ast.literal_eval(input("m1 = "))]
+m2 = [int(i) for i in ast.literal_eval(input("m2 = "))]
+
+assert(m0 != [list(FF).index(i[0]) for i in list(pok[0])])
+assert(m1 != [list(FF).index(i[0]) for i in list(pok[1])])
+assert(m2 != [list(FF).index(i[0]) for i in list(pok[2])])
+
+m0 = matrix(FF, m, 1, [list(FF)[i] for i in m0])
+m1 = matrix(FF, n, 1, [list(FF)[i] for i in m1])
+m2 = matrix(FF, m, 1, [list(FF)[i] for i in m2])
+pi = (m0, m1, m2)
+
+res = verif_pok(v, F, pi)
+assert res == True
+
+with open("flag.txt", "r") as f:
+    print(f.read())
+```
+---
+
+Đây là hai bài có cách giải giống nhau nên gộp chung 1 bài luôn.
+
+#### Tổng quan
+
+Bỏ qua các hàm khác có vể khá rườm ra và không quan trọng lắm thì hàm quan trọng nhất như sau
+
+```
+def create_pok(v, s, F):
+    proofs = []
+    for i in range(64):
+        t = matrix(FF, n, 1, [FF.random_element() for i in range(n)])
+        com = apply(F, t)
+        verif = apply_verif_info(F, t, s)
+        a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+        proofs.append((com, t - a * s, verif))
+    return proofs
+```
+
+dễ thấy:
++ Mình đã có `seed` và `v` từ đề cho nên có thể dễ dàng tính lại `F`.
++ com = `apply(F, t)` = `t.T * F[i] * t`
++ a = `list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]` -> a $\in$ [0, 4]
++ resp = `t - a * s`
++ verif = `t.T * (F[i] + F[i].T) * s`
+
+#### Solution
+
+vì a $\in$ [0, 4] nên a hoàn toàn có thể bằng 0 khi đó:
++ `a = 0` -> resp = `t` -> verif = `resp.T * (F[i] + F[i].T) * s`
+
+Ta đã có `verif`, `resp`, `F` điều này tương đương với việc ta có 100 phương trình bậc 1, 100 ẩn nên có thể tính được `s`. Khi có `s` thì sử dụng hàm `create_pok(v, s, F)` để tìm ra các cái proofs mới và hoàn thành chall.
+
+#### Code
+
+```py
+from pwn import *
+import ast
+from hashlib import sha256
+from Crypto.Util.number import bytes_to_long
+from random import SystemRandom
+from tqdm import *
+
+n = 100
+m = 100
+q = 5
+FF.<x> = GF(q)
+
+def apply(F, v):
+    out = []
+    for i in range(m):
+        out.append((v.T * F[i] * v)[0, 0])
+    return matrix(FF, m, 1, out)
+
+def apply_verif_info(F, a, b):
+    out = []
+    for i in range(m):
+        out.append((a.T * (F[i] + F[i].T) * b)[0, 0])
+    return matrix(FF, m, 1, out)
+
+
+def create_pok(v, s, F):
+    proofs = []
+    for i in range(64):
+        t = matrix(FF, n, 1, [FF.random_element() for i in range(n)])
+        com = apply(F, t)
+        verif = apply_verif_info(F, t, s)
+        a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+        proofs.append((com, t - a * s, verif))
+    return proofs
+
+def verif_pok(v, F, pis):
+    coms = []
+    for pi in pis:
+        com = pi[0]
+        assert com not in coms
+        coms.append(com)
+        resp = pi[1]
+        verif = pi[2]
+        a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+        out1 = apply(F, resp)
+        out2 = com + (a * a) * v - a * verif
+        assert out1 == out2
+
+
+io = remote("be.ax",  "31106")
+def recv_array() :
+    m = io.recvline()[:-1].decode()
+    m = m.split('=')[1].strip()
+    m = ast.literal_eval(m)
+    return m
+
+pis = []
+print(io.recvline())
+for x in range(64) : 
+    m0 = recv_array()
+    m1 = recv_array()
+    m2 = recv_array()
+
+    pis.append((m0,m1,m2))
+
+print(io.recvline())
+seed = recv_array()
+v = recv_array()
+
+gen_seed = bytes(seed)
+F = []
+
+for i in range(m):
+    cur = []
+    for j in range(n):
+        cur.append([])
+        for k in range(n):
+            cur[-1].append(list(FF)[sha256(gen_seed).digest()[0] % len(list(FF))])
+            gen_seed = sha256(gen_seed).digest()
+    F.append(matrix(FF, n, n, cur))
+
+v = Matrix(FF,v)
+
+for p in pis:
+
+	# print(p)
+	com = Matrix(FF,p[0])
+	verif = Matrix(FF,p[2])
+
+	a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+	if a == 0 :
+		print("----------------------------")
+		t = matrix(FF, p[1])
+
+		com_ = matrix(apply(F, t.T)).transpose()
+		a = list(FF)[sha256(bytes([list(FF).index(i[0]) for i in list(com_) + list(v) + list(verif)])).digest()[0] % len(list(FF))]
+		print(com)
+		print(list(com_))
+		if a == 0:
+			lmao = []
+			for k in tqdm(range(100)):
+
+
+				lmao.append((t*(F[k] + F[k].T)).list())
+
+			print(lmao)
+
+			lmao = matrix(FF, lmao)
+			secret = matrix(FF, lmao^ -1 * verif.T)
+
+			proof = create_pok(v.T, secret, F)
+			print(verif_pok(v.T, F, proof))
+			for _ in tqdm(proof):
+				m0 = ','.join(map(str, _[0]))
+				m1 = ','.join(map(str, _[1]))
+				m2 = ','.join(map(str, _[2]))
+
+				io.recvuntil(b"m0 = ")
+				io.sendline(m0.encode())
+				io.recvuntil(b"m1 = ")
+				io.sendline(m1.encode())
+				io.recvuntil(b"m2 = ")
+				io.sendline(m2.encode())
+			io.interactive()
+```
