@@ -104,7 +104,7 @@ def apply(x: Pair, y: Pair) -> Pair:
     return z0 % p, z1 % p
 ```
 
-+Hàm này dùng để tính toán bình thường và có thể hiểu nó là nhân ma trận.
++ Hàm này dùng để tính toán bình thường và có thể hiểu nó là nhân ma trận.
 
 + Hàm `calculate(n: int)` dùng để tính số fibonacci và trả lại là hai số `fibo(n), fibo(n + 1)`
 + `step(x: Pair, n: int)` hàm để nhân ma trận với số fibo.
