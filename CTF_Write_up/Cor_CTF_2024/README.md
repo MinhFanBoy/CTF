@@ -130,7 +130,7 @@ print(apply(g, (x, y)))
 
 Khi đó ta biết có thể đưa về giải hệ phương trình 2 ẩn dạng g * a = A, vì đã biết g, A nên có thể dễ dàng tính ra a(x, y) khi đó x = fibo(n) % p, y = pibo(n + 1) % y
 
-ta không cần phải giải tìm n mà chỉ cần nhân lại B, a(x, y) đa có là có shared.
+ta không cần phải giải tìm n mà chỉ cần nhân lại B.a(x, y) là có shared.
 
 #### Code
 
