@@ -307,3 +307,17 @@ Dựa và trên ta dễ thấy:
 
 Nhưng vấn đề ở đây là A, B, seed đang là các đa thức mà LLL thì ta cần phải có một ma trận nên ta phải biểu diễn lại các đa thức dưới dạng ma trận. Ngoài ra do ở đây mình có rất nhiều hệ phương trình có cùng ẩn seed và khác A, B nên cần biểu diễn thành ma trận sao cho có thể tận dụng được nó.
 
+với f(x) = f0 + f1 * x + f2 * x + ... và g(x) = g0 + g1 * x + g2 * x + ...
+![image](https://github.com/user-attachments/assets/ddfe3a02-e951-4a06-afe3-4b51f8cd04f9)
+
+nên 
+
+![image](https://github.com/user-attachments/assets/ec16e07a-935b-4f55-af2b-99aaf35cdb95)
+
+ta có thể biểu diễn thành ma trân f(x) = (f0, f1, f2, .....) để có thể biểu diễn phép tính $f(x) * g(x) = \lambda(x)$
+
+thì 
+
+![image](https://github.com/user-attachments/assets/e24b170a-7962-428e-bf7a-8df2cc93e534)
+
+Nhưng đó là trong trường số thức, vậy nên khi tính toán trong trường GF(p ^ 3) sẽ có một chút khác biệt.
