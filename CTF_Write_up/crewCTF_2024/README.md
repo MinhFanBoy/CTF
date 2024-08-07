@@ -348,3 +348,65 @@ print(A * B)
 ```
 
 Nhưng đó là trong trường số thực, vậy nên khi tính toán trong trường GF(p ^ 3) sẽ có một chút khác biệt.
+
+#### Code
+
+```sage
+import os
+from sage.all import *
+
+def cvp(B, t):
+    t = vector(ZZ, t)
+    B = B.LLL()
+    S = B[-1].norm().round()+1
+    L = block_matrix([
+        [B,         0],
+        [matrix(t), S]
+    ])
+    for v in L.LLL():
+        if abs(v[-1]) == S:
+            return t - v[:-1]*sign(v[-1])
+    raise ValueError('cvp failed?!')
+
+set_random_seed(1337)
+p = 18315300953692143461
+
+Fp = GF(6143872265871328074704442651454311068421530353607832481181)
+a, b = Fp.random_element(), Fp.random_element()
+I = Fp.gen()
+lst = [50, 32, 83, 12, 49, 34, 81, 101, 46, 108, 106, 57, 105, 115, 102, 51, 67, 34, 124, 15, 125, 117, 51, 124, 38, 10, 30, 76, 125, 27, 89, 14, 50, 93, 88, 56]
+
+n = len(lst) // 3
+A = [[], [], []]
+
+for i in range(n):
+    A[0].extend(a ** i)
+for i in range(n):
+    A[1].extend((a ** i) * I)
+for i in range(n):
+    A[2].extend((a ** i)* I ^ 2)
+A = matrix(ZZ, A)
+B = []
+
+for i in range(n):
+    B.extend(b * (a ** i - 1) / (a - 1))
+B = vector(B)
+usb = vector([(x + 1) << 57 for x in lst]) - B
+dsb = vector([(x) << 57 for x in lst]) - B
+
+target = [(x + y) // 2 for x, y in zip(usb, dsb)]
+
+A = A.stack((identity_matrix(3*n)*p)[3:])
+
+target = vector(target)
+v = cvp(A, target).list()
+
+k = []
+for i in range(0, len(v), 3):
+    
+    k.append(v[i] + v[i + 1] * I + v[i + 2] * (I) ^ 2)
+flag = (k[0] - b) / a 
+print(flag)
+# print(flag.to_interger())
+print(bytes.fromhex(hex(int(8054346236056770593*p^2 + 9693301027687117875*p + 4075496493969646176))[2:]))
+```
