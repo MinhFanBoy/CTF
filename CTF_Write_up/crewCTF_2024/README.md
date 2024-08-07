@@ -243,3 +243,67 @@ for i in M:
 
         print(t)
 ```
+
+### 3. Bỏing LCG
+
+----
+
+**_Chal.py_**:
+
+```py
+import os
+from sage.all import *
+set_random_seed(1337)
+Fp = GF(6143872265871328074704442651454311068421530353607832481181)
+a, b = Fp.random_element(), Fp.random_element()
+
+flag = (os.getenv('flag') or 'crew{submit_this_if_desperate}').encode()
+s = Fp.from_integer(int.from_bytes(flag[len('crew{'):-len('}')], 'big'))
+
+out = []
+for _ in range(12): out.extend(s:=a*s+b)
+print([x>>57 for x in out])
+# [50, 32, 83, 12, 49, 34, 81, 101, 46, 108, 106, 57, 105, 115, 102, 51, 67, 34, 124, 15, 125, 117, 51, 124, 38, 10, 30, 76, 125, 27, 89, 14, 50, 93, 88, 56]
+```
+
+----
+
+#### Tổng quát
+
+Đây là mộ bài mã hóa LCG nhưng trong trường p ^ 3.
+
+```py
+set_random_seed(1337)
+a, b = Fp.random_element(), Fp.random_element()
+```
+
+Với a, b đã biết.
+
+```py
+print([x>>57 for x in out])
+# [50, 32, 83, 12, 49, 34, 81, 101, 46, 108, 106, 57, 105, 115, 102, 51, 67, 34, 124, 15, 125, 117, 51, 124, 38, 10, 30, 76, 125, 27, 89, 14, 50, 93, 88, 56]
+```
+
+Tuy nhiên ta chỉ biết được một phần của đầu ra. Và bây giờ ta cần phải tìm lại seed cũng chính là flag.
+
+#### Solution.
+
+Với `seed := a * seed + b` ta thấy:
+
++ `s_1 = a * s_0 + b`
++ `s_2 = a * s_1 + b = a * (a * s_0 + b) + b = a ^ 2 * s_0 + b * (a + 1)`
++ `s_3 = a * s_2 + b = a * (a * s_1 + b) + b = a ^ 2 * s_1 + b * (a + 1) = ...`
+  
+...
+
++ `s_n = a ^ n * s_0 + b * (a ^ (n - 1) - 1) / (a - 1)`
+
+Ở đây ta đã biết $B = b * (a ^ {n - 1} - 1) / (a - 1)$ và A = $a ^ n$ . Tuy nhiên S_n ta chỉ biết S_n >> 57 nên để có thể gần với đầu ra nhất ta lấy trung bình của (x) << 57 và (x + 1) << 57. Khi đó s_n mà ta biết mới chỉ xấp xỉ kết quả thật nên ta phải sử dụng LLL để tìm lại kết quả chính xác.
+
+Dựa và trên ta dễ thấy:
+
++ $S_n = A * seed + B$
++ $A * seed = (S_n - B)$
+
+Nhưng vấn đề ở đây là A, B, seed đang là các đa thức mà LLL thì ta cần phải có một ma trận nên ta phải biểu diễn lại các đa thức dưới dạng ma trận. Ngoài ra do ở đây mình có rất nhiều hệ phương trình có cùng ẩn seed và khác A, B nên cần biểu diễn thành ma trận sao cho có thể tận dụng được nó.
+
