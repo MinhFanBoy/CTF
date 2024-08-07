@@ -244,7 +244,7 @@ for i in M:
         print(t)
 ```
 
-### 3. Bỏing LCG
+### 3. Boring LCG
 
 ----
 
@@ -347,4 +347,4 @@ print((A_ * L_))
 print(A * B)
 ```
 
-Nhưng đó là trong trường số thức, vậy nên khi tính toán trong trường GF(p ^ 3) sẽ có một chút khác biệt.
+Nhưng đó là trong trường số thực, vậy nên khi tính toán trong trường GF(p ^ 3) sẽ có một chút khác biệt.
