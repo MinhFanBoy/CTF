@@ -320,4 +320,31 @@ thì
 
 ![image](https://github.com/user-attachments/assets/e24b170a-7962-428e-bf7a-8df2cc93e534)
 
+Code test:
+
+```sage
+F.<x> = PolynomialRing(ZZ)
+
+A = 2 + 2 * x + 2 * x^2
+B = 2 * x + x ^ 2
+
+A_ = [2, 2, 2, 0, 0, 0]
+B_ = [0, 2, 1, 0, 0, 0]
+
+L = [
+    [0, 2, 1, 0, 0, 0], 
+    [0, 0, 2, 1, 0, 0],
+    [0, 0, 0, 2, 1, 0],
+    [0, 0, 0, 0, 2, 1], 
+    [1, 0, 0, 0, 0, 2], 
+    [2, 1, 0, 0, 0, 0], 
+]
+
+A_ = vector(A_)
+L_ = matrix(L)
+
+print((A_ * L_))
+print(A * B)
+```
+
 Nhưng đó là trong trường số thức, vậy nên khi tính toán trong trường GF(p ^ 3) sẽ có một chút khác biệt.
