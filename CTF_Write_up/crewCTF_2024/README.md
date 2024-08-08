@@ -410,3 +410,253 @@ print(flag)
 # print(flag.to_interger())
 print(bytes.fromhex(hex(int(8054346236056770593*p^2 + 9693301027687117875*p + 4075496493969646176))[2:]))
 ```
+### 4 Admin
+
+---
+
+**_chal.py_**:
+
+```py
+from os import urandom
+from sys import exit
+import string
+
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+
+blksize = AES.block_size
+
+
+def getintinput(msg):
+    opt = input(msg)
+    try:
+        opt = int(opt)
+    except:
+        return -1
+    return opt
+
+
+def gethexinput(msg):
+    opt = input(msg)
+    opt = opt.strip()
+    if all([ele in string.hexdigits for ele in opt]):
+        return opt.encode()
+    else:
+        return b""
+
+
+def givetoken(key, i):
+    iv = bytes.fromhex(gethexinput("iv(hex): ").decode())
+    if len(iv) != blksize:
+        print("iv is invalid.")
+        return None
+    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+    curusername = b'not_admin_username_' + str(i).encode()
+    enc, tag = cipher.encrypt_and_digest(pad(curusername, blksize))
+    return (curusername.decode(), iv.hex(), enc.hex(), tag.hex())
+
+
+def checktoken(key):
+    token = bytes.fromhex(gethexinput("token(hex): ").decode())
+    if len(token) % blksize != 0 or len(token) <= 2*blksize:
+        print("token is invalid.")
+        return None
+    iv = token[:blksize]
+    tag = token[-blksize:]
+    enc = token[blksize:-blksize]
+
+    cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+    try:
+        dec = unpad(cipher.decrypt_and_verify(enc, tag), blksize)
+    except ValueError:
+        print("tag may be invalid.")
+        return None
+    if dec == b"admin":
+        print("congrats, give you the flag.")
+        flag = open('/flag.txt', 'rb').read().strip().decode()
+        print(flag)
+        return 1
+    else:
+        print("you are not admin user.")
+        return 0
+
+
+def banner():
+    banner = [
+        "#"*80,
+        "AES challenge",
+        "#"*80,
+    ]
+    print('\n'.join(banner))
+
+
+def menu():
+    menu = [
+        "",
+        "0: get token",
+        "1: check admin token"
+    ]
+    print('\n'.join(menu))
+
+
+def main():
+    key = urandom(blksize)
+    i = 0
+    banner()
+    try:
+        while (True):
+            menu()
+            opt = getintinput("option(int): ")
+            if opt == 0:
+                result = givetoken(key, i)
+                if result is None:
+                    break
+                curusername, iv, enc, tag = result
+                print(f"token for {curusername} is: \n{iv + enc + tag}")
+                i += 1
+            elif opt == 1:
+                result = checktoken(key)
+                if result is None or result == 1:
+                    break
+            else:
+                break
+    except:
+        print("error occured.")
+        exit(1)
+
+    print("bye")
+    exit(0)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+
+#### Tổng quan
+
++ Đây là một bài sử dụng AES-GCM để mã hóa, có hai chức năng chính như sau:
+
+```py
+            if opt == 0:
+                result = givetoken(key, i)
+```
+
++ khi chon 0, ta có thể gửi một iv tùy ý, và server sẻ dùng iv đó để mã hóa một chuõi `curusername = b'not_admin_username_' + str(i).encode()`
+
+```py
+            elif opt == 1:
+                result = checktoken(key)
+```
++ khi opt bằng 1, ta có thể gửi một token đến server, nếu giải mã nó với key của server được dec = `admin` thì sẽ trả lại cho ta flag.
+
+#### Solution
+
++ Trước tiên mình cần hiểu cách hoạt động của GCM được thể hiện quan sơ đồ sau:
+
+![image](https://github.com/user-attachments/assets/dc18c28e-97f9-4352-9426-49f6aaf6f7c4)
+
+khi nhìn vào đầu dễ thấy `T=(((((((H∗A)+C1)∗H)+C​2)∗H)+L)∗H)+E`trong trường GF(2 ^ 128) (vì phép xor tương đương với phép cộng và hàm GHASH sử dụng với modulus = `x ^ 12 + x ^ 7 + x ^ 2 + x + 1`)
+
+nhân phân phối ra thì ta có: `T = A ∗ H ^ 4​ + C​​ ∗ H ^ ​3​ + C ∗ H ^ 2 + L ∗ H + E`
+
+Bây giờ nếu ta có hai tah thì dễ thấy:
+
++ `T1 = A ∗ H ^ 4​ + C​​1 ∗ H ^ ​3​ + C1 ∗ H ^ 2 + L ∗ H + E`
++ `T2 = A ∗ H ^ 4​ + C​​2 ∗ H ^ ​3​ + C2 ∗ H ^ 2 + L ∗ H + E`
+
+vì nó được mã hóa bănf cùng 1 key nên bây ta chưa biết mỗi E và H. Ngoài ra trong trường hợp này A = b"00" nên ta có thể bỏ qua nó.
+ 
+Thử cộng hai tag vào ta được:
+
++ `T1 + T2 = 2 * A ∗ H ^ 4​ + (C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2 ∗ H ^ 2 + 2 ^ L ∗ H + 2 *  E`
+
+do đang trong trường GF(2 ^ 128)
+
+nên `T1 + T2 = (C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2 ∗ H ^ 2` từ đó  `(C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2 ∗ H ^ 2  (T1 + T2) = 0` ta có thể giải phương trình này để tìm lại H.
+
+Khi có H ta có thể dễ dàng thay lại vào T1 hoặc T2 để tìm lại E.
+
+Bây giờ để có thể có bẳng mã bằng `admin` ta chỉ cần nhìn vào đây
+
+![image](https://github.com/user-attachments/assets/eee4c82f-c44e-4ec4-bac6-15d521120e34)
+
+dễ thấy ta chỉ cần phải bit flip nó là xong. Khi có bẳn mã ta có thể tính tag lại bằng H và E vừa tính.
+
+#### Code
+
+```py
+
+from sage.all import *
+from attack import *
+from pwn import *
+from os import urandom
+from sys import exit
+import string
+
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+
+blksize = AES.block_size
+s = process(["python3", "prob.py"])
+
+# F = GF(2 ** 128, name = "i", modulus=x**128 + x**7 + x**2 + x + 1)
+# P = PolynomialRing(F, name = 'x')
+
+def bytes_to_poly(tmp):
+    
+    poly = [int(_) for _ in (bin(int(tmp))[2:]).zfill(128)][::-1]
+
+    return F(poly)
+
+def poly_to_bytes(poly):
+    
+    n = poly.integer_representation()
+
+    return bytes.fromhex(hex(int(n))[2:])
+    
+def blocks(tmp):
+    return [tmp[i:i+16] for i in range(0, len(tmp), 16)]
+
+P = []
+C = []
+T = []
+
+iv = b"00" * 16
+
+for i in range(3):
+
+    s.recvuntil(b"option(int): ")
+    s.sendline(b"0")
+    s.recvuntil(b"iv(hex):")
+    
+    P.append(b"not_admin_username_" + str(i).encode())
+    s.sendline(b"00" * 16)
+    s.recvline()
+    token = bytes.fromhex(s.recvline()[:-1].decode())
+    iv = token[:blksize]
+    tag = token[-blksize:]
+    enc = token[blksize:-blksize]
+    T.append(tag)
+    C.append(enc)
+    
+keys = recover_possible_auth_keys(b"\x00", C[0], T[0], b"\x00", C[1], T[1])
+
+for key in keys:
+
+    enc, tag_ = forge_tag_from_plaintext(key, b"\x00", C[2], T[2], P[2], b"\x00", pad(b"admin", 16),)
+
+    token = iv + enc + tag_
+    
+    s.recvuntil(b"option(int): ")
+    s.sendline(b"1")
+    s.recvuntil(b"token(hex):")
+    s.sendline(token.hex())
+
+    s.interactive()
+```
+
+:v ban đầu định code tay nhưng lại chuyển qua tool viết sẵn cho dễ
+https://github.com/tl2cents/AEAD-Nonce-Reuse-Attacks/blob/main/aes-gcm/aes_gcm_forgery.py
