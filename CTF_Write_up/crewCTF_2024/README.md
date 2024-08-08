@@ -732,9 +732,55 @@ c = '92bbb516b6e04ac3c39df6834328028fc4525cd5c97eb220bf7be20d6d6db596'
 
 #### Tổng quan
 
-Mình có được 
+Mình có được một đa thức 5 ẩn với nghiệm cuat mỗi ẩn thỏa mãn là một phần của key.
+
+```py
+
+V, W, X, Y, Z = [bytes_to_long(b) for b in [key[blocklen*i:blocklen*i+blocklen] for i in range(5)]]
+```
+
+Có thể thấy 0 < V, W, X, Y, Z < 2 ^ (8 * blocklen - 1) = 2 ^ 239.
+
+do nó khá nhỏ nên ta có thể sử dụng LLL để tìm lại.
 
 #### Solution
+
+Tạo một ma trận như thế này:
+
+```py
+00 1                                                   coeff_0 
+01   1                                                 coeff_1  
+02     1                                               coeff_2  
+03       1                                             coeff_3  
+04         1                                           coeff_4  
+05           1                                         coeff_5  
+06             1                                       coeff_6  
+07               1                                     coeff_7  
+08                 1                                   coeff_8  
+09                   1                                 coeff_9  
+10                     1                               coeff_10 
+11                       1                             coeff_11 
+12                         1                           coeff_12 
+13                           1                         coeff_13 
+14                             1                       coeff_14 
+15                               1                     coeff_15 
+16                                 1                   coeff_16 
+17                                   1                 coeff_17
+18                                     1               coeff_18
+19                                       1             coeff_19
+20                                         1           coeff_20
+21                                           1         coeff_21
+22                                             1       coeff_22
+23                                               1     coeff_23
+24                                                 1   coeff_24
+25                                                   1 coeff_25
+26                                                     coeff_26
+```
+
+đây là ma trận nhân tương ứng với mỗi ẩn số tương ứng. Để cho chính xác thì ta phải nhân thêm một ma trận weigth có độ lớn bằng độ lớn của nghiệm muốn trả ra.
+
+Sau khi sử dụng LLL ta có thể đưa về nhiều phương trình và phần còn lại là sử dụng groebner_basic để tìm lại nghiệm.
+
 
 #### Code
 
