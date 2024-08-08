@@ -729,3 +729,76 @@ c = '92bbb516b6e04ac3c39df6834328028fc4525cd5c97eb220bf7be20d6d6db596'
 
 ```
 ---
+
+#### Tổng quan
+
+Mình có được 
+
+#### Solution
+
+#### Code
+
+```py
+
+# type: ignore
+
+from Crypto.Util.number import getPrime, long_to_bytes, bytes_to_long
+from hashlib import sha256
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+import sys
+sys.set_int_max_str_digits(False)
+
+with open("output.txt", "r") as f:
+    
+    tmp = f.readlines()
+    
+exec(tmp[0])
+exec(tmp[1])
+exec(tmp[3])
+
+K = Zmod(n)
+PP.<v, w, x, y, z> = PolynomialRing(K)
+
+exec(tmp[2].replace("^", "**"))
+
+coeffs = pol.coefficients()
+mons = pol.exponents()
+length = len(mons)
+
+M = matrix(QQ, length + 1, length + 1)
+
+divsize = 2**(8*blocklen - 1)
+scales = diagonal_matrix([1/(divsize ** sum(i)) for i in mons] + [1])
+
+for i in range(length):
+    M[i, i] = 1
+    M[i, -1] = coeffs[i]
+
+M[-1, -1] = -n
+
+B = (M * scales).LLL() / scales
+
+roots = []
+for row in B.rows():
+
+    if row[-1] != 0:
+        continue
+    sol = row[:-2]
+
+    eqs = []
+    for (mon, s) in zip(mons, sol):
+        eqs.append(int(s) - prod(v**m for v, m in zip([v, w, x, y, z], mon)))
+    for eq in ideal(eqs).groebner_basis():
+        if eq == 1:
+            continue
+        if not eq.is_univariate():
+            continue
+        roots.append(eq.univariate_polynomial().change_ring(ZZ).roots()[0][0] % n)
+
+key = b''.join([bytes.fromhex(f"{int(i):02x}") for i in roots])
+key = sha256(key).digest()
+cipher = AES.new(key, AES.MODE_ECB)
+print(cipher.decrypt(bytes.fromhex(c)))
+
+```
