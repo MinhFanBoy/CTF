@@ -562,20 +562,20 @@ khi nhìn vào đầu dễ thấy `T=(((((((H∗A)+C1)∗H)+C​2)∗H)+L)∗H)+
 
 nhân phân phối ra thì ta có: `T = A ∗ H ^ 4​ + C​​ ∗ H ^ ​3​ + C ∗ H ^ 2 + L ∗ H + E`
 
-Bây giờ nếu ta có hai tah thì dễ thấy:
+Bây giờ nếu ta có hai tag thì dễ thấy:
 
 + `T1 = A ∗ H ^ 4​ + C​​1 ∗ H ^ ​3​ + C1 ∗ H ^ 2 + L ∗ H + E`
 + `T2 = A ∗ H ^ 4​ + C​​2 ∗ H ^ ​3​ + C2 ∗ H ^ 2 + L ∗ H + E`
 
-vì nó được mã hóa bănf cùng 1 key nên bây ta chưa biết mỗi E và H. Ngoài ra trong trường hợp này A = b"00" nên ta có thể bỏ qua nó.
+vì nó được mã hóa bằng cùng 1 key nên bây ta chưa biết mỗi E và H. Ngoài ra trong trường hợp này A = b"00" nên ta có thể bỏ qua nó.
  
 Thử cộng hai tag vào ta được:
 
-+ `T1 + T2 = 2 * A ∗ H ^ 4​ + (C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2 ∗ H ^ 2 + 2 ^ L ∗ H + 2 *  E`
++ `T1 + T2 = 2 * A ∗ H ^ 4​ + (C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2) ∗ H ^ 2 + 2 ^ L ∗ H + 2 *  E`
 
 do đang trong trường GF(2 ^ 128)
 
-nên `T1 + T2 = (C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2 ∗ H ^ 2` từ đó  `(C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2 ∗ H ^ 2  (T1 + T2) = 0` ta có thể giải phương trình này để tìm lại H.
+nên `T1 + T2 = (C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2) ∗ H ^ 2` từ đó  `(C​​1 + C2) ∗ H ^ ​3​ + (C1 + C2) ∗ H ^ 2 - (T1 + T2) = 0` ta có thể giải phương trình này để tìm lại H.
 
 Khi có H ta có thể dễ dàng thay lại vào T1 hoặc T2 để tìm lại E.
 
