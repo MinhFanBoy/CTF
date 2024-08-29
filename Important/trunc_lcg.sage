@@ -28,7 +28,7 @@ trunc: unknown bit of output
     C = matrix(QQ, [A, B])
 
     M = block_matrix(QQ,[
-        [identity_matrix(QQ, len(ee) - 2) * m, 0],
+        [identity_matrix(QQ, len(h) - 2) * m, 0],
         [C, 1]
     ])
 
