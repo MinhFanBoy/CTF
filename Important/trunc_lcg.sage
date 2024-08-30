@@ -1,14 +1,14 @@
 def solve_truncated_lcg(h, a, b, m, trunc):
-"""
-solve seed := a * seed + b mod m
-h = [seed << trunc, seed << trunc, ...]
-h: list of int which is LCG's output
-a: mul constant
-b: add constant
-m: modulus constant 
-trunc: unknown bit of output
-
-"""
+    """
+    solve seed := a * seed + b mod m
+    h = [seed << trunc, seed << trunc, ...]
+    h: list of int which is LCG's output
+    a: mul constant
+    b: add constant
+    m: modulus constant 
+    trunc: unknown bit of output
+    
+    """
 
 
     nbits = 128
