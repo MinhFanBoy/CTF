@@ -1,5 +1,7 @@
 def solve_truncated_lcg(h, a, b, m, trunc):
+
     """
+
     solve seed := a * seed + b mod m
     h = [seed << trunc, seed << trunc, ...]
     h: list of int which is LCG's output
