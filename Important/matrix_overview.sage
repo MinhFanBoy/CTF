@@ -1,5 +1,4 @@
 def matrix_overview(BB):
-    from sage.all import *
     for ii in range(BB.dimensions()[0]):
         a = ('%02d ' % ii)
         for jj in range(BB.dimensions()[1]):
