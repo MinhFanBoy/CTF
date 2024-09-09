@@ -1,5 +1,3 @@
-# Sage
-
 def matrix_overview(BB):
     for ii in range(BB.dimensions()[0]):
         a = ('%02d ' % ii)
