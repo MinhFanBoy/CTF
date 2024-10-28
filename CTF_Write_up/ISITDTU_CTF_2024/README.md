@@ -368,7 +368,7 @@ while True:
 
 #### 2. Soulution
 
-+ Dạng `PKCS1_v1_5` có cấu trúc cơ bản như sau: `00 01 FF FF ... FF 00 + DER + hash` đây là sha256 nên DER là '3031300d060960864801650304020105000420'
++ Dạng `PKCS1_v1_5` có cấu trúc cơ bản như sau: `00 01 FF FF ... FF 00 + DER + hash` đây là sha256 nên DER là `3031300d060960864801650304020105000420`
 
 + Vậy ta có dạng $s = m ^ d \pmod(p)$ nên $s ^ e - m = k * n $ với `m0 =  00 01 FF FF ... FF 00 + DER + 00 * 32`, `m = m0 + m1`, `0 < m1 < 256 ** 32`
 Ta có 
@@ -381,7 +381,7 @@ s2 ^ e - m0 = k2 * n + m2
 
 + Đến đây ta có thể sử dụng agcd để giải bài toán này. Sử dụng ma trận này với $\lambda = log_2{m_1}$
 
-$
+$$
 \mathbf{B} = \begin{pmatrix}
 2^{\lambda+1} & s_1^e - m_0 & s_2^e - m_0 & \cdots & s_n^e - m_0 \\
 & -(s_0^e - m_0) & & & \\
@@ -389,9 +389,9 @@ $
 & & & \ddots & \\
 & & & & -(s_0^e - m_0)
 \end{pmatrix}
-$
+$$
 
-Sau khi lll ma trận trên, ta có kết quả là `[k0 * 2 ** 33, k0 * r1 - k1 * r0, ...]`, từ đó thì có thể tìm lại k0. Khi có k0 thì ta có thể tìm lại $n = (s_1 ^ e - m_0) // k_0$ do m1 rất nhỏ khi so với n hoặc k. Và từ đó ta có thể dễ ràng tìm ra flag.
+Sau khi `lll` ma trận trên, ta có kết quả là `[k0 * 2 ** 33, k0 * r1 - k1 * r0, ...]`, từ đó thì có thể tìm lại k0. Khi có k0 thì ta có thể tìm lại $n = (s_1 ^ e - m_0) // k_0$ do m1 rất nhỏ khi so với n hoặc k. Và từ đó ta có thể dễ ràng tìm ra flag.
 
 #### 3. Code
 
