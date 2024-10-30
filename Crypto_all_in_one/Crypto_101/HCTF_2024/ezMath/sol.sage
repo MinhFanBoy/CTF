@@ -1,0 +1,35 @@
+"""
+
+assert x**2 - D * y**2 == 1
+
+D = (1 - x ** 2) // -y ** 2
+
+D = (x ** 2 - 1) // y ** 2 = (x + 1) * (x - 1) // y ** 2
+
+"""
+from sage.rings.continued_fraction import convergents
+from Crypto.Util.number import *
+from Crypto.Cipher import AES
+
+def pad(x):
+    return x+b'\x00'*(16-len(x)%16)
+def encrypt(KEY, enc):
+    cipher= AES.new(KEY,AES.MODE_ECB)
+    return cipher.decrypt(enc)
+F = RealField(1024)
+D = 114514
+
+
+for _, i in enumerate(continued_fraction(sqrt(D)).convergents()):
+    print(_)
+    x = int(i.numerator())
+    y = int(i.denominator())
+
+    if (x ** 2 - D * y ** 2) == 1:
+        print(f'x={x}, y={y}')
+
+        key=pad(long_to_bytes(y))[:16]
+        enc=b"\xce\xf1\x94\x84\xe9m\x88\x04\xcb\x9ad\x9e\x08b\xbf\x8b\xd3\r\xe2\x81\x17g\x9c\xd7\x10\x19\x1a\xa6\xc3\x9d\xde\xe7\xe0h\xed/\x00\x95tz)1\\\t8:\xb1,U\xfe\xdec\xf2h\xab`\xe5'\x93\xf8\xde\xb2\x9a\x9a"
+        print(encrypt(key, enc))
+
+        exit()
