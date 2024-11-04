@@ -1,5 +1,4 @@
-
-table_of_contens
+Table of Contents
 ================
 
 ### 1. RSA
@@ -287,7 +286,7 @@ $$
 N^{-}_{1} = N_1 + pad_1 = p * q_1 + pad_1 \\
 N^{-}_{2} = N_2 + pad_2 = p * q_2 + pad_2 \\
 N^{-}_{3} = N_3 + pad_3 = p * q_3 + pad_3 \\
-N^{-}_{4} = N_4 + pad_4 = p * q_4 + pad_4 \\
+N^{-}_{4} = N_4 + pad_4 = p * q_4 + pad_4
 
 $$
 
@@ -533,16 +532,16 @@ vì hàm login sử dụng kết quả `return pwd_hash in pwd_hashes` nên nế
 nên bài toán được đưa về như sau:
 
 $$
-a_1 = \prod_i{{g} ^ {k_i * y_i}} = a_2 = \prod_i{{g} ^ {k_j * y_j}} \\ 
+
+a_1 = \prod_i{{g} ^ {k_i * y_i}} = a_2 = \prod_i{{g} ^ {k_j * y_j}}
 
 \to \sum{k_i * y_i} = \sum{k_j * y_j}
+
 $$
 
 mà ta có thể biết được token của admin tức `y_i` cùng với một cặp `password`, `token` ta có thể lấy nữa, nó tương đương với `k_j`, `y_j` nên khi này bài toán được đưa về thành
 
-$$
-\to \sum{k_i * y_i} = {hash} \pmod{q}
-$$
+$\to \sum{k_i * y_i} = {hash} \pmod{q}$
 mình cần tìm 129 ẩn `k_i` thỏa mãn phương trình trên và yêu cầu các `k_i` >= 0 và cũng không quá lớn nê mình sử dụng `solve_linear_mod` để tìm. Khi tìm được các `k_i` ta phải gửi nó thành payload sao cho sau khi server nhận có thể decode được nên mình chia nhỏ các `k_i` thành các phần nhỏ hơn $127$ (giá trị lớn nhất mà UTF-8 có thể decode) và gửi tới server là có flag.
 
 #### 2. Code
