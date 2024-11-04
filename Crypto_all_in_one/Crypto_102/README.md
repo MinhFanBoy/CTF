@@ -840,3 +840,5 @@ for bit in trange(11, 15):
         s.interactive()
         exit()
 ```
+
+++ link của solution chính thức của giải `https://ascis.vnisa.org.vn/en/writeup-for-crypto-challenges-ascis-2024/`
