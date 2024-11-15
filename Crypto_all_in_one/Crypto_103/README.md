@@ -1452,9 +1452,9 @@ p, q đều có 350 bit đầu giống nhau.
 
 + Ta có $l = p ^ q + q ^ p \pmod{n}$ mà
 
-$l = p pmod{q}$
+$l = p \pmod{q}$
 
-$l = q pmod{p}$
+$l = q \pmod{p}$
 
 Khi sử dụng định lý phần dư trung hoa ta sẽ thấy $l = p + q \mod{n}$ mà $p + q < n$ nên l thật ra là 300 bit cuối của $p + q$
 
