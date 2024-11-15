@@ -1630,12 +1630,13 @@ hint = 1860336365742538749239400340012599905091601221664081527583387276567734082
 `hint = getPrime(20)*d**3 + getPrime(128)*phi**2`
 
 `d = pow(e, -1, phi)` -> $e *d = 1 + k * phi$
+
 ```py
 h * e ** 3 = a * (1 + k * phi) ** 3 + e ** 3 * b * phi ** 2
 h * e ** 3 = a * (1 + 3 * (k * phi) ** 2 + 3 * k * phi + (k * phi) ** 3) + e ** 3 * b * phi ** 2
 ```
 
-$h * {e ^ } - a = k * phi$
+$h * {e ^ 3} - a = k * phi$
 
 Do a là số prime 20 bit nên ta có thể brute tìm lại số a bằng cách kiểm tra $2 ^ {h * e ^ 3 - a} \pmod{n}$.
 khi đó ta có thểm tìm ra k * phi rồi áp dụng cách tương tự bài 1 để giải
