@@ -966,8 +966,8 @@ print(c)
 #### 2. Solution
 
 + Mình thực hiện viết code brute từng bít sao cho thỏa mãn các điều kiện sau:
-    + (p_ * (2 ** i) + k_1) * ((q_ * (2 ** i) + k_2)) = q_ * p_ * (2 ** 2i) + k_2 * p_ * (2 ** i) + k_1 * q_ * (2 ** i) + k_1 * k_2
-    -> k_1 * k2 = n (mod(2 ** i)) tức với i bit cuối của q, p thì tích của nó phải bằng i bit cuối của n.
+    + $(p_ × 2^i + k_1) × (q_ × 2^i + k_2) = p_ × q_ × 2^{2i} + k_2 × p_ × 2^i + k_1 × q_ × 2^i + k_1 × k_2$
+    -> $k_1 × k_2 \equiv n \pmod{2^i}$ tức với i bit cuối của q, p thì tích của nó phải bằng i bit cuối của n.
     + Sử dụng thêm các điều kiện `and` và `or` bit để giảm các trường hợp có thể.
 
 #### 3. Code
@@ -1452,8 +1452,9 @@ p, q đều có 350 bit đầu giống nhau.
 
 + Ta có $l = p ^ q + q ^ p \pmod{n}$ mà
 
-$l = p mod q$
-$l = q mod p$
+$l = p pmod{q}$
+
+$l = q pmod{p}$
 
 Khi sử dụng định lý phần dư trung hoa ta sẽ thấy $l = p + q \mod{n}$ mà $p + q < n$ nên l thật ra là 300 bit cuối của $p + q$
 
@@ -1634,7 +1635,7 @@ h * e ** 3 = a * (1 + k * phi) ** 3 + e ** 3 * b * phi ** 2
 h * e ** 3 = a * (1 + 3 * (k * phi) ** 2 + 3 * k * phi + (k * phi) ** 3) + e ** 3 * b * phi ** 2
 ```
 
-$h * e ^ 3 - a = k * phi$
+$h * {e ^ } - a = k * phi$
 
 Do a là số prime 20 bit nên ta có thể brute tìm lại số a bằng cách kiểm tra $2 ^ {h * e ^ 3 - a} \pmod{n}$.
 khi đó ta có thểm tìm ra k * phi rồi áp dụng cách tương tự bài 1 để giải
@@ -1980,9 +1981,12 @@ c = 1416246637341552355431988560696521717791307209458754426249439179120626582754
 + Do flag gồm nhiều số hơn nên solve linear không trả ra được kết quả đúng nữa nên mình có thử sử dụng code của blupper nhưng vẫn không ra nên đành ngồi code tay.
 + Ta vẫn có + $m = \sum_{i = 0}{flag[i] * 256 ^ i} \pmod{p}$ do 48 < flag < 55
 nên mình cộng thêm vào
-+ $m = \sum_{i = 0}{(52 + x_i) * 256 ^ i} \pmod{p}$ khi đó x_i = [-4, 3] 
++ $m = \sum_{i = 0}{(52 + x_i) * 256 ^ i} \pmod{p}$ khi đó x_i = [-4, 3]
+
 $$
-(x_0 \quad x_1 \quad \ldots \quad x_i \quad \ldots \quad x_{79} \quad 1 \quad k) 
+\begin{pmatrix}
+x_0 & x_1 & \ldots & x_i & \ldots & x_{79} & 1 & k \\
+\end{pmatrix}
 \begin{pmatrix}
 1 & 0 & \ldots & 0 & \ldots & 0 & 0 & 256^{80} \\
 0 & 1 & \ldots & 0 & \ldots & 0 & 0 & 256^{79} \\
@@ -1992,7 +1996,10 @@ $$
 0 & 0 & \ldots & 0 & \ldots & 1 & 0 & 256^1 \\
 0 & 0 & \ldots & 0 & \ldots & 0 & 1 & t-c \\
 0 & 0 & \ldots & 0 & \ldots & 0 & 0 & p
-\end{pmatrix} = (x_0 \quad x_1 \quad \ldots \quad x_i \quad \ldots \quad x_{79} \quad 1 \quad 0)
+\end{pmatrix} = 
+\begin{pmatrix}
+x_0 & x_1 & \ldots & x_i & \ldots & x_{79} & 1 & 0
+\end{pmatrix}
 $$
 
 với $t = NSSCTF\{ \times 256^{81} + \} + \sum_{i=0}^{80} 52 \times 256^{80-i}$
@@ -2065,14 +2072,18 @@ c = 2731115339292582271427009753156357310517827108998674311505411896479165127651
 + Mình có thử làm giống như bài trước nhưng có vẻ không được vì các vector trả ra không phải là vector ngắn nhất.
 
 với:
+
 $$
-ord(N) × a + b ≡ 1 (mod p)
-ord(s) × a + b ≡ 0 (mod p)
+\begin{cases}
+ord(N) × a + b ≡ 1 \pmod{p} \\
+ord(s) × a + b ≡ 0 \pmod{p}
+\end{cases}
 $$
+
 mình tìm được hệ số a, b sao cho khi nhân với các phần tử kia ta được 0, 1. Khi đó
-$c - prefix ≡ x₀ × 256¹⁰⁰ + x₁ × 256⁹⁹ + ... + xi × 2¹⁰⁰⁻ⁱ + x₉₉ × 256 \pmod{p}$ với các x là flag
-$\to (c - prefix)a ≡ ax₀ × 256¹⁰⁰ + ax₁ × 256⁹⁹ + ... + a * x_i × 2¹⁰⁰⁻ⁱ + ax₉₉ × 256 (mod p)$
-$\to (c - prefix)a + \sum_{i = 0} ^ {100}{b * (256 ^ i)}≡ (ax₀ + b) × 256¹⁰⁰ + (ax₁ + b) × 256⁹⁹ + ... + (a * x_i + b) × 2¹⁰⁰⁻ⁱ + (ax₉₉ + b) × 256 (mod p)$
+$c - prefix ≡ x_0 × 256^{100} + x_1 × 256^{99} + ... + x_i × 256^{100-i} + x_{99} × 256 \pmod{p}$ với các x là flag
+$(c - prefix)a ≡ ax_0 × 256^{100} + ax_1 × 256^{99} + ... + ax_i × 256^{100-i} + ax_{99} × 256 \pmod{p}$
+$(c - prefix)a ≡ ax_0 × 256^{100} + ax_1 × 256^{99} + ... + ax_i × 256^{100-i} + ax_{99} × 256 \pmod{p}$
 
 với (a * x_i + b) = 0, 1 ta có thể thấy đây là bài toán cơ bản và dễ dàng tìm lại được (a * x_i + b) nếu nó bằng 1 thì dód là vị trí của N còn lại là vị trí của s.
 
