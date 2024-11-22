@@ -1,6 +1,6 @@
 
 """
-
+Code from: https://tangcuxiaojikuai.xyz/post/ce38099f.html
 attack on RSA params where:
 
 + p = 2ga + 1, q = 2gb + 1
