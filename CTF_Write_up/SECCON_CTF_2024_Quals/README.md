@@ -873,21 +873,21 @@ Chúng ta đã biết a, g trong đó mình có quyền gửi n = p ^ 2 * q, x t
 #### 2. Solution
 Viết lại hàm trên như sau
 
-$a = x ^ y * g ^ r * g ^ (n * s) \pmod(p ^ 2 * q)$
+$a = x ^ y * g ^ r * g ^ {n * } \pmod{p ^ 2 * }$
 
-$a = x ^ y * g ^ (r + n * s) \pmod(p ^ 2 * q)$
+$a = x ^ y * g ^ {r + n * } \pmod{p ^ 2 * }$
 
 do mình có thể chọn x nên mình gửi x = 1 + k * p khi đó ta dễ có:
 
-+ $a = (1 + p) ^ y * g ^ (r + n * s) \pmod(p ^ 2 * q)$
++ $a = (1 + p) ^ y * g ^ {r + n * } \pmod{p ^ 2 * }$
 
 nên 
 
-+ $a = g ^ (r + n * s) \pmod(p)$
++ $a = g ^ {r + n * } \pmod{}$
 
 do p mình có thể chọn nên gửi p là số smooth khiến ta có thể dễ dàng tính được $r + n * s \pmod{p - 1}$
 
-+ $a = (1 + p) ^ y * g ^ (r + n * s) \pmod(q)$
++ $a = (1 + p) ^ y * g ^ {r + n * } \pmod{q}$
 
 với k = gcd(p - 1, q - 1)
 thì `p = k * k_p + 1` và `q = k * k_q + 1`
@@ -901,7 +901,7 @@ khi đó ta chỉ cần brute $r + n * s = h_2 \pmod{k_q}$ khi đó ta chỉ c�
 
 chúng ta sẽ có $r + n * s \pmod{k * k_q} \to r + n * s \pmod{q - 1} = l$
 
-với $a = (1 + p) ^ y * g ^ (l) \pmod(q)$ thì ta có thể dis log để tìm y do `y < 2 ** 256 < q`
+với $a = (1 + p) ^ y * g ^ (l) \pmod{}$ thì ta có thể dis log để tìm y do `y < 2 ** 256 < q`
 
 #### 3. Code
 
