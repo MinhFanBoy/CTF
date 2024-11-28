@@ -120,10 +120,11 @@ trong đó:
 
 trong phương trình trên ta đã biết M, C, F và POLY, IN, OUT là cố định nên chúng ta có:
 
-$C_1 + M_1 * x^n + F + F * x ^ b =  {I}x^b + {O} \pmod{{P}}$
-$C_2 + M_2 * x^n + F + F * x ^ b =  {I}x^b + {O} \pmod{{P}}$
+$C_1 + M_1 * x ^ n + F + F * x ^ b =  {I}x^b + {O} \pmod{P}$
 
-nên $C_1 + C_2 + (M_1 + M_2) * x ^ b = 0 $
+$C_2 + M_2 * x ^ n + F + F * x ^ b =  {I}x^b + {O} \pmod{P}$
+
+nên $C_1 + C_2 + (M_1 + M_2) * x ^ b = 0$
 
 $\to GCD(C_1 + C_2 + (M_1 + M_2) * x ^ b, C_3 + C_4 + (M_3 + M_4) * x ^ b) = P$
 
@@ -133,7 +134,7 @@ $C_1 + C_{flag} + (M_1 + {flag}) * x ^ b = 0 \pmod{P}$
 
 do ta chỉ còn mỗi flag chưa biết nên ta hoàn toàn có thể tìm lại flag một cách dễ dàng. Tuy nhiên, do đây đang tròn trường GF(2, 256) nên flasg cũng bị cắt đi chỉ còn có thể tìm lại 32 ký tự nhưng ta cũng thấy flag = DubheCTF{ + ? * 32 + } nên ta có thể tìm lại đoạn chưa biết bằng cách pad thêm phần đã biết vào như sau:
 
-$C_1 + C_{flag} + (M_1 + {flag * 256 + ord("\}")}) * x ^ b = 0 \pmod{P}$
+$C_1 + C_{flag} + (M_1 + {flag * 256 + pad}) * x ^ b = 0 \pmod{P}$
 
 + Ngoài ra chúng ta có thể tháy nếu m = 1 thì ta sẽ có `crc256(m) = Poly` từ đó có thể recover lại nhanh hơn.
 
