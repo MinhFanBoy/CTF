@@ -136,7 +136,7 @@ do ta chỉ còn mỗi flag chưa biết nên ta hoàn toàn có thể tìm lạ
 
 $C_1 + C_{flag} + (M_1 + {flag * 256 + pad}) * x ^ b = 0 \pmod{P}$
 
-+ Ngoài ra chúng ta có thể tháy nếu m = 1 thì ta sẽ có `crc256(m) = Poly` từ đó có thể recover lại nhanh hơn.
++ Ngoài ra chúng ta có thể thấy nếu m = 1 thì ta sẽ có `crc256(m) = Poly` từ đó có thể recover lại nhanh hơn.
 
 #### 3. Code
 
