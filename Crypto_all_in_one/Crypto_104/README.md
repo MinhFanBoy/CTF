@@ -1,3 +1,3 @@
 
-Bài viết vè một số bài ctf crypto
+Bài viết về một số bài ctf crypto
 
