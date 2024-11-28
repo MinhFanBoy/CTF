@@ -164,5 +164,26 @@ if __name__ == "__main__":
 
 + Ta có 2 ciphertext của AES 22 vòng và AES 24 vòng và mình cần phải tìm lại key từ sự khác biệt đô. Với sơ đồ mã hóa như sau:
 
+![image](https://github.com/user-attachments/assets/b0d405dd-471a-46ba-a75d-360225bcea08)
 
+chúng ta có 2 vòng AES như vậy nhưng thực tế các hàm 
 
+![image](https://github.com/user-attachments/assets/98d2fb6d-d650-4cf3-8763-49e09191f1f1)
+
+không có key nên ta hoàn toàn có thể tìm được
+
+![image](https://github.com/user-attachments/assets/2161c8f9-0a7b-4170-8185-de35142e6ce1)
+
+còn hàm này là xor nên ta có thể xor 2 ciphertext lại với nhau.
+
+![image](https://github.com/user-attachments/assets/79235a22-96f1-4371-a9ef-bd05b373176c)
+
+chúng ta cũng thực hiện tương tự với phần này vì tính chất của xor, và các hàm trên chỉ đổi vị trí của ciphertext chứ không làm thay đổi giá trị của nó nên ta có thể viết lại code để decrypt đoạn này. Đến `hàm subytes` này
+
+![image](https://github.com/user-attachments/assets/243e8eba-7044-46e9-aecc-93a0468d6ccf)
+
+ta thực hiện brute để tìm lại ciphertext của AES lần thứ 23. Khi có nó rồi thì ta chỉ cần xor lại để tìm add_round key khi đó sử dụng hàm có sẵn để tìm lại key.
+
+#### 3. Code
+
++ Đã để trong files
