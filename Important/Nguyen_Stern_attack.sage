@@ -16,19 +16,17 @@ def allpmones(v):
     return len([vj for vj in v if vj in [-1, 0, 1]]) == len(v)
 
 # We generate the lattice of vectors orthogonal to b modulo x0
-def orthoLattice(b, x0):
-    m = b.length()
-    M = Matrix(ZZ, m, m)
 
-    for i in range(1, m):
-        M[i, i] = 1
-    M[1:m, 0] = -b[1:m] * inverse_mod(b[0], x0)
-    M[0, 0] = x0
-
-    for i in range(1, m):
-        M[i, 0] = mod(M[i, 0], x0)
-
+def orthogonal_matrix(h, p):
+    
+    n = len(h)
+    h_ = vector(ZZ, h[1:]) * -inverse_mod(h[0], p)
+    M = block_matrix([
+        [column_matrix(h_), 1],
+        [matrix([[p]]), 0]
+    ])
     return M
+
 def orthoLattice(b, x0):
     m = b.length()
     M = Matrix(ZZ, m, m)
