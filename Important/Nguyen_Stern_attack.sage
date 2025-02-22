@@ -29,6 +29,19 @@ def orthoLattice(b, x0):
         M[i, 0] = mod(M[i, 0], x0)
 
     return M
+def orthoLattice(b, x0):
+    m = b.length()
+    M = Matrix(ZZ, m, m)
+
+    for i in range(1, m):
+        M[i, i] = 1
+    M[1:m, 0] = -b[1:m] * inverse_mod(b[0], x0)
+    M[0, 0] = x0
+
+    for i in range(1, m):
+        M[i, 0] = mod(M[i, 0], x0)
+
+    return M
 
 def allones(v):
     if len([vj for vj in v if vj in [0, 1]]) == len(v):
