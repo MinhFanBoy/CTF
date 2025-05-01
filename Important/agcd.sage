@@ -3,7 +3,7 @@
 find agcd
 
 + N: list of int
-+ R_bits: 
++ R: 
 
 """
 def agcd(N: list[int], R):
