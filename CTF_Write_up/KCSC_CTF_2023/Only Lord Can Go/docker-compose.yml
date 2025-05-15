@@ -1,0 +1,5 @@
+services:
+    only_lord_can_go:
+        build: .
+        ports:
+            - "60123:60123"

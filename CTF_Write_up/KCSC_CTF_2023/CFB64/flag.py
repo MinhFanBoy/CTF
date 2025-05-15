@@ -1,0 +1,1 @@
+flag = b"KCSC{S0_L0n9_&_S0_eazy_chosenn_plaintext_attack}"

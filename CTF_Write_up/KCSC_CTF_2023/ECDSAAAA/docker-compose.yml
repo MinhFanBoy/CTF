@@ -1,0 +1,5 @@
+services:
+  ecdsa:
+    build: .
+    ports:
+      - "60124:60124"
