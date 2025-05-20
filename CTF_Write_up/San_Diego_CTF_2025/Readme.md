@@ -394,20 +394,23 @@ từ đó ta có thể thấy $tmp = \prod_{i = 0}^{8}k_{i}^{r_i}$, giải sử 
 vậy giả sử để tìm được các t_j thỏa mãn trường hợp của k1 thì ta có hệ phương trình.
 
 $$
-
 r_0 = 1 = t_0 * e_0[0] + t_1 * e_0[1] + ... + t_19 * e_0[19]
 $$
+
 $$
 r_1 = 0 = t_0 * e_0[0] + t_1 * e_1[1] + ... + t_19 * e_1[19]
 $$
+
 $$
 ...
 $$
+
 $$
 r_7 = 0 = t_0 * e_7[0] + t_1 * e_7[1] + ... + t_19 * e_7[19]
 $$
 
 đưa về ma trận thì ta có 
+
 $$
 \begin{bmatrix}
 e_{0,0} & e_{0,1} & \cdots & e_{0,19} \\
@@ -420,8 +423,7 @@ t_0 \\
 t_1 \\
 \vdots \\
 t_{19}
-\end{bmatrix}
-=
+\end{bmatrix}=
 \begin{bmatrix}
 1 \\
 0 \\
