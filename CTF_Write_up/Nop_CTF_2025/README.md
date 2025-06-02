@@ -136,7 +136,7 @@ print(long_to_bytes(132319036933719016150144442420049870663057484788499311967590
 
 ```
 
-### 2. n0pichu
+### 2. n0pischu
 
 ```py
 #!/usr/bin/env python3
@@ -242,7 +242,7 @@ do đó có 2 trưởng hợp như sau:
 + p * k + r
 + q * k + r
 
-nó trở thành bài toán AGCD. ta chỉ cẩn 3 output có chung ẩn p, hoặc q là có thể tìm lại p hoặc q tương ứng nên ta có thể thử với tỷ lệ (1/8).
+nó trở thành bài toán AGCD. ta chỉ cần 3 output có chung ẩn p, hoặc q là có thể tìm lại p hoặc q tương ứng nên ta có thể thử với tỷ lệ (1/8).
 
 ```py
 def jam(x, y, d, n):
@@ -254,7 +254,7 @@ def jam(x, y, d, n):
 
 đây là hàm nhân của chương trình, ta thấy với x * y = (x1, y1) * (x2, y2) = (x1 + y1 * a) * (x2 + y2 * a) = (x1 * x2 + a^2 * y1 * y2) + (x1 * y2 + x2 * y1) * a = (x1 * x2 + d * y1 * y2, x1 * y2 + x2 * y1).
 
-đây là trường đa thức mở rộng trong zmod(n) mà ta có thể factor n tư leak như bên trên  nên ta có thể tìm phi rồi tính nghịch đảo giống RSA để tìm lại flag.
+đây là trường đa thức mở rộng trong zmod(n) mà ta có thể factor n từ leak như bên trên nên ta có thể tìm phi rồi tính nghịch đảo giống RSA để tìm lại flag.
 
 ```py
 
