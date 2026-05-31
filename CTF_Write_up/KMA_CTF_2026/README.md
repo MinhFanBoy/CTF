@@ -1427,7 +1427,7 @@ print("Flag:", flag)
 
 # WEB
 
-## 1. ChatGPT Made Me Do It 
+## ChatGPT Made Me Do It 
 
 Challenge là một web app Node.js/Express. App có các chức năng chính:
 
