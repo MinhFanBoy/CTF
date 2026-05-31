@@ -1,0 +1,16 @@
+services:
+  crypto-web:
+    build: .
+    ports:
+      - "5000:5000"
+      - "5678:5678"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - FLASK_ENV=development
+    volumes:
+      - .:/app
+    command: >
+      python -m debugpy
+      --listen 0.0.0.0:5678
+      --wait-for-client
+      -m backend.main

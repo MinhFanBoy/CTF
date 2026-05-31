@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crypto-Web</title>
+  <link rel="stylesheet" href="/public/style.css" />
+</head>
+<body>
+  <div class="ambient"></div>
+  <div class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">KMA CTF 2026</p>
+        <h1>Crypto-Web</h1>
+        <p class="subtitle">
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Toggle theme">
+          <span class="theme-toggle__label">Light</span>
+          <span class="theme-toggle__track" aria-hidden="true">
+            <span class="theme-toggle__thumb"></span>
+          </span>
+        </button>
+        <div class="status-card">
+          <span class="dot"></span>
+          <span>Online</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="panel" id="registerPanel">
+        <div class="panel-head compact">
+          <div>
+            <h2>Register</h2>
+            <p class="helper-text">Create a new account</p>
+          </div>
+          <span class="step-badge">01</span>
+        </div>
+
+        <div class="form-row">
+          <label for="regEmail">Email</label>
+          <input id="regEmail" data-required="true" type="email" placeholder="client@actvn.edu.vn" autocomplete="off" />
+          <small class="field-error">Email is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="regUsername">Username</label>
+          <input id="regUsername" data-required="true" type="text" placeholder="Alice" autocomplete="off" />
+          <small class="field-error">Username is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="regAccountId">Account ID</label>
+          <input id="regAccountId" data-required="true" type="text" placeholder="number" autocomplete="off" />
+          <small class="field-error">Account ID is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="regDeviceId">Device ID</label>
+          <input id="regDeviceId" data-required="true" type="text" placeholder="number" autocomplete="off" />
+          <small class="field-error">Device ID is required.</small>
+        </div>
+
+        <button id="registerBtn" class="primary wide">Create registration</button>
+        <p id="registerSuccess" class="register-success" aria-live="polite"></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head compact">
+          <div>
+            <h2>Login</h2>
+            <p class="helper-text">Login to get your login id</p>
+            <p class="danger-note">One account can login only once.</p>
+          </div>
+          <span class="step-badge">02</span>
+        </div>
+
+        <div class="form-row">
+          <label for="loginUsername">Username</label>
+          <input id="loginUsername" data-required="true" type="text" placeholder="Alice" autocomplete="off" />
+          <small class="field-error">Username is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="loginAccountId">Account ID</label>
+          <input id="loginAccountId" data-required="true" type="text" placeholder="registered account_id" autocomplete="off" />
+          <small class="field-error">Account ID is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="loginDeviceId">Device ID</label>
+          <input id="loginDeviceId" data-required="true" type="text" placeholder="registered device_id" autocomplete="off" />
+          <small class="field-error">Device ID is required.</small>
+        </div>
+
+        <button id="waitLoginBtn" class="primary wide">Login</button>
+        <div id="loginOutput" class="terminal mini">No active login.</div>
+      </section>
+
+      <section class="panel span-2 output-panel" id="receiptPanel">
+        <div class="panel-head">
+          <div>
+            <h2>Registration receipt</h2>
+            <p class="helper-text">Copy these values to complete the login step</p>
+          </div>
+          <button id="clearReceiptBtn" class="ghost">Clear</button>
+        </div>
+        <div id="receiptOutput" class="receipt-empty">
+          Login with username, account_id, and device_id to reveal the registration receipt.
+        </div>
+      </section>
+
+      <section class="panel span-2">
+        <div class="panel-head">
+          <div>
+            <h2>Send login material</h2>
+            <p class="helper-text">Provide the login material to complete the process</p>
+            <p class="danger-note">Each login ID can be used for Send login material only once.</p>
+          </div>
+          <span class="step-badge">03</span>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="submitUsername">Username</label>
+            <input id="submitUsername" data-required="true" type="text" placeholder="registered username" autocomplete="off" />
+            <small class="field-error">Username is required.</small>
+          </div>
+
+          <div class="form-row">
+            <label for="loginId">Login ID</label>
+            <input id="loginId" data-required="true" type="text" placeholder="login_id" autocomplete="off" />
+            <small class="field-error">Login ID is required.</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="masterKeyEnc">master_key_enc</label>
+          <textarea id="masterKeyEnc" data-required="true" rows="2" spellcheck="false" placeholder="hex string"></textarea>
+          <small class="field-error">master_key_enc is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="shareKeyEnc">share_key_enc</label>
+          <textarea id="shareKeyEnc" data-required="true" rows="8" spellcheck="false" placeholder="hex string"></textarea>
+          <small class="field-error">share_key_enc is required.</small>
+        </div>
+
+        <div class="form-row">
+          <label for="shareKeyTag">tag</label>
+          <textarea id="shareKeyTag" data-required="true" rows="2" spellcheck="false" placeholder="hex string"></textarea>
+          <small class="field-error">tag is required.</small>
+        </div>
+
+        <div class="button-row end">
+          <button id="resetFormBtn" class="secondary">Reset form</button>
+          <button id="submitLoginBtn" class="primary">Send to verifier</button>
+        </div>
+
+        <div id="loginResult" class="terminal response hidden"></div>
+        <div id="loginActions" class="button-row end hidden">
+          <button id="copyDebugBtn" class="ghost hidden" type="button">Copy debug</button>
+          <button id="resetPageBtn" class="secondary" type="button">Create new account</button>
+        </div>
+        <p id="expiredNotice" class="danger-note hidden">This account has expired. Create a new account to continue.</p>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast">Copied</div>
+
+  <script src="/public/js/crypto-client.js"></script>
+  <script src="/public/js/dashboard.js"></script>
+</body>
+</html>
