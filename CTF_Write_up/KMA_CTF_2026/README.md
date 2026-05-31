@@ -1424,3 +1424,232 @@ cipher = AES.new(key, AES.MODE_CBC, iv)
 flag = cipher.decrypt(enc_flag)
 print("Flag:", flag)
 ```
+
+# WEB
+
+## 1. ChatGPT Made Me Do It 
+
+Challenge là một web app Node.js/Express. App có các chức năng chính:
+
+```
+Đăng ký tài khoản
+Đăng nhập
+Đổi mật khẩu
+Report URL cho admin bot
+Admin xem URL bằng Puppeteer
+Nếu là admin thì được lấy flag
+```
+
+Trong package.json, app dùng express, express-session, cookie-parser, và puppeteer-core, nên đây là dạng bài web có session + admin bot.
+
+Mục tiêu là lấy flag ở endpoint:
+
+```js
+router.all('/immortal-gate/treasure', (req, res) => {
+  if (req.method !== 'POST') return res.redirect('/');
+
+  const username = req.session.username;
+
+  if (username !== 'admin') {
+    return res.redirect('/');
+  }
+
+  return res.send(renderFlag(FLAG));
+});
+```
+
+Muốn lấy flag cần:
+
+1. Phải gửi POST.
+2. Session hiện tại phải là admin.
+
+Vấn đề là password admin được random:
+```
+const ADMIN_PASSWORD = crypto.randomBytes(16).toString('hex');
+
+const users = new Map([
+  ['admin', ADMIN_PASSWORD],
+]);
+```
+Vì vậy không thể brute force hoặc đoán password admin. Hướng khai thác là dùng XSS để bắt admin bot tự đổi password của admin.
+
+Trong bot.js, bot làm như sau:
+```
+await page.goto(`${BASE_URL}/immortal-gate/sign-in`, { waitUntil: 'domcontentloaded' });
+await page.type('input[name="username"]', 'admin');
+await page.type('input[name="password"]', ADMIN_PASSWORD);
+
+await Promise.allSettled([
+  page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 5000 }),
+  page.click('#submitBtn'),
+]);
+
+await new Promise((resolve) => setTimeout(resolve, 1000));
+await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 5000 });
+await new Promise((resolve) => setTimeout(resolve, 1000));
+```
+Nghĩa là:
+
+1. Bot mở Chromium.
+2. Bot đăng nhập bằng tài khoản admin.
+3. Bot truy cập URL do user gửi qua report.
+
+Đây là điểm quan trọng nhất. Nếu ta gửi một URL có XSS, đoạn JavaScript đó sẽ chạy trong browser của admin.
+
+ở /immortal-gate/check có XSS
+
+Route bị lỗi:
+```
+router.all('/immortal-gate/check', (req, res) => {
+  const name = req.query.name || req.session.username || '';
+  res.write(`${santi(decodeURIComponent(String(name)))}, hello`);
+  res.end();
+});
+```
+Input name được lấy trực tiếp từ query string rồi ghi ra response bằng res.write.
+
+Ví dụ:
+
+/immortal-gate/check?name=Minh
+
+Response:
+
+Minh, hello
+
+Nếu đưa HTML vào:
+
+<script>alert(1)</script>
+
+thì response sẽ chứa script. Nếu browser parse response như HTML thì script sẽ chạy.
+
+App có filter tên santi():
+```
+function santi(str) {
+  const tag = str.match(/<([^>]*)>/);
+
+  if (tag && /[a-zA-Z]/.test(tag[1])) {
+    return 'no hack';
+  }
+
+  return str;
+}
+```
+Filter này chỉ kiểm tra tag đầu tiên.
+
+Nếu payload là:
+
+<script>alert(1)</script>
+
+Regex bắt tag đầu tiên là:
+
+<script>
+
+Thử payload <><script>alert(1)</script> thì sẽ khồn trigger XSS được vì web sẽ hiểu <> là text nên dẫn đến các phần sau cũng là text. Nên phải dùng
+
+`<!-- --><script>alert(1)</script>`
+
+Vì tag đầu tiên regex bắt được là:
+
+`<!-- -->`
+
+Phần bên trong là:
+
+`!-- --`
+
+Không có chữ cái a-zA-Z, nên santi() cho qua.
+
+Browser hiểu <!-- --> là comment HTML, sau đó gặp <script> và chạy JavaScript.
+
+Route đổi password:
+```
+router.all('/cultivation/password', (req, res) => {
+  const username = req.session?.username;
+  const csrfToken = req.cookies.csrf_token;
+
+  if (username === undefined) {
+    return res.redirect('/immortal-gate/sign-in');
+  } 
+
+  if (req.headers['x-csrf-token'] !== csrfToken) {
+    return res.send(alertBack('❌ Tâm ma tác sai, công kích bị ngăn chặn!'));
+  }
+
+  const newPassword = req.body.new_password || '';
+  users.set(username, newPassword);
+
+  return res.send(alertBack('✨ Công pháp tu sửa thành công!'));
+});
+```
+Có 3 lỗi quan trọng.
+
+Thứ nhất, route dùng:
+
+router.all('/cultivation/password', ...)
+
+router.all nhận mọi HTTP method, bao gồm cả GET.
+
+Middleware CSRF trong middleware.js bỏ qua GET:
+```
+function csrfProtection(req, res, next) {
+  const secFetchSite = req.get('Sec-Fetch-Site');
+  const secFetchUser = req.get('Sec-Fetch-User');
+  const method = req.method;
+
+  if (method === 'GET') {
+    return next();
+  }
+
+  if (secFetchSite !== undefined && secFetchUser !== '?1') {
+    return res.send(alertBack('no hack'));
+  }
+
+  return next();
+}
+```
+Nên nếu gửi POST, request có thể bị middleware chặn.
+
+Đổi password đáng lẽ chỉ nên dùng POST, nhưng ở đây GET /cultivation/password cũng chạy logic đổi password.
+
+Thứ hai, password mới lấy từ:
+
+const newPassword = req.body.new_password || '';
+
+Nếu request là GET, request thường không có body. Khi đó:
+
+req.body.new_password
+
+là undefined, nên:
+
+undefined || ''
+
+thành:
+```
+''
+```
+Vì vậy nếu admin gửi:
+
+GET /cultivation/password
+
+và vượt qua check CSRF, password admin sẽ bị đổi thành chuỗi rỗng.
+
+Thứ ba, CSRF check yếu:
+
+const csrfToken = req.cookies.csrf_token;
+
+if (req.headers['x-csrf-token'] !== csrfToken) {
+  return res.send(alertBack('❌ Tâm ma tác sai, công kích bị ngăn chặn!'));
+}
+
+Server so sánh header với cookie:
+
+x-csrf-token == csrf_token cookie
+
+Nhưng ta có thể tạo cookie bằng cách như sau
+
+document.cookie = "csrf_token=x; path=/cultivation/password";
+
+Sau đó gửi request kèm header:
+
+x-csrf-token: x
+
+Khi request đi tới /cultivation/password, cookie csrf_token=x khớp với header x.
