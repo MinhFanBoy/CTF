@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Document</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="page">
+  <div class="form-container">
+    <h2>Write Confidential Document</h2>
+    <form action="/report.php" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title">
+      </div>
+      <div class="form-group">
+        <label for="content">Details</label>
+        <textarea id="content" name="content" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="file">Attach image</label>
+        <input type="file" id="file" name="file">
+      </div>
+      <?php if (!empty($_SESSION['admin'])) { ?>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="temp_copy" value="1">
+          Create temp snapshot in /tmp
+        </label>
+      </div>
+      <?php } ?>
+      <div class="form-group">
+        <input type="submit" value="Report">
+      </div>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-login Manager</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="page">
+  <div class="form-container">
+    <h2>Auto-login Manager</h2>
+    <?php if (!empty($notice)) { echo '<div class="alert">' . htmlspecialchars($notice) . '</div>'; } ?>
+    <form action="/autologin.php" method="post">
+      <input type="hidden" name="action" value="create_by_username">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+      <label for="expires_on">Expires on</label>
+      <input type="date" id="expires_on" name="expires_on" value="<?php echo htmlspecialchars(date('Y-m-d', strtotime('+30 days'))); ?>">
+      <label class="helper-text">
+        <input type="checkbox" name="unlimited_use" checked>
+        Unlimited clicks
+      </label>
+      <input type="submit" value="Generate link by username">
+    </form>
+    <div class="helper-text">Auto-login link is only shown for your own username.</div>
+    <form action="/autologin.php" method="post" style="margin-top: 16px;">
+      <input type="hidden" name="action" value="revoke_by_username">
+      <label for="revoke_username">Username to revoke</label>
+      <input type="text" id="revoke_username" name="username" required>
+      <input type="submit" value="Revoke by username">
+    </form>
+    <?php if (!empty($is_admin)) { ?>
+      <form action="/autologin.php" method="post">
+        <input type="hidden" name="action" value="create">
+        <label for="user_id">User</label>
+        <select id="user_id" name="user_id" required>
+          <?php foreach ($users as $user) { ?>
+            <option value="<?php echo (int)$user['id']; ?>"><?php echo htmlspecialchars($user['username']); ?></option>
+          <?php } ?>
+        </select>
+        <label for="expires_on_admin">Expires on</label>
+        <input type="date" id="expires_on_admin" name="expires_on" value="<?php echo htmlspecialchars(date('Y-m-d', strtotime('+30 days'))); ?>">
+        <label class="helper-text">
+          <input type="checkbox" name="unlimited_use" checked>
+          Unlimited clicks
+        </label>
+        <input type="submit" value="Generate link (admin)">
+      </form>
+    <?php } ?>
+    <?php if (!empty($generated_link)) { ?>
+      <div class="helper-text">
+        Link: <a href="<?php echo htmlspecialchars($generated_link); ?>"><?php echo htmlspecialchars($generated_link); ?></a>
+      </div>
+    <?php } ?>
+  </div>
+
+  <div class="content-container" style="margin-top: 24px;">
+    <h3>Active auto-login records</h3>
+    <?php if (!empty($is_admin) && empty($records)) { ?>
+      <div class="center-text">No auto-login records yet.</div>
+    <?php } else if (!empty($is_admin)) { ?>
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Status</th>
+            <th>Expires on</th>
+            <th>Token</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($records as $entry) {
+            $user_id = (int)$entry['user_id'];
+            $record = $entry['record'];
+            $username = $users_by_id[$user_id] ?? ('User #' . $user_id);
+            $status = $record['status'] ?? '';
+            $expires_on = $record['expires_on'] ?? '';
+            $token = $record['token'] ?? '';
+          ?>
+          <tr>
+            <td><?php echo htmlspecialchars($username); ?></td>
+            <td><?php echo htmlspecialchars($status); ?></td>
+            <td><?php echo htmlspecialchars($expires_on); ?></td>
+            <td class="token-cell"><?php echo htmlspecialchars($token); ?></td>
+            <td>
+              <form action="/autologin.php" method="post">
+                <input type="hidden" name="action" value="revoke">
+                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+                <input type="submit" value="Revoke">
+              </form>
+            </td>
+          </tr>
+          <?php } ?>
+        </tbody>
+      </table>
+    <?php } else { ?>
+      <div class="center-text">Admin list is hidden.</div>
+    <?php } ?>
+  </div>
+</body>
+</html>

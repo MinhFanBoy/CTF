@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superadmin Console</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="page">
+  <div class="form-container">
+    <h2>Superadmin Console</h2>
+    <?php if (!empty($bridge_receipt)) { ?>
+      <div class="helper-text">Archive bridge receipt is attached to this response.</div>
+    <?php } ?>
+    <form action="/dashboard.php" method="post">
+      <label for="filename">Target file</label>
+      <input type="text" id="filename" name="filename" placeholder="read system's file">
+      <button type="submit">Read</button>
+    </form>
+  </div>
+</body>
+</html>

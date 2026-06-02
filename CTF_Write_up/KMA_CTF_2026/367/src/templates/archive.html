@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy Archive Preview</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="page">
+  <div class="form-container">
+    <h2>Legacy Archive Preview</h2>
+    <?php if (!empty($notice)) { ?>
+      <div class="alert"><?php echo htmlspecialchars($notice); ?></div>
+    <?php } ?>
+    <form action="/archive.php" method="get">
+      <label for="ticket">Snapshot ticket</label>
+      <input type="text" id="ticket" name="ticket" value="<?php echo htmlspecialchars($ticket); ?>" required>
+      <button type="submit">Open</button>
+    </form>
+  </div>
+  <div class="content-container" style="margin-top: 24px;">
+    <?php echo $preview_html; ?>
+  </div>
+</body>
+</html>

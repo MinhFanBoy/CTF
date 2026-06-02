@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy Snapshot Search</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="page">
+  <div class="form-container">
+    <h2>Legacy Snapshot Search</h2>
+    <form action="/search.php" method="get">
+      <label for="q">Filter</label>
+      <input type="text" id="q" name="q" value="<?php echo htmlspecialchars($query); ?>" required>
+      <label for="mode">Match field</label>
+      <select id="mode" name="mode">
+        <option value="title" <?php if ($mode === 'title') { echo 'selected'; } ?>>Title</option>
+        <option value="filename" <?php if ($mode === 'filename') { echo 'selected'; } ?>>Filename</option>
+      </select>
+      <label for="sort">Sort</label>
+      <select id="sort" name="sort">
+        <option value="recent" <?php if ($sort === 'recent') { echo 'selected'; } ?>>Snapshot</option>
+        <option value="title" <?php if ($sort === 'title') { echo 'selected'; } ?>>Title</option>
+      </select>
+      <label for="dir">Direction</label>
+      <select id="dir" name="dir">
+        <option value="asc" <?php if ($direction === 'ASC') { echo 'selected'; } ?>>Ascending</option>
+        <option value="desc" <?php if ($direction === 'DESC') { echo 'selected'; } ?>>Descending</option>
+      </select>
+      <button type="submit">Search</button>
+    </form>
+    <?php if (!empty($notice)) { ?>
+      <div class="helper-text"><?php echo htmlspecialchars($notice); ?></div>
+    <?php } ?>
+  </div>
+  <?php if (!empty($documents)) { ?>
+    <div class="content-container" style="margin-top: 24px;">
+      <h3>Public snapshots</h3>
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Snapshot</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($documents as $document) { ?>
+            <tr>
+              <td><?php echo htmlspecialchars($document['title']); ?></td>
+              <td class="token-cell"><?php echo htmlspecialchars($document['filename']); ?></td>
+            </tr>
+          <?php } ?>
+        </tbody>
+      </table>
+    </div>
+  <?php } ?>
+</body>
+</html>
