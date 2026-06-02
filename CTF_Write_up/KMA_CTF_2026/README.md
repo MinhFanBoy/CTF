@@ -1856,3 +1856,4 @@ dashboard.php include /tmp/p.php
 /readflag
 ```
 
+<img width="2559" height="1599" alt="image" src="https://github.com/user-attachments/assets/72832cd6-1143-4272-a6a7-2c9c8f510bf1" />
